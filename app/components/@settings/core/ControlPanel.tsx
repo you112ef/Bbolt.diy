@@ -26,6 +26,7 @@ import CloudProvidersTab from '~/components/@settings/tabs/providers/cloud/Cloud
 import ServiceStatusTab from '~/components/@settings/tabs/providers/status/ServiceStatusTab';
 import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab';
 import McpTab from '~/components/@settings/tabs/mcp/McpTab';
+import AIModelsTab from '~/components/@settings/tabs/ai-models/AIModelsTab';
 
 interface ControlPanelProps {
   open: boolean;
@@ -33,7 +34,7 @@ interface ControlPanelProps {
 }
 
 // Beta status for experimental features
-const BETA_TABS = new Set<TabType>(['service-status', 'local-providers', 'mcp']);
+const BETA_TABS = new Set<TabType>(['service-status', 'local-providers', 'mcp', 'ai-models']);
 
 const BetaLabel = () => (
   <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20">
@@ -134,6 +135,8 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
         return <CloudProvidersTab />;
       case 'local-providers':
         return <LocalProvidersTab />;
+      case 'ai-models':
+        return <AIModelsTab />;
       case 'connection':
         return <ConnectionsTab />;
       case 'event-logs':

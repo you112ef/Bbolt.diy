@@ -10,6 +10,7 @@ export type TabType =
   | 'data'
   | 'cloud-providers'
   | 'local-providers'
+  | 'ai-models'
   | 'service-status'
   | 'connection'
   | 'event-logs'
@@ -70,6 +71,7 @@ export const TAB_LABELS: Record<TabType, string> = {
   data: 'Data Management',
   'cloud-providers': 'Cloud Providers',
   'local-providers': 'Local Providers',
+  'ai-models': 'AI Models',
   'service-status': 'Service Status',
   connection: 'Connections',
   'event-logs': 'Event Logs',

@@ -1,7 +1,7 @@
 import { memo, forwardRef, type ForwardedRef } from 'react';
 import { classNames } from '~/utils/classNames';
 
-type IconSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 interface BaseIconButtonProps {
   size?: IconSize;
@@ -31,7 +31,7 @@ export const IconButton = memo(
     (
       {
         icon,
-        size = 'xl',
+        size = 'md',
         className,
         iconClassName,
         disabledClassName,
@@ -70,8 +70,10 @@ export const IconButton = memo(
 );
 
 function getIconSize(size: IconSize) {
-  if (size === 'sm') {
-    return 'text-sm';
+  if (size === 'xs') {
+    return 'text-xs w-3 h-3';
+  } else if (size === 'sm') {
+    return 'text-sm w-4 h-4';
   } else if (size === 'md') {
     return 'text-md';
   } else if (size === 'lg') {

@@ -9,7 +9,7 @@ export const SettingsButton = memo(({ onClick }: SettingsButtonProps) => {
     <IconButton
       onClick={onClick}
       icon="i-ph:gear"
-      size="xl"
+      size="sm"
       title="Settings"
       data-testid="settings-button"
       className="text-[#666] hover:text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive/10 transition-colors"

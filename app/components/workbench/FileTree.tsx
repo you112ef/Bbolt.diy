@@ -11,7 +11,7 @@ import { path } from '~/utils/path';
 
 const logger = createScopedLogger('FileTree');
 
-const NODE_PADDING_LEFT = 8;
+const NODE_PADDING_LEFT = 6;
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\/\.next/, /\/\.astro/];
 
 interface Props {
@@ -143,7 +143,7 @@ export const FileTree = memo(
     };
 
     return (
-      <div className={classNames('text-sm', className, 'overflow-y-auto modern-scrollbar')}>
+      <div className={classNames('text-xs sm:text-sm', className, 'overflow-y-auto modern-scrollbar')}>
         {filteredFileList.map((fileOrFolder) => {
           switch (fileOrFolder.kind) {
             case 'file': {
@@ -216,7 +216,7 @@ function ContextMenuItem({ onSelect, children }: { onSelect?: () => void; childr
   return (
     <ContextMenu.Item
       onSelect={onSelect}
-      className="flex items-center gap-2 px-2 py-1.5 outline-0 text-sm text-bolt-elements-textPrimary cursor-pointer ws-nowrap text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive rounded-md"
+      className="flex items-center gap-1 px-1 py-1 outline-0 text-xs sm:text-sm text-bolt-elements-textPrimary cursor-pointer ws-nowrap text-bolt-elements-item-contentDefault hover:text-bolt-elements-item-contentActive hover:bg-bolt-elements-item-backgroundActive rounded-md"
     >
       <span className="size-4 shrink-0"></span>
       <span>{children}</span>

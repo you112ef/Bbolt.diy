@@ -213,10 +213,10 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
           >
             <div
               className={classNames(
-                'w-[1200px] h-[90vh]',
+                'w-full max-w-xs sm:max-w-md md:max-w-4xl lg:max-w-6xl h-[90vh] max-h-screen mx-2',
                 'bg-bolt-elements-background-depth-1',
-                'rounded-2xl shadow-2xl',
-                'border border-bolt-elements-borderColor',
+                'rounded-md shadow-2xl',
+                'border border-[0.5px] border-bolt-elements-borderColor',
                 'flex flex-col overflow-hidden',
                 'relative',
                 'transform transition-all duration-200 ease-out',
@@ -228,17 +228,17 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
               </div>
               <div className="relative z-10 flex flex-col h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-[0.5px] border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center gap-2">
                     {(activeTab || showTabManagement) && (
                       <button
                         onClick={handleBack}
-                        className="flex items-center justify-center w-8 h-8 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-colors duration-150"
+                        className="flex items-center justify-center w-6 h-6 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-colors duration-150"
                       >
                         <div className="i-ph:arrow-left w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
                       </button>
                     )}
-                    <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white">
+                    <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-white">
                       {showTabManagement ? 'Tab Management' : activeTab ? TAB_LABELS[activeTab] : 'Control Panel'}
                     </DialogTitle>
                   </div>
@@ -252,7 +252,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     {/* Close Button */}
                     <button
                       onClick={handleClose}
-                      className="flex items-center justify-center w-8 h-8 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-all duration-200"
+                      className="flex items-center justify-center w-6 h-6 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-all duration-200"
                     >
                       <div className="i-ph:x w-4 h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
                     </button>
@@ -275,14 +275,14 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                 >
                   <div
                     className={classNames(
-                      'p-6 transition-opacity duration-150',
+                      'p-3 transition-opacity duration-150',
                       activeTab || showTabManagement ? 'opacity-100' : 'opacity-100',
                     )}
                   >
                     {activeTab ? (
                       getTabComponent(activeTab)
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 relative">
                         {visibleTabs.map((tab, index) => (
                           <div
                             key={tab.id}

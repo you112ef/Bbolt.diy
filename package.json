@@ -38,7 +38,12 @@
     "electron:build:mac": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mac",
     "electron:build:win": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --win",
     "electron:build:linux": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --linux",
-    "electron:build:dist": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl"
+    "electron:build:dist": "rm -rf dist && pnpm electron:build:renderer && pnpm electron:build:deps && electron-builder --mwl",
+    "expo:export": "expo export",
+    "expo:dev": "expo start",
+    "eas:build:android": "eas build -p android",
+    "eas:build:ios": "eas build -p ios",
+    "eas:build:all": "eas build -p all"
   },
   "engines": {
     "node": ">=18.18.0"
@@ -177,6 +182,8 @@
     "@types/react-dom": "^18.3.1",
     "@types/react-window": "^1.8.8",
     "@vitejs/plugin-react": "^4.3.4",
+    "@expo/cli": "^0.24.20",
+    "eas-cli": "^13.2.9",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.1",

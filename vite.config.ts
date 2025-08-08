@@ -12,20 +12,60 @@ export default defineConfig((config) => {
   return {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'global': 'globalThis',
     },
     build: {
       target: 'esnext',
+      sourcemap: false, // Disable sourcemaps to reduce memory usage for Cloudflare
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        external: [],
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              if (id.includes('@codemirror')) {
+                return 'codemirror';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'radix';
+              }
+              if (id.includes('ai-sdk') || id.includes('@ai-sdk')) {
+                return 'ai-vendor';
+              }
+              return 'vendor';
+            }
+          },
+          // Optimize for Cloudflare Workers runtime
+          format: 'es',
+          exports: 'named',
+        },
+      },
+    },
+    ssr: {
+      noExternal: ['@nanostores/react', 'nanostores'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+      exclude: [],
+      force: true,
+    },
+    resolve: {
+      dedupe: ['react', 'react-dom'],
     },
     plugins: [
       nodePolyfills({
-        include: ['buffer', 'process', 'util', 'stream'],
+        include: ['buffer', 'process', 'util', 'stream', 'path'],
         globals: {
           Buffer: true,
           process: true,
           global: true,
         },
         protocolImports: true,
-        exclude: ['child_process', 'fs', 'path'],
+        exclude: ['child_process', 'fs'],
       }),
       {
         name: 'buffer-polyfill',
@@ -40,7 +80,8 @@ export default defineConfig((config) => {
           return null;
         },
       },
-      config.mode !== 'test' && remixCloudflareDevProxy(),
+      // Enable cloudflare dev proxy for better local development
+      config.mode !== 'test' && config.mode !== 'production' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,

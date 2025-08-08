@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E90FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00BFFF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Y letter -->
+  <path d="M50 60 L100 120 L150 60 L130 60 L100 95 L70 60 Z" fill="url(#iconGradient)"/>
+  
+  <!-- Lightning bolt -->
+  <path d="M120 100 L105 125 L115 125 L100 150 L120 125 L110 125 L120 100 Z" fill="#1E90FF"/>
+  
+  <!-- S letter path -->
+  <path d="M130 130 Q150 120 170 130 Q190 140 170 160 Q150 170 130 160 Q110 150 130 130 Z" fill="url(#iconGradient)"/>
+  <path d="M130 160 Q110 170 130 180 Q150 190 170 180 Q190 170 170 190 Q150 200 130 190 Q110 180 130 160 Z" fill="url(#iconGradient)"/>
+</svg>

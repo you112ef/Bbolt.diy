@@ -8,6 +8,40 @@ declare global {
   }
 }
 
+// Minimal interface to avoid depending on the real BroadcastChannel in non-browser envs
+interface BroadcastChannelLike {
+  postMessage(message: unknown): void;
+  close(): void;
+  onmessage: ((event: MessageEvent) => void) | null;
+}
+
+function createBroadcastChannel(name: string): BroadcastChannelLike {
+  const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+
+  if (isBrowser) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new (window as any).BroadcastChannel(name) as BroadcastChannelLike;
+  }
+
+  // No-op shim for SSR/Workers
+  let handler: ((event: MessageEvent) => void) | null = null;
+
+  return {
+    postMessage: (_message: unknown) => {
+      // no-op on server/worker
+    },
+    close: () => {
+      handler = null;
+    },
+    get onmessage() {
+      return handler;
+    },
+    set onmessage(value: ((event: MessageEvent) => void) | null) {
+      handler = value;
+    },
+  } as BroadcastChannelLike;
+}
+
 export interface PreviewInfo {
   port: number;
   ready: boolean;
@@ -20,26 +54,26 @@ const PREVIEW_CHANNEL = 'preview-updates';
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
   #webcontainer: Promise<WebContainer>;
-  #broadcastChannel: BroadcastChannel;
+  #broadcastChannel: BroadcastChannelLike;
   #lastUpdate = new Map<string, number>();
   #watchedFiles = new Set<string>();
   #refreshTimeouts = new Map<string, NodeJS.Timeout>();
   #REFRESH_DELAY = 300;
-  #storageChannel: BroadcastChannel;
+  #storageChannel: BroadcastChannelLike;
 
   previews = atom<PreviewInfo[]>([]);
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
-    this.#broadcastChannel = new BroadcastChannel(PREVIEW_CHANNEL);
-    this.#storageChannel = new BroadcastChannel('storage-sync-channel');
+    this.#broadcastChannel = createBroadcastChannel(PREVIEW_CHANNEL);
+    this.#storageChannel = createBroadcastChannel('storage-sync-channel');
 
     // Listen for preview updates from other tabs
     this.#broadcastChannel.onmessage = (event) => {
-      const { type, previewId } = event.data;
+      const { type, previewId } = (event as MessageEvent & { data: any }).data;
 
       if (type === 'file-change') {
-        const timestamp = event.data.timestamp;
+        const timestamp = (event as MessageEvent & { data: any }).data.timestamp as number;
         const lastUpdate = this.#lastUpdate.get(previewId) || 0;
 
         if (timestamp > lastUpdate) {
@@ -51,7 +85,10 @@ export class PreviewsStore {
 
     // Listen for storage sync messages
     this.#storageChannel.onmessage = (event) => {
-      const { storage, source } = event.data;
+      const { storage, source } = (event as MessageEvent & { data: any }).data as {
+        storage: Record<string, string>;
+        source?: string;
+      };
 
       if (storage && source !== this._getTabId()) {
         this._syncStorage(storage);
@@ -59,11 +96,12 @@ export class PreviewsStore {
     };
 
     // Override localStorage setItem to catch all changes
-    if (typeof window !== 'undefined') {
-      const originalSetItem = localStorage.setItem;
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const originalSetItem = localStorage.setItem.bind(localStorage);
 
-      localStorage.setItem = (...args) => {
-        originalSetItem.apply(localStorage, args);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (localStorage as any).setItem = (...args: [string, string]) => {
+        originalSetItem(...args);
         this._broadcastStorageSync();
       };
     }
@@ -119,7 +157,7 @@ export class PreviewsStore {
 
   // Broadcast storage state to other tabs
   private _broadcastStorageSync() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const storage: Record<string, string> = {};
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -143,7 +181,10 @@ export class PreviewsStore {
     const webcontainer = await this.#webcontainer;
 
     // Listen for server ready events
-    webcontainer.on('server-ready', (port, url) => {
+    // Note: This callback only runs in the browser where WebContainer is available
+    // and is a no-op in SSR due to the promise never resolving there.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (webcontainer as unknown as { on?: Function }).on?.('server-ready', (port: number, url: string) => {
       console.log('[Preview] Server ready on port:', port, url);
       this.broadcastUpdate(url);
 
@@ -152,7 +193,7 @@ export class PreviewsStore {
     });
 
     // Listen for port events
-    webcontainer.on('port', (port, type, url) => {
+    (webcontainer as unknown as { on?: Function }).on?.('port', (port: number, type: 'open' | 'close', url: string) => {
       let previewInfo = this.#availablePreviews.get(port);
 
       if (type === 'close' && previewInfo) {

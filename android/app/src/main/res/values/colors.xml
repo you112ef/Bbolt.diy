@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary">#6366f1</color>
+    <color name="primary_dark">#4f46e5</color>
+    <color name="primary_light">#8b5cf6</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent">#f59e0b</color>
+    <color name="accent_dark">#d97706</color>
+    
+    <!-- Background Colors -->
+    <color name="background">#1a1a1a</color>
+    <color name="background_secondary">#2d2d2d</color>
+    <color name="surface">#333333</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#ffffff</color>
+    <color name="text_secondary">#cccccc</color>
+    <color name="text_hint">#888888</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#10b981</color>
+    <color name="warning">#f59e0b</color>
+    <color name="error">#ef4444</color>
+    <color name="info">#3b82f6</color>
+    
+    <!-- System Colors -->
+    <color name="status_bar">#1a1a1a</color>
+    <color name="navigation_bar">#1a1a1a</color>
+    
+    <!-- Splash Screen -->
+    <color name="splash_background">#1a1a1a</color>
+    
+    <!-- Legacy Support -->
+    <color name="colorPrimary">@color/primary</color>
+    <color name="colorPrimaryDark">@color/primary_dark</color>
+    <color name="colorAccent">@color/accent</color>
+</resources>

@@ -4,6 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const PREVIEW_CHANNEL = 'preview-updates';
 
+function createChannel(name: string) {
+  const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+  if (isBrowser) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new (window as any).BroadcastChannel(name) as BroadcastChannel;
+  }
+  return null;
+}
+
 export async function loader({ params }: LoaderFunctionArgs) {
   const previewId = params.id;
 
@@ -17,7 +26,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export default function WebContainerPreview() {
   const { previewId } = useLoaderData<typeof loader>();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const broadcastChannelRef = useRef<BroadcastChannel>();
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
   // Handle preview refresh
@@ -47,16 +56,19 @@ export default function WebContainerPreview() {
 
   useEffect(() => {
     // Initialize broadcast channel
-    broadcastChannelRef.current = new BroadcastChannel(PREVIEW_CHANNEL);
+    broadcastChannelRef.current = createChannel(PREVIEW_CHANNEL);
 
     // Listen for preview updates
-    broadcastChannelRef.current.onmessage = (event) => {
-      if (event.data.previewId === previewId) {
-        if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
-          handleRefresh();
+    if (broadcastChannelRef.current) {
+      broadcastChannelRef.current.onmessage = (event) => {
+        if ((event as MessageEvent & { data: any }).data.previewId === previewId) {
+          const type = (event as MessageEvent & { data: any }).data.type as string;
+          if (type === 'refresh-preview' || type === 'file-change') {
+            handleRefresh();
+          }
         }
-      }
-    };
+      };
+    }
 
     // Construct the WebContainer preview URL
     const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;
@@ -72,7 +84,7 @@ export default function WebContainerPreview() {
 
     // Cleanup
     return () => {
-      broadcastChannelRef.current?.close();
+      broadcastChannelRef.current?.close?.();
     };
   }, [previewId, handleRefresh, notifyPreviewReady]);
 

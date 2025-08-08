@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include user data -->
+    <include domain="sharedpref" path="." />
+    <include domain="database" path="." />
+    <include domain="file" path="projects/" />
+    <include domain="file" path="user_data/" />
+    
+    <!-- Exclude sensitive data -->
+    <exclude domain="file" path="ai_models/" />
+    <exclude domain="file" path="cache/" />
+    <exclude domain="file" path="temp/" />
+    <exclude domain="sharedpref" path="api_keys.xml" />
+    <exclude domain="sharedpref" path="auth_tokens.xml" />
+    
+    <!-- Exclude large files -->
+    <exclude domain="file" path="downloads/" />
+    <exclude domain="external" path="." />
+</full-backup-content>

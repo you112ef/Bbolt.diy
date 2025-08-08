@@ -22,6 +22,7 @@ export const links: LinksFunction = () => [
     href: '/favicon.svg',
     type: 'image/svg+xml',
   },
+  { rel: 'preload', as: 'image', href: '/logo.svg', fetchPriority: 'high' as any },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -42,17 +43,27 @@ export const links: LinksFunction = () => [
 ];
 
 const inlineThemeCode = stripIndents`
-  setTutorialKitTheme();
-
-  function setTutorialKitTheme() {
-    let theme = localStorage.getItem('bolt_theme');
-
-    if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Immediately set theme before React hydration to prevent flashing
+  (function() {
+    try {
+      let theme = localStorage.getItem('bolt_theme');
+      
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        localStorage.setItem('bolt_theme', theme);
+      }
+      
+      const html = document.documentElement;
+      html.setAttribute('data-theme', theme);
+      
+      // Ensure the theme class is added immediately
+      html.classList.add('theme-' + theme);
+    } catch (e) {
+      // Fallback to light theme if there's any error
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.classList.add('theme-light');
     }
-
-    document.querySelector('html')?.setAttribute('data-theme', theme);
-  }
+  })();
 `;
 
 export const Head = createHead(() => (
@@ -61,20 +72,31 @@ export const Head = createHead(() => (
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Meta />
     <Links />
+
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
   </>
 ));
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const theme = useStore(themeStore);
-
   useEffect(() => {
-    document.querySelector('html')?.setAttribute('data-theme', theme);
-  }, [theme]);
+    // Subscribe to theme changes after initial hydration
+    const unsubscribe = themeStore.subscribe((newTheme) => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme !== newTheme) {
+        document.documentElement.setAttribute('data-theme', newTheme);
+        document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
+        document.documentElement.classList.add('theme-' + newTheme);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <>
-      <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
+      <DndProvider backend={HTML5Backend}>
+        {children}
+      </DndProvider>
       <ScrollRestoration />
       <Scripts />
     </>
@@ -84,11 +106,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
-  const theme = useStore(themeStore);
-
   useEffect(() => {
+    // Initialize logging without reading theme immediately to prevent hydration mismatch
+    const currentTheme = themeStore.get();
     logStore.logSystem('Application initialized', {
-      theme,
+      theme: currentTheme,
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),

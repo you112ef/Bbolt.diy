@@ -6,6 +6,22 @@ import { useMCPStore } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
 import { useSettingsStore } from '~/lib/stores/settings';
 
+// Timeout helper to avoid long-hanging operations
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: number | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`));
+    }, ms) as unknown as number;
+  });
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+    }
+  }) as Promise<T>;
+}
+
 export function McpTools() {
   const isInitialized = useMCPStore((state) => state.isInitialized);
   const serverTools = useMCPStore((state) => state.serverTools);
@@ -23,16 +39,19 @@ export function McpTools() {
   const [isBooting, setIsBooting] = useState(false);
 
   useEffect(() => {
-    // No-op: defer initialization to dialog open for better UX
+    // No eager initialization; initialize on open
   }, []);
 
   const checkServerAvailability = async () => {
     setIsCheckingServers(true);
     setError(null);
+    console.debug('[MCP Tools] Checking servers availability...');
 
     try {
-      await checkServersAvailabilities();
+      await withTimeout(checkServersAvailabilities(), 10_000, 'checkServersAvailabilities');
+      console.debug('[MCP Tools] Servers availability check completed');
     } catch (e) {
+      console.error('[MCP Tools] Failed to check server availability:', e);
       setError(`Failed to check server availability: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setIsCheckingServers(false);
@@ -49,19 +68,29 @@ export function McpTools() {
       try {
         // Ensure store is initialized when opening
         if (!isInitialized) {
+          console.debug('[MCP Tools] Initializing MCP store...');
           setIsBooting(true);
-          await initialize();
-          setIsBooting(false);
+          await withTimeout(initialize(), 10_000, 'initialize');
+          console.debug('[MCP Tools] MCP store initialized');
         }
         // If there are configured servers, auto-check availability
         const hasServers = Object.keys(settings?.mcpConfig?.mcpServers || {}).length > 0;
         if (hasServers) {
           await checkServerAvailability();
+        } else {
+          console.debug('[MCP Tools] No MCP servers configured; skipping availability check');
         }
       } catch (e) {
-        setIsBooting(false);
+        console.error('[MCP Tools] Initialization failed:', e);
         setError(`Initialization failed: ${e instanceof Error ? e.message : String(e)}`);
+      } finally {
+        setIsBooting(false);
       }
+    } else {
+      // Reset transient UI state when dialog closes
+      setIsCheckingServers(false);
+      setExpandedServer(null);
+      setError(null);
     }
   };
 
@@ -82,7 +111,7 @@ export function McpTools() {
           title="MCP Tools"
           className="transition-all"
         >
-          {!isInitialized || isBooting ? (
+          {isBooting ? (
             <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
           ) : (
             <div className="i-bolt:mcp text-xl"></div>

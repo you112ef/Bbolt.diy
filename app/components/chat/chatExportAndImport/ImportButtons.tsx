@@ -67,7 +67,7 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
             variant="default"
             size="lg"
             className={classNames(
-              'gap-2 bg-bolt-elements-background-depth-1',
+              'gap-2 bg-transparent',
               'text-bolt-elements-textPrimary',
               'hover:bg-bolt-elements-background-depth-2',
               'border border-bolt-elements-borderColor',
@@ -81,7 +81,7 @@ export function ImportButtons(importChat: ((description: string, messages: Messa
           <ImportFolderButton
             importChat={importChat}
             className={classNames(
-              'gap-2 bg-bolt-elements-background-depth-1',
+              'gap-2 bg-transparent',
               'text-bolt-elements-textPrimary',
               'hover:bg-bolt-elements-background-depth-2',
               'border border-[rgba(0,0,0,0.08)] dark:border-[rgba(255,255,255,0.08)]',

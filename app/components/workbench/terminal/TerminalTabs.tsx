@@ -148,8 +148,8 @@ export const TerminalTabs = memo(() => {
                       )}
                       onClick={() => setActiveTerminal(index)}
                     >
-                      <div className="i-ph:terminal-window-duotone text-lg" />
-                      Bolt Terminal
+                                             <div className="i-ph:terminal-window-duotone text-base" />
+                       Bolt Terminal
                     </button>
                   ) : (
                     <React.Fragment>
@@ -165,8 +165,8 @@ export const TerminalTabs = memo(() => {
                         )}
                         onClick={() => setActiveTerminal(index)}
                       >
-                        <div className="i-ph:terminal-window-duotone text-lg" />
-                        Terminal {terminalCount > 1 && index}
+                                                 <div className="i-ph:terminal-window-duotone text-base" />
+                         Terminal {terminalCount > 1 && index}
                         <button
                           className="bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary hover:bg-transparent rounded"
                           onClick={(e) => {

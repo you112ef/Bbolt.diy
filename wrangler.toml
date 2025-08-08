@@ -3,7 +3,6 @@ name = "yousef-shtiwe-ai"
 compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-01-15"
 pages_build_output_dir = "./build/client"
-compatibility_flags = ["nodejs_compat"]
 send_metrics = false
 
 # Environment variables (these should be set in Cloudflare dashboard)

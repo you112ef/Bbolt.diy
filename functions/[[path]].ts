@@ -2,24 +2,12 @@ import type { ServerBuild } from '@remix-run/cloudflare';
 import { createPagesFunctionHandler } from '@remix-run/cloudflare-pages';
 import type { AppLoadContext } from '@remix-run/cloudflare';
 
-// Type definitions for Cloudflare Pages Functions
-interface Env {
-  [key: string]: any;
-}
-
-type PagesFunction<Env = unknown> = (
-  context: {
-    request: Request;
-    env: Env;
-    params: Record<string, string>;
-    waitUntil: (promise: Promise<any>) => void;
-    next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
-    data: Record<string, unknown>;
-  }
-) => Response | Promise<Response>;
+// Minimal context typing to stay compatible with Pages runtime
+type AnyEnv = Record<string, unknown>;
+type PagesFn = (context: any) => Response | Promise<Response>;
 
 // Enhanced error handling and context setup for Cloudflare Pages
-export const onRequest: PagesFunction<Env> = async (context) => {
+export const onRequest: PagesFn = async (context: any) => {
   try {
     // Import the server build dynamically
     const serverBuild = (await import('../build/server')) as unknown as ServerBuild;
@@ -28,13 +16,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const getLoadContext = (): AppLoadContext => {
       return {
         cloudflare: {
-          cf: context.request.cf,
+          cf: context.request?.cf,
           ctx: {
-            waitUntil: context.waitUntil,
+            waitUntil: context.waitUntil?.bind?.(context) || (() => {}),
             passThroughOnException: () => {},
           },
-          caches,
-          env: context.env,
+          caches: (globalThis as any).caches,
+          env: (context as any).env as AnyEnv,
         },
       };
     };
@@ -47,7 +35,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     });
 
     // Execute the handler with the context
-    const response = await handler(context);
+    const response = await handler(context as any);
     
     // Add CORS headers for API routes
     if (context.request.url.includes('/api/')) {

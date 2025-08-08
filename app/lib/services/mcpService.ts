@@ -162,7 +162,18 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
-    this._config = config;
+    // Filter out stdio servers in unsupported environments to avoid runtime errors
+    if (stdioUnsupported()) {
+      const filtered: MCPConfig = { mcpServers: {} };
+      for (const [name, cfg] of Object.entries(config?.mcpServers || {})) {
+        if ((cfg as any).type !== 'stdio' && (cfg as any).command === undefined) {
+          filtered.mcpServers[name] = cfg as any;
+        }
+      }
+      this._config = filtered;
+    } else {
+      this._config = config;
+    }
     await this._createClients();
 
     return this._mcpToolsPerServer;

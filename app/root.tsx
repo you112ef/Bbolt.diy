@@ -22,6 +22,9 @@ export const links: LinksFunction = () => [
     href: '/favicon.svg',
     type: 'image/svg+xml',
   },
+  { rel: 'icon', href: '/favicon.png', type: 'image/png' },
+  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+  { rel: 'manifest', href: '/site.webmanifest' },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -59,6 +62,10 @@ export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#7C3AED" />
     <Meta />
     <Links />
 

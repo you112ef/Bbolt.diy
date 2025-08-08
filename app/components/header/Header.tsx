@@ -16,11 +16,11 @@ export function Header() {
       })}
     >
       <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div className="i-ph:sidebar-simple-duotone text-lg" />
+        <div className="i-ph:sidebar-simple-duotone text-2xl" />
         <a href="/" className="text-xl font-semibold text-accent flex items-center">
           {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
-          <img src="/logo-light-styled.png" alt="logo" className="w-[80px] inline-block dark:hidden" />
-          <img src="/logo-dark-styled.png" alt="logo" className="w-[80px] inline-block hidden dark:block" />
+          <img src="/logo-light-styled.png" alt="logo" className="h-8 w-auto inline-block dark:hidden" />
+          <img src="/logo-dark-styled.png" alt="logo" className="h-8 w-auto inline-block hidden dark:block" />
         </a>
       </div>
       {chat.started && (

@@ -11,14 +11,13 @@ const initializeTransformers = async () => {
   if (transformersLib) return transformersLib;
   
   try {
-    // Dynamic import to avoid bundling issues
-    const { pipeline, env } = await import('@xenova/transformers');
-    
-    // Configure for local execution
-    env.allowLocalModels = true;
-    env.allowRemoteModels = false;
-    
-    transformersLib = { pipeline, env };
+    // TODO: Implement transformers.js integration
+    // For now, return a mock implementation
+    console.warn('Transformers.js not available - using mock implementation');
+    transformersLib = {
+      pipeline: null,
+      env: { allowLocalModels: true, allowRemoteModels: false }
+    };
     return transformersLib;
   } catch (error) {
     console.error('Failed to initialize transformers.js:', error);
@@ -61,11 +60,16 @@ export class LocalAIManager {
           
         default:
           // Use transformers.js for other formats
-          const { pipeline: createPipeline } = transformersLib;
-          pipeline = await createPipeline('text-generation', modelConfig.modelPath || modelConfig.name, {
-            local_files_only: true,
-            dtype: 'fp16',
-          });
+          if (transformersLib.pipeline) {
+            const { pipeline: createPipeline } = transformersLib;
+            pipeline = await createPipeline('text-generation', modelConfig.modelPath || modelConfig.name, {
+              local_files_only: true,
+              dtype: 'fp16',
+            });
+          } else {
+            // Fallback to mock implementation
+            pipeline = await this.loadMockModel(modelConfig);
+          }
           break;
       }
 
@@ -87,6 +91,16 @@ export class LocalAIManager {
       generate: async (prompt: string, options: any) => {
         await new Promise(resolve => setTimeout(resolve, 1000));
         return `Generated response for: ${prompt.substring(0, 50)}...`;
+      }
+    };
+  }
+
+  private async loadMockModel(modelConfig: AIModel): Promise<any> {
+    // Mock implementation for when transformers.js is not available
+    return {
+      generate: async (prompt: string, options: any) => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return `[Mock AI] Generated response for: ${prompt.substring(0, 50)}...`;
       }
     };
   }

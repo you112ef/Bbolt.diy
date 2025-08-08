@@ -323,15 +323,17 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-    element.addEventListener('touchstart', (e: TouchEvent) => {
-      startY = e.touches[0].clientY;
+    element.addEventListener('touchstart', (e: Event) => {
+      const touchEvent = e as TouchEvent;
+      startY = touchEvent.touches[0].clientY;
       isPulling = element.scrollTop === 0;
     });
 
-    element.addEventListener('touchmove', (e: TouchEvent) => {
+    element.addEventListener('touchmove', (e: Event) => {
+      const touchEvent = e as TouchEvent;
       if (!isPulling) return;
 
-      currentY = e.touches[0].clientY;
+      currentY = touchEvent.touches[0].clientY;
       const deltaY = currentY - startY;
 
       if (deltaY > 0 && deltaY < 100) {
@@ -381,8 +383,8 @@ export function optimizeForTouch(): void {
   document.body.style.userSelect = 'none';
 
   // Optimize scrolling
-  document.body.style.webkitOverflowScrolling = 'touch';
-  document.body.style.overflowScrolling = 'touch';
+  (document.body.style as any).webkitOverflowScrolling = 'touch';
+  (document.body.style as any).overflowScrolling = 'touch';
 
   // Add safe area CSS variables
   document.documentElement.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top)');

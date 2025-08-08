@@ -10,22 +10,31 @@ export function Header() {
 
   return (
     <header
-      className={classNames('flex items-center px-4 border-b h-[var(--header-height)]', {
-        'border-transparent': !chat.started,
-        'border-bolt-elements-borderColor': chat.started,
-      })}
+      className={classNames(
+        'enhanced-header flex items-center px-4 border-b h-[var(--header-height)]',
+        'bolt-glass backdrop-blur-md',
+        {
+          'border-transparent bg-transparent': !chat.started,
+          'border-bolt-elements-borderColor bg-bolt-elements-background-depth-1/80': chat.started,
+        }
+      )}
     >
-      <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer">
-        <div className="i-ph:sidebar-simple-duotone text-xl" />
-        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
-          {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
-          <img src="/logo-light-styled.png" alt="logo" className="w-[90px] inline-block dark:hidden" />
-          <img src="/logo-dark-styled.png" alt="logo" className="w-[90px] inline-block hidden dark:block" />
+      <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer enhanced-header">
+        <div className="i-ph:sidebar-simple-duotone text-lg opacity-70 hover:opacity-100 transition-opacity" />
+        <a href="/" className="header-title text-accent flex items-center hover:opacity-90 transition-opacity">
+          {/* Switched to SVG for better performance and scalability */}
+          <img
+            src="/logo.svg"
+            alt="YOUSEF.SHTIWE AI"
+            className="h-10 md:h-12 lg:h-14 inline-block opacity-90"
+            fetchPriority="high"
+            decoding="async"
+          />
         </a>
       </div>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
         <>
-          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
+          <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary bolt-text-sm opacity-80">
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
           </span>
           <ClientOnly>

@@ -16,7 +16,17 @@ export const DEFAULT_TERMINAL_SIZE = 25;
 
 export const TerminalTabs = memo(() => {
   const showTerminal = useStore(workbenchStore.showTerminal);
-  const theme = useStore(themeStore);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  
+  useEffect(() => {
+    // Initialize theme after hydration
+    const currentTheme = document.documentElement?.getAttribute('data-theme') as 'light' | 'dark' || themeStore.get();
+    setTheme(currentTheme);
+    
+    // Subscribe to theme changes
+    const unsubscribe = themeStore.subscribe(setTheme);
+    return unsubscribe;
+  }, []);
 
   const terminalRefs = useRef<Array<TerminalRef | null>>([]);
   const terminalPanelRef = useRef<ImperativePanelHandle>(null);

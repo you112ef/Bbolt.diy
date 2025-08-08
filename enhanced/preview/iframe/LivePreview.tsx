@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
-import { filesStore } from '~/lib/stores/files';
+import { FilesStore } from '~/lib/stores/files';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Badge } from '~/components/ui/Badge';
@@ -126,7 +126,7 @@ const createPreviewHTML = (files: FileMap): string => {
 <body>
     <div class="container">
         <h1>🚀 Live Preview</h1>
-        <p>Your enhanced Bolt.diy environment is ready!</p>
+        <p>Your enhanced YOUSEF.SHTIWE environment is ready!</p>
         <p>Create an <code>index.html</code> file to see your project preview here.</p>
         
         <div class="files-list">

@@ -3,7 +3,6 @@ import { classNames } from '~/utils/classNames';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   touchOptimized?: boolean;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   autoComplete?: string;
   inputMode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
 }
@@ -46,7 +45,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         'ring-offset-bolt-elements-background file:border-0 file:bg-transparent file:text-xs sm:file:text-sm file:font-medium placeholder:text-bolt-elements-textSecondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bolt-elements-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
         'transition-all duration-200 focus:border-bolt-elements-focus',
         'touch-action-manipulation',
-        touchOptimized && isMobile && 'min-h-[44px] text-[16px]', // Prevent zoom on iOS
+        touchOptimized && isMobile ? 'min-h-[44px] text-[16px]' : '', // Prevent zoom on iOS
         className,
       )}
       style={{

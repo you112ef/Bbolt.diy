@@ -1,6 +1,13 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "bolt"
+name = "yousef-shtiwe-ai"
 compatibility_flags = ["nodejs_compat"]
-compatibility_date = "2025-03-28"
+compatibility_date = "2025-01-15"
 pages_build_output_dir = "./build/client"
 send_metrics = false
+
+# Environment variables (these should be set in Cloudflare dashboard)
+[env.production.vars]
+NODE_ENV = "production"
+
+[env.preview.vars]
+NODE_ENV = "development"

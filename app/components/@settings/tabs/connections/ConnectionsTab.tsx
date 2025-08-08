@@ -16,6 +16,10 @@ const CloudflareConnection = React.lazy(() => import('./CloudflareConnection'));
 const HerokuConnection = React.lazy(() => import('./HerokuConnection'));
 const DockerHubConnection = React.lazy(() => import('./DockerHubConnection'));
 const MongoDBConnection = React.lazy(() => import('./MongoDBConnection'));
+const RedisConnection = React.lazy(() => import('./RedisConnection'));
+const StripeConnection = React.lazy(() => import('./StripeConnection'));
+const SendGridConnection = React.lazy(() => import('./SendGridConnection'));
+const TwilioConnection = React.lazy(() => import('./TwilioConnection'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -40,6 +44,8 @@ export default function ConnectionsTab() {
     { id: 'analytics', name: 'Analytics', icon: 'i-ph:chart-bar' },
     { id: 'auth', name: 'Authentication', icon: 'i-ph:shield-check' },
     { id: 'monitoring', name: 'Monitoring', icon: 'i-ph:eye' },
+    { id: 'payment', name: 'Payment', icon: 'i-ph:credit-card' },
+    { id: 'communication', name: 'Communication', icon: 'i-ph:chat-text' },
   ];
 
   const connections = [
@@ -48,12 +54,16 @@ export default function ConnectionsTab() {
     { component: VercelConnection, category: 'deployment', priority: 3 },
     { component: RailwayConnection, category: 'deployment', priority: 4 },
     { component: HerokuConnection, category: 'deployment', priority: 5 },
+    { component: DockerHubConnection, category: 'deployment', priority: 6 },
     { component: SupabaseConnection, category: 'database', priority: 1 },
     { component: PlanetScaleConnection, category: 'database', priority: 2 },
     { component: MongoDBConnection, category: 'database', priority: 3 },
+    { component: RedisConnection, category: 'database', priority: 4 },
     { component: FirebaseConnection, category: 'auth', priority: 1 },
     { component: CloudflareConnection, category: 'analytics', priority: 1 },
-    { component: DockerHubConnection, category: 'deployment', priority: 6 },
+    { component: StripeConnection, category: 'payment', priority: 1 },
+    { component: SendGridConnection, category: 'communication', priority: 1 },
+    { component: TwilioConnection, category: 'communication', priority: 2 },
   ];
 
   const filteredConnections = activeCategory === 'all' 
@@ -172,6 +182,9 @@ export default function ConnectionsTab() {
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_MONGODB_CONNECTION_STRING=your_mongodb_string
                 </div>
+                <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+                  VITE_REDIS_URL=your_redis_url
+                </div>
                 
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Firebase Configuration
@@ -191,6 +204,26 @@ export default function ConnectionsTab() {
                 </div>
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_CLOUDFLARE_ZONE_ID=your_zone_id
+                </div>
+                
+                <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
+                  # Payment Services
+                </div>
+                <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+                  VITE_STRIPE_SECRET_KEY=your_stripe_secret_key
+                </div>
+                
+                <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
+                  # Communication Services
+                </div>
+                <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+                  VITE_SENDGRID_API_KEY=your_sendgrid_api_key
+                </div>
+                <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+                  VITE_TWILIO_ACCOUNT_SID=your_twilio_account_sid
+                </div>
+                <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
+                  VITE_TWILIO_AUTH_TOKEN=your_twilio_auth_token
                 </div>
               </div>
               <div className="mt-3 text-xs text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary space-y-1">
@@ -313,8 +346,17 @@ export default function ConnectionsTab() {
                 <li>Supabase: 500MB database, 1GB storage</li>
                 <li>PlanetScale: 5GB storage, 1 billion reads</li>
                 <li>MongoDB Atlas: 512MB storage</li>
+                <li>Redis Cloud: 30MB storage</li>
                 <li>Firebase: 1GB storage, 125K reads/day</li>
                 <li>Cloudflare: 100K requests/day</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Payment & Communication:</p>
+              <ul className="list-disc list-inside pl-2 space-y-0.5">
+                <li>Stripe: No monthly fees, pay per transaction</li>
+                <li>SendGrid: 100 emails/day free forever</li>
+                <li>Twilio: $15.50 free trial credit</li>
               </ul>
             </div>
           </div>

@@ -2,7 +2,7 @@
 // These are real working MCP servers that provide actual functionality
 
 export interface MCPTool {
-  type: "stdio" | "sse" | "http";
+  type: "stdio" | "sse" | "streamable-http";
   command: string;
   args: string[];
   description: string;

@@ -20,7 +20,7 @@ interface MCPToolsManagerProps {
 
 interface ToolConfigState {
   name: string;
-  type: "stdio" | "sse" | "http";
+  type: "stdio" | "sse" | "streamable-http";
   command: string;
   args: string[];
   description: string;

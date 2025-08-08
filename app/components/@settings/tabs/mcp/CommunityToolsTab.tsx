@@ -18,7 +18,7 @@ interface CommunityToolConfig {
   description: string;
   category: string;
   enabled: boolean;
-  type: "stdio" | "sse" | "http";
+  type: "stdio" | "sse" | "streamable-http";
   command: string;
   args: string[];
   envVars?: Record<string, string>;

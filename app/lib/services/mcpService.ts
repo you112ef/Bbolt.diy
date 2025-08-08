@@ -6,7 +6,7 @@ import {
   convertToCoreMessages,
   formatDataStreamPart,
 } from 'ai';
-import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio';
+// Note: do not import ai/mcp-stdio at top-level to avoid bundling Node deps
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { z } from 'zod';
 import type { ToolCallAnnotation } from '~/types/context';
@@ -19,6 +19,17 @@ import {
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('mcp-service');
+
+const isEdgeRuntime = typeof WebSocket !== 'undefined' && typeof window === 'undefined' ? true : false;
+const isBrowser = typeof window !== 'undefined';
+const isCloudflarePages = typeof globalThis !== 'undefined' && // @ts-ignore
+  typeof (globalThis as any).WebSocketPair !== 'undefined';
+
+function stdioUnsupported(): boolean {
+  return isBrowser || isCloudflarePages || isEdgeRuntime;
+}
+
+const MCP_DISABLED = isBrowser || isCloudflarePages;
 
 export const stdioServerConfigSchema = z
   .object({
@@ -162,9 +173,24 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
-    this._config = config;
-    await this._createClients();
+    if (MCP_DISABLED) {
+      this._config = { mcpServers: {} };
+      await this._closeClients();
+      return this._mcpToolsPerServer;
+    }
 
+    if (stdioUnsupported()) {
+      const filtered: MCPConfig = { mcpServers: {} };
+      for (const [name, cfg] of Object.entries(config?.mcpServers || {})) {
+        if ((cfg as any).type !== 'stdio' && (cfg as any).command === undefined) {
+          filtered.mcpServers[name] = cfg as any;
+        }
+      }
+      this._config = filtered;
+    } else {
+      this._config = config;
+    }
+    await this._closeClients();
     return this._mcpToolsPerServer;
   }
 
@@ -200,6 +226,10 @@ export class MCPService {
       `Creating STDIO client for '${serverName}' with command: '${config.command}' ${config.args?.join(' ') || ''}`,
     );
 
+    if (stdioUnsupported()) {
+      throw new Error('STDIO MCP servers are not supported in this runtime. Use SSE or streamable-http instead.');
+    }
+    const { Experimental_StdioMCPTransport } = await import('ai/mcp-stdio');
     const client = await experimental_createMCPClient({ transport: new Experimental_StdioMCPTransport(config) });
 
     return Object.assign(client, { serverName });
@@ -276,7 +306,44 @@ export class MCPService {
     await Promise.allSettled(createClientPromises);
   }
 
+  private async _initializeServerIfNeeded(serverName: string): Promise<void> {
+    if (this._mcpToolsPerServer[serverName]?.client) return;
+    const config = this._config?.mcpServers?.[serverName];
+    if (!config) return;
+    try {
+      const client = await this._createMCPClient(serverName, config);
+      const tools = await client.tools();
+      this._registerTools(serverName, tools);
+      this._mcpToolsPerServer[serverName] = { status: 'available', client, tools, config };
+    } catch (error) {
+      logger.error(`Failed to initialize MCP client for server: ${serverName}`, error);
+      this._mcpToolsPerServer[serverName] = {
+        status: 'unavailable',
+        error: (error as Error).message,
+        client: null,
+        config,
+      } as MCPServerUnavailable;
+    }
+  }
+
+  async ensureToolLoaded(toolName: string): Promise<boolean> {
+    if (MCP_DISABLED) return false;
+    if (this.isValidToolName(toolName)) return true;
+    for (const [serverName] of Object.entries(this._config?.mcpServers || {})) {
+      await this._initializeServerIfNeeded(serverName);
+      if (this.isValidToolName(toolName)) return true;
+    }
+    return this.isValidToolName(toolName);
+  }
+
   async checkServersAvailabilities() {
+    if (MCP_DISABLED) {
+      this._tools = {};
+      this._toolsWithoutExecute = {};
+      this._toolNamesToServerNames.clear();
+      this._mcpToolsPerServer = {};
+      return this._mcpToolsPerServer;
+    }
     this._tools = {};
     this._toolsWithoutExecute = {};
     this._toolNamesToServerNames.clear();
@@ -375,6 +442,7 @@ export class MCPService {
   }
 
   async processToolInvocations(messages: Message[], dataStream: DataStreamWriter): Promise<Message[]> {
+    if (MCP_DISABLED) return messages;
     const lastMessage = messages[messages.length - 1];
     const parts = lastMessage.parts;
 
@@ -392,8 +460,15 @@ export class MCPService {
         const { toolInvocation } = part;
         const { toolName, toolCallId } = toolInvocation;
 
-        // return part as-is if tool does not exist, or if it's not a tool call result
-        if (!this.isValidToolName(toolName) || toolInvocation.state !== 'result') {
+        if (toolInvocation.state !== 'result') {
+          return part;
+        }
+
+        if (!this.isValidToolName(toolName)) {
+          await this.ensureToolLoaded(toolName);
+        }
+
+        if (!this.isValidToolName(toolName)) {
           return part;
         }
 
@@ -448,10 +523,10 @@ export class MCPService {
   }
 
   get tools() {
-    return this._tools;
+    return MCP_DISABLED ? {} : this._tools;
   }
 
   get toolsWithoutExecute() {
-    return this._toolsWithoutExecute;
+    return MCP_DISABLED ? {} : this._toolsWithoutExecute;
   }
 }

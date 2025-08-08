@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { useMCPStore } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
 import { CommunityToolsTab } from '~/components/@settings/tabs/mcp/CommunityToolsTab';
+import { ToolsHealthMonitor } from '~/components/@settings/tabs/mcp/ToolsHealthMonitor';
+import { MCPTestConsole } from '~/components/@settings/tabs/mcp/MCPTestConsole';
 
 const EXAMPLE_MCP_CONFIG: MCPConfig = {
   mcpServers: {
@@ -35,7 +37,7 @@ export default function McpTab() {
   const updateSettings = useMCPStore((state) => state.updateSettings);
   const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
 
-  const [activeTab, setActiveTab] = useState<'community' | 'manual'>('community');
+  const [activeTab, setActiveTab] = useState<'community' | 'health' | 'test' | 'manual'>('community');
   const [isSaving, setIsSaving] = useState(false);
   const [mcpConfigText, setMCPConfigText] = useState('');
   const [maxLLMSteps, setMaxLLMSteps] = useState(1);
@@ -139,6 +141,28 @@ export default function McpTab() {
           🌟 Community Tools
         </button>
         <button
+          onClick={() => setActiveTab('health')}
+          className={classNames(
+            'flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200',
+            activeTab === 'health'
+              ? 'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary shadow-sm'
+              : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          )}
+        >
+          💚 Health
+        </button>
+        <button
+          onClick={() => setActiveTab('test')}
+          className={classNames(
+            'flex-1 px-3 py-2 text-sm font-medium rounded-md transition-all duration-200',
+            activeTab === 'test'
+              ? 'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary shadow-sm'
+              : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          )}
+        >
+          🧪 Test
+        </button>
+        <button
           onClick={() => setActiveTab('manual')}
           className={classNames(
             'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200',
@@ -154,6 +178,10 @@ export default function McpTab() {
       {/* Tab Content */}
       {activeTab === 'community' ? (
         <CommunityToolsTab />
+      ) : activeTab === 'health' ? (
+        <ToolsHealthMonitor />
+      ) : activeTab === 'test' ? (
+        <MCPTestConsole />
       ) : (
         <div className="max-w-2xl mx-auto space-y-6">
       <section aria-labelledby="server-status-heading">

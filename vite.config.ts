@@ -12,6 +12,7 @@ export default defineConfig((config) => {
   return {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'global': 'globalThis',
     },
     build: {
       target: 'esnext',
@@ -35,6 +36,7 @@ export default defineConfig((config) => {
     optimizeDeps: {
       include: ['react', 'react-dom'],
       exclude: [],
+      force: true,
     },
     resolve: {
       dedupe: ['react', 'react-dom'],

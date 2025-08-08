@@ -126,7 +126,7 @@ const createPreviewHTML = (files: FileMap): string => {
 <body>
     <div class="container">
         <h1>🚀 Live Preview</h1>
-        <p>Your enhanced Bolt.diy environment is ready!</p>
+        <p>Your enhanced YOUSEF.SHTIWE environment is ready!</p>
         <p>Create an <code>index.html</code> file to see your project preview here.</p>
         
         <div class="files-list">

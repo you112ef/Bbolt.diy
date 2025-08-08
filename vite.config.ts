@@ -15,6 +15,7 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
+      sourcemap: false, // Disable sourcemaps to reduce memory usage
       rollupOptions: {
         external: [],
         output: {
@@ -22,6 +23,12 @@ export default defineConfig((config) => {
             if (id.includes('node_modules')) {
               if (id.includes('react') || id.includes('react-dom')) {
                 return 'react-vendor';
+              }
+              if (id.includes('@codemirror')) {
+                return 'codemirror';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'radix';
               }
               return 'vendor';
             }
@@ -41,14 +48,14 @@ export default defineConfig((config) => {
     },
     plugins: [
       nodePolyfills({
-        include: ['buffer', 'process', 'util', 'stream'],
+        include: ['buffer', 'process', 'util', 'stream', 'path'],
         globals: {
           Buffer: true,
           process: true,
           global: true,
         },
         protocolImports: true,
-        exclude: ['child_process', 'fs', 'path'],
+        exclude: ['child_process', 'fs'],
       }),
       {
         name: 'buffer-polyfill',
@@ -63,7 +70,8 @@ export default defineConfig((config) => {
           return null;
         },
       },
-      config.mode !== 'test' && remixCloudflareDevProxy(),
+      // Disable cloudflare dev proxy in development to avoid GLIBC issues
+      // config.mode !== 'test' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,

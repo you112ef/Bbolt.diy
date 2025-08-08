@@ -1,19 +1,20 @@
 {
-  "name": "bolt",
-  "description": "An AI Agent",
+  "name": "yousef-shtiwe-ai",
+  "description": "YOUSEF.SHTIWE AI Development Platform",
   "private": true,
   "license": "MIT",
   "sideEffects": false,
   "type": "module",
   "version": "1.0.0",
   "author": {
-    "name": "bolt.diy team",
-    "email": "maintainers@bolt.diy"
+    "name": "YOUSEF.SHTIWE",
+    "email": "yousef@shtiwe.dev"
   },
   "scripts": {
     "deploy": "npm run build && wrangler pages deploy",
     "build": "remix vite:build",
-    "dev": "node pre-start.cjs  && remix vite:dev",
+    "dev:local": "NODE_ENV=development remix vite:dev --host 0.0.0.0 --port 5173",
+    "dev": "NODE_ENV=development remix vite:dev --host 0.0.0.0 --port 5173",
     "test": "vitest --run",
     "test:watch": "vitest",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app",
@@ -120,7 +121,7 @@
     "@capacitor/haptics": "^6.0.1",
     "@capacitor/splash-screen": "^6.0.2",
     "@capacitor/status-bar": "^6.0.1",
-    "@capacitor/storage": "^1.2.5",
+    "@capacitor/preferences": "^6.0.2",
     "ai": "4.3.16",
     "chalk": "^5.4.1",
     "chart.js": "^4.4.7",
@@ -224,5 +225,5 @@
   "resolutions": {
     "@typescript-eslint/utils": "^8.0.0-alpha.30"
   },
-  "packageManager": "pnpm@9.4.0"
+  "packageManager": "pnpm@9.14.4"
 }

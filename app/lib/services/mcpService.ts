@@ -29,6 +29,9 @@ function stdioUnsupported(): boolean {
   return isBrowser || isCloudflarePages || isEdgeRuntime;
 }
 
+// Completely disable MCP on browser and Cloudflare runtimes to avoid blocking
+const MCP_DISABLED = isBrowser || isCloudflarePages;
+
 export const stdioServerConfigSchema = z
   .object({
     type: z.enum(['stdio']).optional(),
@@ -171,6 +174,11 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
+    if (MCP_DISABLED) {
+      this._config = { mcpServers: {} };
+      await this._closeClients();
+      return this._mcpToolsPerServer;
+    }
     // Filter out stdio servers in unsupported environments to avoid runtime errors
     if (stdioUnsupported()) {
       const filtered: MCPConfig = { mcpServers: {} };
@@ -228,6 +236,7 @@ export class MCPService {
   }
 
   async ensureToolLoaded(toolName: string): Promise<boolean> {
+    if (MCP_DISABLED) return false;
     if (this.isValidToolName(toolName)) return true;
 
     // Try initializing each server lazily until tool is found
@@ -357,6 +366,13 @@ export class MCPService {
   }
 
   async checkServersAvailabilities() {
+    if (MCP_DISABLED) {
+      this._tools = {};
+      this._toolsWithoutExecute = {};
+      this._toolNamesToServerNames.clear();
+      this._mcpToolsPerServer = {};
+      return this._mcpToolsPerServer;
+    }
     this._tools = {};
     this._toolsWithoutExecute = {};
     this._toolNamesToServerNames.clear();
@@ -455,6 +471,7 @@ export class MCPService {
   }
 
   async processToolInvocations(messages: Message[], dataStream: DataStreamWriter): Promise<Message[]> {
+    if (MCP_DISABLED) return messages;
     const lastMessage = messages[messages.length - 1];
     const parts = lastMessage.parts;
 
@@ -538,10 +555,10 @@ export class MCPService {
   }
 
   get tools() {
-    return this._tools;
+    return MCP_DISABLED ? {} : this._tools;
   }
 
   get toolsWithoutExecute() {
-    return this._toolsWithoutExecute;
+    return MCP_DISABLED ? {} : this._toolsWithoutExecute;
   }
 }

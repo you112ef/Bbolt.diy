@@ -1,10 +1,6 @@
-# Redirects for Cloudflare Pages - SPA routing support
+# Redirects for Cloudflare Pages - Remix SSR handled by Functions
 
-# API routes - handle via Functions
-/api/* /.netlify/functions/:splat 200
-
-# Handle all other routes with SPA routing (fallback to index.html)
-/* /index.html 200
+# Note: Do NOT rewrite to index.html; Remix handles routing via `functions/[[path]].ts`.
 
 # Legacy redirects if needed
 /bolt/* /:splat 301

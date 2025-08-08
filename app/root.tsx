@@ -19,10 +19,15 @@ import 'virtual:uno.css';
 export const links: LinksFunction = () => [
   {
     rel: 'icon',
-    href: '/favicon.svg',
-    type: 'image/svg+xml',
+    href: '/favicon-enhanced.png',
+    type: 'image/png',
+    sizes: '32x32',
   },
-  { rel: 'preload', as: 'image', href: '/logo.svg', fetchPriority: 'high' as any },
+  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '16x16' },
+  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '192x192' },
+  { rel: 'apple-touch-icon', href: '/favicon-enhanced.png', sizes: '180x180' },
+  { rel: 'manifest', href: '/site.webmanifest' },
+  { rel: 'preload', as: 'image', href: '/yousef-logo-enhanced.png', fetchPriority: 'high' as any },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -38,7 +43,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap',
   },
 ];
 
@@ -70,6 +75,10 @@ export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#38bdf8" />
     <Meta />
     <Links />
 
@@ -82,6 +91,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     // Subscribe to theme changes after initial hydration
     const unsubscribe = themeStore.subscribe((newTheme) => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
+
       if (currentTheme !== newTheme) {
         document.documentElement.setAttribute('data-theme', newTheme);
         document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
@@ -94,9 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>
-        {children}
-      </DndProvider>
+      <DndProvider backend={HTML5Backend}>{children}</DndProvider>
       <ScrollRestoration />
       <Scripts />
     </>

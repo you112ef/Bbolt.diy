@@ -78,16 +78,18 @@ interface ToolInvocationsProps {
 
 export const ToolInvocations = memo(({ toolInvocations, toolCallAnnotations, addToolResult }: ToolInvocationsProps) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  
+
   useEffect(() => {
     // Initialize theme after hydration
-    const currentTheme = document.documentElement?.getAttribute('data-theme') as 'light' | 'dark' || themeStore.get();
+    const currentTheme = (document.documentElement?.getAttribute('data-theme') as 'light' | 'dark') || themeStore.get();
     setTheme(currentTheme);
-    
+
     // Subscribe to theme changes
     const unsubscribe = themeStore.subscribe(setTheme);
+
     return unsubscribe;
   }, []);
+
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleDetails = () => {
@@ -385,7 +387,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
                       />
                     </button>
                     Calling MCP tool{' '}
-                    <span className="ml-0.5 font-light font-mono text-bolt-elements-textPrimary bg-bolt-elements-background-depth-3 px-1.5 py-0.5 rounded-md">
+                    <span className="ml-0.5 font-light font-mono text-bolt-elements-textPrimary bg-transparent px-1.5 py-0.5 rounded-md">
                       {toolName}
                     </span>
                   </div>
@@ -400,7 +402,7 @@ const ToolCallsList = memo(({ toolInvocations, toolCallAnnotations, addToolResul
                           </span>
                         </div>
                         <div className="flex w-full items-stretch space-x-2">
-                          <div className="w-full rounded-md bg-bolt-elements-background-depth-3 p-3 ml-0 border-l-2 border-bolt-elements-borderColor">
+                          <div className="w-full rounded-md bg-transparent p-3 ml-0 border-l-2 border-bolt-elements-borderColor">
                             <JsonCodeBlock
                               className="mb-0"
                               code={JSON.stringify(tool.toolInvocation.args, null, 2)}

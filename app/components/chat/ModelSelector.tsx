@@ -86,9 +86,9 @@ export const ModelSelector = ({
       );
     });
 
-  const filteredProviders = providerList.filter((p) =>
-    p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()),
-  );
+  const filteredProviders = providerList
+    .filter((p) => !['Ollama', 'LMStudio', 'OpenAILike', 'OfflineAI', 'Local'].includes(p.name))
+    .filter((p) => p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()));
 
   // Reset free models filter when provider changes
   useEffect(() => {
@@ -337,7 +337,7 @@ export const ModelSelector = ({
                     aria-selected={provider?.name === providerOption.name}
                     className={classNames(
                       'px-3 py-2 text-sm cursor-pointer',
-                      'hover:bg-bolt-elements-background-depth-3',
+                      'hover:bg-bolt-elements-background-depth-2',
                       'text-bolt-elements-textPrimary',
                       'outline-none',
                       provider?.name === providerOption.name || focusedProviderIndex === index
@@ -427,7 +427,7 @@ export const ModelSelector = ({
                       'hover:bg-bolt-elements-background-depth-3',
                       showFreeModelsOnly
                         ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                        : 'bg-bolt-elements-background-depth-3 text-bolt-elements-textSecondary border border-bolt-elements-borderColor',
+                        : 'bg-transparent text-bolt-elements-textSecondary border border-bolt-elements-borderColor',
                     )}
                   >
                     <span className="i-ph:gift text-xs" />
@@ -497,7 +497,7 @@ export const ModelSelector = ({
                     aria-selected={model === modelOption.name}
                     className={classNames(
                       'px-3 py-2 text-sm cursor-pointer',
-                      'hover:bg-bolt-elements-background-depth-3',
+                      'hover:bg-bolt-elements-background-depth-2',
                       'text-bolt-elements-textPrimary',
                       'outline-none',
                       model === modelOption.name || focusedModelIndex === index

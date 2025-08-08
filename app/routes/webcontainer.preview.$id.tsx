@@ -6,10 +6,11 @@ const PREVIEW_CHANNEL = 'preview-updates';
 
 function createChannel(name: string) {
   const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+
   if (isBrowser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new (window as any).BroadcastChannel(name) as BroadcastChannel;
   }
+
   return null;
 }
 
@@ -44,7 +45,7 @@ export default function WebContainerPreview() {
 
   // Notify other tabs that this preview is ready
   const notifyPreviewReady = useCallback(() => {
-    if (broadcastChannelRef.current && previewUrl) {
+    if (typeof window !== 'undefined' && broadcastChannelRef.current && previewUrl) {
       broadcastChannelRef.current.postMessage({
         type: 'preview-ready',
         previewId,
@@ -55,6 +56,18 @@ export default function WebContainerPreview() {
   }, [previewId, previewUrl]);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof (window as any).BroadcastChannel === 'undefined') {
+      // SSR/Workers: skip BroadcastChannel usage
+      const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;
+      setPreviewUrl(url);
+
+      if (iframeRef.current) {
+        iframeRef.current.src = url;
+      }
+
+      return;
+    }
+
     // Initialize broadcast channel
     broadcastChannelRef.current = createChannel(PREVIEW_CHANNEL);
 
@@ -62,8 +75,10 @@ export default function WebContainerPreview() {
     if (broadcastChannelRef.current) {
       broadcastChannelRef.current.onmessage = (event) => {
         const data = (event as MessageEvent & { data: any }).data;
+
         if (data?.previewId === previewId) {
           const type = data.type as string;
+
           if (type === 'refresh-preview' || type === 'file-change') {
             handleRefresh();
           }

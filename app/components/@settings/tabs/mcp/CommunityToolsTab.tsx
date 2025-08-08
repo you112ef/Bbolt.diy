@@ -1,12 +1,12 @@
 import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { 
-  COMMUNITY_MCP_TOOLS, 
-  MCP_CATEGORIES, 
+import {
+  COMMUNITY_MCP_TOOLS,
+  MCP_CATEGORIES,
   DEFAULT_ENABLED_TOOLS,
   AUTH_REQUIRED_TOOLS,
-  type MCPTool
+  type MCPTool,
 } from '~/lib/mcp/community-tools';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { classNames } from '~/utils/classNames';
@@ -18,7 +18,7 @@ interface CommunityToolConfig {
   description: string;
   category: string;
   enabled: boolean;
-  type: "stdio" | "sse" | "streamable-http";
+  type: 'stdio' | 'sse' | 'streamable-http';
   command: string;
   args: string[];
   envVars?: Record<string, string>;
@@ -36,7 +36,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
   const updateCommunityTool = useMCPStore((state) => state.updateCommunityTool);
   const saveCommunityTools = useMCPStore((state) => state.saveCommunityTools);
   const isInitialized = useMCPStore((state) => state.isInitialized);
-  
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [showOnlyEnabled, setShowOnlyEnabled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,10 +68,11 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
   // Filter tools based on category, search, and enabled status
   const filteredTools = Object.entries(communityTools).filter(([name, tool]) => {
     const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory;
-    const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         (tool.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (tool.description || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesEnabled = !showOnlyEnabled || tool.enabled;
-    
+
     return matchesCategory && matchesSearch && matchesEnabled;
   });
 
@@ -88,12 +89,12 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
     updateCommunityTool(toolName, {
       envVars: {
         ...tool.envVars,
-        [varName]: value
-      }
+        [varName]: value,
+      },
     });
   };
 
-  const enabledCount = Object.values(communityTools).filter(tool => tool.enabled).length;
+  const enabledCount = Object.values(communityTools).filter((tool) => tool.enabled).length;
   const totalCount = Object.keys(communityTools).length;
 
   if (isLoading) {
@@ -117,14 +118,12 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-bolt-elements-textPrimary">
-            Community MCP Tools
-          </h2>
+          <h2 className="text-xl font-semibold text-bolt-elements-textPrimary">Community MCP Tools</h2>
           <p className="text-sm text-bolt-elements-textSecondary mt-1">
             {enabledCount} of {totalCount} tools enabled • Ready-to-use tools from the MCP community
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm text-bolt-elements-textSecondary">
             <input
@@ -135,7 +134,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
             />
             Enabled only
           </label>
-          
+
           <button
             onClick={saveToolsConfig}
             disabled={isSaving}
@@ -177,7 +176,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
             />
           </div>
         </div>
-        
+
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -203,9 +202,9 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
               exit={{ opacity: 0, y: -10 }}
               className={classNames(
                 'bg-bolt-elements-background-depth-1 border rounded-lg p-4 transition-all duration-200',
-                tool.enabled 
-                  ? 'border-blue-500/40 bg-blue-500/5' 
-                  : 'border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive'
+                tool.enabled
+                  ? 'border-blue-500/40 bg-blue-500/5'
+                  : 'border-bolt-elements-borderColor hover:border-bolt-elements-borderColorActive',
               )}
             >
               <div className="flex items-start justify-between">
@@ -214,9 +213,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                     <span className="text-lg">
                       {MCP_CATEGORIES[tool.category as keyof typeof MCP_CATEGORIES] || '🔧'}
                     </span>
-                    <h3 className="text-base font-medium text-bolt-elements-textPrimary">
-                      {name}
-                    </h3>
+                    <h3 className="text-base font-medium text-bolt-elements-textPrimary">{name}</h3>
                     {tool.requiresAuth && (
                       <span className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-full border border-yellow-500/20">
                         🔑 Auth Required
@@ -226,11 +223,9 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                       {tool.category}
                     </span>
                   </div>
-                  
-                  <p className="text-sm text-bolt-elements-textSecondary mb-3">
-                    {tool.description}
-                  </p>
-                  
+
+                  <p className="text-sm text-bolt-elements-textSecondary mb-3">{tool.description}</p>
+
                   <div className="flex items-center gap-2 text-xs text-bolt-elements-textTertiary">
                     <span className="font-mono bg-bolt-elements-background-depth-2 px-2 py-1 rounded">
                       {tool.command} {(tool.args || []).join(' ')}
@@ -239,24 +234,22 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                     <span className="capitalize">{tool.type}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 ml-4">
                   {tool.requiresAuth && (
                     <IconButton
-                      icon={expandedTool === name ? "i-ph:caret-up" : "i-ph:caret-down"}
+                      icon={expandedTool === name ? 'i-ph:caret-up' : 'i-ph:caret-down'}
                       size="sm"
                       title="Configure environment variables"
                       onClick={() => setExpandedTool(expandedTool === name ? null : name)}
                     />
                   )}
-                  
+
                   <button
                     onClick={() => toggleTool(name)}
                     className={classNames(
                       'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-bolt-elements-background-depth-1',
-                      tool.enabled 
-                        ? 'bg-blue-600' 
-                        : 'bg-bolt-elements-background-depth-3'
+                      tool.enabled ? 'bg-blue-600' : 'bg-bolt-elements-background-depth-3',
                     )}
                     disabled={tool.type === 'stdio'}
                   >
@@ -264,13 +257,13 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                       className={classNames(
                         'inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg',
                         tool.enabled ? 'translate-x-6' : 'translate-x-1',
-                        tool.type === 'stdio' ? 'opacity-50' : ''
+                        tool.type === 'stdio' ? 'opacity-50' : '',
                       )}
                     />
                   </button>
                 </div>
               </div>
-              
+
               {/* Environment variables configuration */}
               <AnimatePresence>
                 {expandedTool === name && tool.envVars && Object.keys(tool.envVars).length > 0 && (
@@ -307,26 +300,22 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
           ))}
         </AnimatePresence>
       </div>
-      
+
       {filteredTools.length === 0 && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
-            No tools found
-          </h3>
-          <p className="text-bolt-elements-textSecondary">
-            Try adjusting your search or category filter.
-          </p>
+          <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">No tools found</h3>
+          <p className="text-bolt-elements-textSecondary">Try adjusting your search or category filter.</p>
         </div>
       )}
-      
+
       {/* Quick actions */}
       {filteredTools.length > 0 && (
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-bolt-elements-borderColor">
           <div className="flex items-center gap-4">
             <button
               onClick={() => {
-                Object.keys(communityTools).forEach(name => {
+                Object.keys(communityTools).forEach((name) => {
                   if (!communityTools[name].requiresAuth) {
                     updateCommunityTool(name, { enabled: true });
                   }
@@ -338,7 +327,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
             </button>
             <button
               onClick={() => {
-                Object.keys(communityTools).forEach(name => {
+                Object.keys(communityTools).forEach((name) => {
                   updateCommunityTool(name, { enabled: false });
                 });
               }}
@@ -347,7 +336,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
               Disable all tools
             </button>
           </div>
-          
+
           <div className="text-sm text-bolt-elements-textTertiary">
             {enabledCount} tools will be available in your AI conversations
           </div>

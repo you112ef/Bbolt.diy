@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { useMCPStore } from '~/lib/stores/mcp';
 import { classNames } from '~/utils/classNames';
-import { 
-  CheckCircleIcon, 
-  ExclamationCircleIcon, 
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
   XCircleIcon,
   ClockIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
 // Health status type
@@ -51,7 +51,7 @@ export const ToolsHealthMonitor = memo(() => {
         name: tool.name || id,
         status: 'unknown' as HealthStatus,
         lastChecked: new Date(),
-        enabled: tool.enabled || false
+        enabled: tool.enabled || false,
       }));
       setToolsHealth(initialHealth);
     }
@@ -59,7 +59,9 @@ export const ToolsHealthMonitor = memo(() => {
 
   // Auto-refresh health checks
   useEffect(() => {
-    if (!autoRefresh) return;
+    if (!autoRefresh) {
+      return;
+    }
 
     const interval = setInterval(() => {
       checkAllToolsHealth();
@@ -70,25 +72,25 @@ export const ToolsHealthMonitor = memo(() => {
 
   // Check health of all tools
   const checkAllToolsHealth = async () => {
-    if (!communityTools) return;
-    
+    if (!communityTools) {
+      return;
+    }
+
     setIsChecking(true);
-    
+
     const healthPromises = Object.entries(communityTools).map(async ([id, tool]) => {
       const startTime = Date.now();
-      
+
       try {
         // Update status to checking
-        setToolsHealth(prev => prev.map(t => 
-          t.id === id ? { ...t, status: 'checking' } : t
-        ));
+        setToolsHealth((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'checking' } : t)));
 
         // Simulate health check (in real app, this would be actual API calls)
-        await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
-        
+        await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 500));
+
         const responseTime = Date.now() - startTime;
         const isHealthy = Math.random() > 0.2; // 80% success rate for demo
-        
+
         const healthStatus: ToolHealth = {
           id,
           name: tool.name || id,
@@ -96,7 +98,7 @@ export const ToolsHealthMonitor = memo(() => {
           lastChecked: new Date(),
           responseTime,
           enabled: tool.enabled || false,
-          error: isHealthy ? undefined : 'Connection timeout or service unavailable'
+          error: isHealthy ? undefined : 'Connection timeout or service unavailable',
         };
 
         return healthStatus;
@@ -108,7 +110,7 @@ export const ToolsHealthMonitor = memo(() => {
           lastChecked: new Date(),
           responseTime: Date.now() - startTime,
           enabled: tool.enabled || false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: error instanceof Error ? error.message : 'Unknown error',
         };
       }
     });
@@ -128,43 +130,52 @@ export const ToolsHealthMonitor = memo(() => {
   // Check health of a single tool
   const checkSingleToolHealth = async (toolId: string) => {
     const tool = communityTools?.[toolId];
-    if (!tool) return;
+
+    if (!tool) {
+      return;
+    }
 
     const startTime = Date.now();
-    
+
     // Update status to checking
-    setToolsHealth(prev => prev.map(t => 
-      t.id === toolId ? { ...t, status: 'checking' } : t
-    ));
+    setToolsHealth((prev) => prev.map((t) => (t.id === toolId ? { ...t, status: 'checking' } : t)));
 
     try {
       // Simulate health check
-      await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000 + 500));
+
       const responseTime = Date.now() - startTime;
       const isHealthy = Math.random() > 0.2;
-      
-      setToolsHealth(prev => prev.map(t => 
-        t.id === toolId ? {
-          ...t,
-          status: isHealthy ? 'healthy' : 'unhealthy',
-          lastChecked: new Date(),
-          responseTime,
-          error: isHealthy ? undefined : 'Connection timeout or service unavailable'
-        } : t
-      ));
+
+      setToolsHealth((prev) =>
+        prev.map((t) =>
+          t.id === toolId
+            ? {
+                ...t,
+                status: isHealthy ? 'healthy' : 'unhealthy',
+                lastChecked: new Date(),
+                responseTime,
+                error: isHealthy ? undefined : 'Connection timeout or service unavailable',
+              }
+            : t,
+        ),
+      );
 
       toast.success(`Health check completed for ${tool.name}`);
     } catch (error) {
-      setToolsHealth(prev => prev.map(t => 
-        t.id === toolId ? {
-          ...t,
-          status: 'unhealthy',
-          lastChecked: new Date(),
-          responseTime: Date.now() - startTime,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        } : t
-      ));
+      setToolsHealth((prev) =>
+        prev.map((t) =>
+          t.id === toolId
+            ? {
+                ...t,
+                status: 'unhealthy',
+                lastChecked: new Date(),
+                responseTime: Date.now() - startTime,
+                error: error instanceof Error ? error.message : 'Unknown error',
+              }
+            : t,
+        ),
+      );
       toast.error(`Health check failed for ${tool.name}`);
     }
   };
@@ -173,16 +184,19 @@ export const ToolsHealthMonitor = memo(() => {
   const getHealthStats = (): HealthStats => {
     return {
       total: toolsHealth.length,
-      healthy: toolsHealth.filter(t => t.status === 'healthy').length,
-      unhealthy: toolsHealth.filter(t => t.status === 'unhealthy').length,
-      unknown: toolsHealth.filter(t => t.status === 'unknown').length,
-      checking: toolsHealth.filter(t => t.status === 'checking').length
+      healthy: toolsHealth.filter((t) => t.status === 'healthy').length,
+      unhealthy: toolsHealth.filter((t) => t.status === 'unhealthy').length,
+      unknown: toolsHealth.filter((t) => t.status === 'unknown').length,
+      checking: toolsHealth.filter((t) => t.status === 'checking').length,
     };
   };
 
   // Filter tools based on status
-  const filteredTools = toolsHealth.filter(tool => {
-    if (filter === 'all') return true;
+  const filteredTools = toolsHealth.filter((tool) => {
+    if (filter === 'all') {
+      return true;
+    }
+
     return tool.status === filter;
   });
 
@@ -226,9 +240,7 @@ export const ToolsHealthMonitor = memo(() => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-white">Tools Health Monitor</h2>
-          <p className="text-sm text-gray-400">
-            Monitor the health and availability of MCP community tools
-          </p>
+          <p className="text-sm text-gray-400">Monitor the health and availability of MCP community tools</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
@@ -236,9 +248,7 @@ export const ToolsHealthMonitor = memo(() => {
             disabled={isChecking}
             className={classNames(
               'flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200',
-              isChecking
-                ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+              isChecking ? 'bg-gray-600 text-gray-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white',
             )}
           >
             <ArrowPathIcon className={classNames('w-4 h-4', isChecking ? 'animate-spin' : '')} />
@@ -259,7 +269,7 @@ export const ToolsHealthMonitor = memo(() => {
             />
             <span className="text-sm text-gray-300">Auto-refresh</span>
           </label>
-          
+
           {autoRefresh && (
             <select
               value={refreshInterval}
@@ -273,7 +283,7 @@ export const ToolsHealthMonitor = memo(() => {
             </select>
           )}
         </div>
-        
+
         <div className="text-sm text-gray-400">
           Last checked: {toolsHealth.length > 0 ? new Date().toLocaleTimeString() : 'Never'}
         </div>
@@ -312,9 +322,7 @@ export const ToolsHealthMonitor = memo(() => {
               onClick={() => setFilter(filterOption)}
               className={classNames(
                 'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-                filter === filterOption
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                filter === filterOption ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600',
               )}
             >
               {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
@@ -332,7 +340,7 @@ export const ToolsHealthMonitor = memo(() => {
             animate={{ opacity: 1, y: 0 }}
             className={classNames(
               'p-4 rounded-lg border transition-all duration-200',
-              tool.enabled ? 'bg-gray-800 border-gray-700' : 'bg-gray-900 border-gray-800 opacity-60'
+              tool.enabled ? 'bg-gray-800 border-gray-700' : 'bg-gray-900 border-gray-800 opacity-60',
             )}
           >
             <div className="flex items-center justify-between">
@@ -347,23 +355,15 @@ export const ToolsHealthMonitor = memo(() => {
                     <span className={classNames('text-xs', getStatusColor(tool.status))}>
                       {tool.status.charAt(0).toUpperCase() + tool.status.slice(1)}
                     </span>
-                    {tool.responseTime && (
-                      <span className="text-xs text-gray-400">
-                        {tool.responseTime}ms
-                      </span>
-                    )}
-                    <span className="text-xs text-gray-400">
-                      Last checked: {tool.lastChecked.toLocaleTimeString()}
-                    </span>
+                    {tool.responseTime && <span className="text-xs text-gray-400">{tool.responseTime}ms</span>}
+                    <span className="text-xs text-gray-400">Last checked: {tool.lastChecked.toLocaleTimeString()}</span>
                   </div>
                   {tool.error && (
-                    <div className="mt-2 text-xs text-red-300 bg-red-900/20 rounded px-2 py-1">
-                      {tool.error}
-                    </div>
+                    <div className="mt-2 text-xs text-red-300 bg-red-900/20 rounded px-2 py-1">{tool.error}</div>
                   )}
                 </div>
               </div>
-              
+
               <button
                 onClick={() => checkSingleToolHealth(tool.id)}
                 disabled={tool.status === 'checking'}
@@ -379,9 +379,7 @@ export const ToolsHealthMonitor = memo(() => {
       {/* Empty State */}
       {toolsHealth.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-sm">
-            No community tools configured yet
-          </div>
+          <div className="text-gray-400 text-sm">No community tools configured yet</div>
         </div>
       )}
     </div>

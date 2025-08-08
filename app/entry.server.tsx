@@ -4,6 +4,7 @@ import { isbot } from 'isbot';
 import { renderToReadableStream } from 'react-dom/server';
 import { renderHeadToString } from 'remix-island';
 import { Head } from './root';
+
 // Import removed to prevent hydration mismatch
 
 export default async function handleRequest(

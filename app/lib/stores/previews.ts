@@ -12,19 +12,18 @@ declare global {
 interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   close(): void;
-  onmessage: ((event: MessageEvent) => void) | null;
+  onmessage: ((event: MessageEvent & { data: any }) => void) | null;
 }
 
 function createBroadcastChannel(name: string): BroadcastChannelLike {
   const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
 
   if (isBrowser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new (window as any).BroadcastChannel(name) as BroadcastChannelLike;
   }
 
   // No-op shim for SSR/Workers
-  let handler: ((event: MessageEvent) => void) | null = null;
+  let handler: ((event: MessageEvent & { data: any }) => void) | null = null;
 
   return {
     postMessage: (_message: unknown) => {
@@ -36,7 +35,7 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
     get onmessage() {
       return handler;
     },
-    set onmessage(value: ((event: MessageEvent) => void) | null) {
+    set onmessage(value: ((event: MessageEvent & { data: any }) => void) | null) {
       handler = value;
     },
   } as BroadcastChannelLike;
@@ -50,20 +49,6 @@ export interface PreviewInfo {
 
 // Create a broadcast channel for preview updates
 const PREVIEW_CHANNEL = 'preview-updates';
-
-type BroadcastLike = {
-  postMessage: (data: any) => void;
-  onmessage: ((this: any, ev: MessageEvent) => any) | null;
-  close: () => void;
-};
-
-function createSafeBroadcastChannel(name: string): BroadcastLike | null {
-  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-    return new BroadcastChannel(name);
-  }
-
-  return null;
-}
 
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
@@ -113,7 +98,6 @@ export class PreviewsStore {
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const originalSetItem = localStorage.setItem.bind(localStorage);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (localStorage as any).setItem = (...args: [string, string]) => {
         originalSetItem(...args);
         this._broadcastStorageSync();
@@ -171,7 +155,7 @@ export class PreviewsStore {
 
   // Broadcast storage state to other tabs
   private _broadcastStorageSync() {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && this.#storageChannel) {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const storage: Record<string, string> = {};
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -194,10 +178,7 @@ export class PreviewsStore {
   async #init() {
     const webcontainer = await this.#webcontainer;
 
-    // Listen for server ready events
-    // Note: This callback only runs in the browser where WebContainer is available
-    // and is a no-op in SSR due to the promise never resolving there.
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Listen for server ready events (browser only)
     (webcontainer as unknown as { on?: Function }).on?.('server-ready', (port: number, url: string) => {
       console.log('[Preview] Server ready on port:', port, url);
       this.broadcastUpdate(url);
@@ -206,7 +187,7 @@ export class PreviewsStore {
       this._broadcastStorageSync();
     });
 
-    // Listen for port events
+    // Listen for port events (browser only)
     (webcontainer as unknown as { on?: Function }).on?.('port', (port: number, type: 'open' | 'close', url: string) => {
       let previewInfo = this.#availablePreviews.get(port);
 
@@ -247,7 +228,10 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
-    if (!this.#broadcastChannel) return;
+    if (!this.#broadcastChannel) {
+      return;
+    }
+
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -260,7 +244,10 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
-    if (!this.#broadcastChannel) return;
+    if (!this.#broadcastChannel) {
+      return;
+    }
+
     this.#broadcastChannel.postMessage({
       type: 'file-change',
       previewId,
@@ -276,7 +263,10 @@ export class PreviewsStore {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
 
-      if (!this.#broadcastChannel) return;
+      if (!this.#broadcastChannel) {
+        return;
+      }
+
       this.#broadcastChannel.postMessage({
         type: 'file-change',
         previewId,

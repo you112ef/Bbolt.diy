@@ -38,14 +38,11 @@ export function ChatWorkbenchTabs({ children, chatStarted, className }: ChatWork
   const tabVariants = {
     hidden: { opacity: 0, x: -20 },
     visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 20 }
+    exit: { opacity: 0, x: 20 },
   };
 
   return (
-    <div 
-      className={classNames('chat-workbench-tabs flex flex-col h-full', className)}
-      data-active-tab={activeTab}
-    >
+    <div className={classNames('chat-workbench-tabs flex flex-col h-full', className)} data-active-tab={activeTab}>
       {/* Tab Navigation */}
       <div className="flex-shrink-0 bg-bolt-elements-background-depth-2 border-b border-bolt-elements-borderColor">
         <div className="flex">
@@ -57,7 +54,7 @@ export function ChatWorkbenchTabs({ children, chatStarted, className }: ChatWork
               'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus focus:ring-inset',
               activeTab === 'chat'
                 ? 'active text-bolt-elements-textPrimary bg-bolt-elements-background-depth-1'
-                : 'text-bolt-elements-textSecondary'
+                : 'text-bolt-elements-textSecondary',
             )}
           >
             <div className="flex items-center justify-center gap-2">
@@ -73,7 +70,7 @@ export function ChatWorkbenchTabs({ children, chatStarted, className }: ChatWork
               />
             )}
           </button>
-          
+
           <button
             onClick={() => setActiveTab('workbench')}
             className={classNames(
@@ -82,7 +79,7 @@ export function ChatWorkbenchTabs({ children, chatStarted, className }: ChatWork
               'focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus focus:ring-inset',
               activeTab === 'workbench'
                 ? 'active text-bolt-elements-textPrimary bg-bolt-elements-background-depth-1'
-                : 'text-bolt-elements-textSecondary'
+                : 'text-bolt-elements-textSecondary',
             )}
           >
             <div className="flex items-center justify-center gap-2">
@@ -127,14 +124,14 @@ export function ChatWorkbenchTabs({ children, chatStarted, className }: ChatWork
             'quick-switch-button w-12 h-12 rounded-full shadow-lg transition-all duration-200',
             'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
             'hover:bg-bolt-elements-background-depth-3 hover:scale-110',
-            'focus:ring-2 focus:ring-bolt-elements-focus'
+            'focus:ring-2 focus:ring-bolt-elements-focus',
           )}
           title={activeTab === 'chat' ? 'Switch to Code Editor' : 'Switch to Chat'}
         >
-          <div 
+          <div
             className={classNames(
               'text-lg transition-transform duration-200',
-              activeTab === 'chat' ? 'i-ph:code' : 'i-ph:chat-circle'
+              activeTab === 'chat' ? 'i-ph:code' : 'i-ph:chat-circle',
             )}
           />
         </IconButton>

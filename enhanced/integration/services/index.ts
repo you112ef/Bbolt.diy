@@ -70,25 +70,89 @@ export const enhancedIntegration = {
   // Add enhanced editor to existing workbench
   async addMonacoEditor(container: HTMLElement) {
     const MonacoEditor = await loadEnhancedFeatures.monaco();
-    // Integration logic here
+    const { createRoot } = await import('react-dom/client');
+
+    const mount = document.createElement('div');
+    mount.style.width = '100%';
+    mount.style.height = '100%';
+    container.appendChild(mount);
+
+    const root = createRoot(mount);
+    root.render(React.createElement(MonacoEditor, { height: '100%', width: '100%' }));
+
+    return {
+      unmount: () => {
+        root.unmount();
+        if (mount.parentNode) mount.parentNode.removeChild(mount);
+      },
+      container: mount,
+    } as const;
   },
   
   // Add enhanced terminal
   async addEnhancedTerminal(container: HTMLElement) {
     const EnhancedTerminal = await loadEnhancedFeatures.terminal();
-    // Integration logic here
+    const { createRoot } = await import('react-dom/client');
+
+    const mount = document.createElement('div');
+    mount.style.width = '100%';
+    mount.style.height = '100%';
+    container.appendChild(mount);
+
+    const root = createRoot(mount);
+    root.render(React.createElement(EnhancedTerminal, {}));
+
+    return {
+      unmount: () => {
+        root.unmount();
+        if (mount.parentNode) mount.parentNode.removeChild(mount);
+      },
+      container: mount,
+    } as const;
   },
   
   // Add live preview
   async addLivePreview(container: HTMLElement) {
     const LivePreview = await loadEnhancedFeatures.preview();
-    // Integration logic here
+    const { createRoot } = await import('react-dom/client');
+
+    const mount = document.createElement('div');
+    mount.style.width = '100%';
+    mount.style.height = '100%';
+    container.appendChild(mount);
+
+    const root = createRoot(mount);
+    root.render(React.createElement(LivePreview, {}));
+
+    return {
+      unmount: () => {
+        root.unmount();
+        if (mount.parentNode) mount.parentNode.removeChild(mount);
+      },
+      container: mount,
+    } as const;
   },
   
   // Add AI agents chat
   async addAIAgents(container: HTMLElement) {
     const AIAgentsChat = await loadEnhancedFeatures.aiAgents();
-    // Integration logic here
+    const { createRoot } = await import('react-dom/client');
+
+    const mount = document.createElement('div');
+    mount.style.width = '100%';
+    mount.style.height = '100%';
+    container.appendChild(mount);
+
+    const root = createRoot(mount);
+    root.render(React.createElement(AIAgentsChat, {}));
+
+    return {
+      unmount: () => {
+        root.unmount();
+        if (mount.parentNode) mount.parentNode.removeChild(mount);
+      },
+      container: mount,
+    } as const;
   },
 };
 

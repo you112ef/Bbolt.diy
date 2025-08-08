@@ -60,6 +60,7 @@ export function McpTools() {
 
   const handleDialogOpen = async (open: boolean) => {
     setIsDialogOpen(open);
+
     if (open) {
       try {
         // Ensure store is initialized when opening
@@ -69,8 +70,10 @@ export function McpTools() {
           await withTimeout(initialize(), 10_000, 'initialize');
           console.debug('[MCP Tools] MCP store initialized');
         }
+
         // If there are configured servers, auto-check availability
         const hasServers = Object.keys(settings?.mcpConfig?.mcpServers || {}).length > 0;
+
         if (hasServers) {
           await checkServerAvailability();
         } else {

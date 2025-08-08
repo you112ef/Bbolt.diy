@@ -70,7 +70,7 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                     'hover:bg-bolt-elements-background-depth-1/50',
                     {
                       'mt-3': !isFirst,
-                    }
+                    },
                   )}
                 >
                   <div className="grid grid-col-1 w-full">

@@ -1,1 +1,233 @@
-import React, { useEffect, useCallback, useRef } from 'react';\nimport { classNames } from '~/utils/classNames';\nimport { Button } from './Button';\n\ninterface MobileModalProps {\n  isOpen: boolean;\n  onClose: () => void;\n  title?: string;\n  children: React.ReactNode;\n  actions?: React.ReactNode;\n  size?: 'sm' | 'md' | 'lg' | 'full';\n  position?: 'bottom' | 'center';\n  enableDrag?: boolean;\n  swipeToClose?: boolean;\n  className?: string;\n}\n\nexport const MobileModal: React.FC<MobileModalProps> = ({\n  isOpen,\n  onClose,\n  title,\n  children,\n  actions,\n  size = 'md',\n  position = 'bottom',\n  enableDrag = true,\n  swipeToClose = true,\n  className,\n}) => {\n  const modalRef = useRef<HTMLDivElement>(null);\n  const dragHandleRef = useRef<HTMLDivElement>(null);\n  const [dragOffset, setDragOffset] = React.useState(0);\n  const [isDragging, setIsDragging] = React.useState(false);\n  const touchStartY = useRef<number>(0);\n  const touchStartTime = useRef<number>(0);\n\n  const isMobile = typeof window !== 'undefined' && \n    ('ontouchstart' in window || navigator.maxTouchPoints > 0);\n\n  // Handle escape key\n  useEffect(() => {\n    const handleEscape = (e: KeyboardEvent) => {\n      if (e.key === 'Escape' && isOpen) {\n        onClose();\n      }\n    };\n\n    if (isOpen) {\n      document.addEventListener('keydown', handleEscape);\n      document.body.style.overflow = 'hidden';\n    }\n\n    return () => {\n      document.removeEventListener('keydown', handleEscape);\n      document.body.style.overflow = '';\n    };\n  }, [isOpen, onClose]);\n\n  // Touch handlers for swipe to close\n  const handleTouchStart = useCallback((e: React.TouchEvent) => {\n    if (!swipeToClose || !isMobile) return;\n    \n    const touch = e.touches[0];\n    touchStartY.current = touch.clientY;\n    touchStartTime.current = Date.now();\n    setIsDragging(true);\n  }, [swipeToClose, isMobile]);\n\n  const handleTouchMove = useCallback((e: React.TouchEvent) => {\n    if (!isDragging || !swipeToClose) return;\n    \n    const touch = e.touches[0];\n    const deltaY = touch.clientY - touchStartY.current;\n    \n    // Only allow downward swipes for bottom positioned modals\n    if (position === 'bottom' && deltaY > 0) {\n      setDragOffset(deltaY);\n      e.preventDefault();\n    }\n  }, [isDragging, swipeToClose, position]);\n\n  const handleTouchEnd = useCallback(() => {\n    if (!isDragging) return;\n    \n    const deltaY = dragOffset;\n    const deltaTime = Date.now() - touchStartTime.current;\n    const velocity = deltaY / deltaTime;\n    \n    // Close if dragged down more than 100px or fast swipe\n    if (deltaY > 100 || velocity > 0.5) {\n      onClose();\n    }\n    \n    setDragOffset(0);\n    setIsDragging(false);\n  }, [isDragging, dragOffset, onClose]);\n\n  // Background click handler\n  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {\n    if (e.target === e.currentTarget) {\n      onClose();\n    }\n  }, [onClose]);\n\n  const getSizeClasses = () => {\n    const sizes = {\n      sm: 'max-w-sm',\n      md: 'max-w-md',\n      lg: 'max-w-lg',\n      full: 'max-w-full',\n    };\n    return sizes[size];\n  };\n\n  const getPositionClasses = () => {\n    if (position === 'bottom') {\n      return 'items-end justify-center';\n    }\n    return 'items-center justify-center';\n  };\n\n  const getModalClasses = () => {\n    const baseClasses = 'relative w-full bg-bolt-elements-background-depth-1 shadow-xl transition-all duration-300';\n    \n    if (position === 'bottom') {\n      return `${baseClasses} rounded-t-2xl max-h-[90vh]`;\n    }\n    \n    return `${baseClasses} rounded-2xl max-h-[85vh] mx-4`;\n  };\n\n  if (!isOpen) return null;\n\n  return (\n    <div className=\"fixed inset-0 z-[1000] flex p-0\">\n      {/* Backdrop */}\n      <div \n        className=\"absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300\"\n        onClick={handleBackgroundClick}\n      />\n      \n      {/* Modal Container */}\n      <div className={classNames('relative z-10 flex w-full', getPositionClasses())}>\n        <div \n          ref={modalRef}\n          className={classNames(\n            getModalClasses(),\n            getSizeClasses(),\n            'transform transition-transform duration-300 ease-out',\n            isDragging ? 'transition-none' : '',\n            className\n          )}\n          style={{\n            transform: `translateY(${dragOffset}px)`,\n          }}\n          onTouchStart={handleTouchStart}\n          onTouchMove={handleTouchMove}\n          onTouchEnd={handleTouchEnd}\n        >\n          {/* Drag Handle */}\n          {enableDrag && position === 'bottom' && (\n            <div \n              ref={dragHandleRef}\n              className=\"flex justify-center py-3 cursor-grab active:cursor-grabbing\"\n            >\n              <div className=\"w-12 h-1.5 bg-bolt-elements-borderColor rounded-full\" />\n            </div>\n          )}\n          \n          {/* Header */}\n          {title && (\n            <div className=\"flex items-center justify-between p-6 border-b border-bolt-elements-borderColor\">\n              <h2 className=\"text-lg sm:text-xl font-semibold text-bolt-elements-textPrimary\">\n                {title}\n              </h2>\n              <Button\n                variant=\"ghost\"\n                size=\"icon\"\n                onClick={onClose}\n                className=\"rounded-full\"\n                aria-label=\"Close modal\"\n              >\n                <svg\n                  className=\"h-5 w-5\"\n                  fill=\"none\"\n                  stroke=\"currentColor\"\n                  viewBox=\"0 0 24 24\"\n                >\n                  <path\n                    strokeLinecap=\"round\"\n                    strokeLinejoin=\"round\"\n                    strokeWidth={2}\n                    d=\"M6 18L18 6M6 6l12 12\"\n                  />\n                </svg>\n              </Button>\n            </div>\n          )}\n          \n          {/* Content */}\n          <div className=\"flex-1 overflow-y-auto p-6 mobile-scroll\">\n            {children}\n          </div>\n          \n          {/* Actions */}\n          {actions && (\n            <div className=\"flex gap-3 p-6 border-t border-bolt-elements-borderColor\">\n              {actions}\n            </div>\n          )}\n        </div>\n      </div>\n    </div>\n  );\n};\n\n// Hook for mobile modal\nexport const useMobileModal = () => {\n  const [isOpen, setIsOpen] = React.useState(false);\n  \n  const openModal = useCallback(() => setIsOpen(true), []);\n  const closeModal = useCallback(() => setIsOpen(false), []);\n  const toggleModal = useCallback(() => setIsOpen(prev => !prev), []);\n  \n  return {\n    isOpen,\n    openModal,\n    closeModal,\n    toggleModal,\n  };\n};\n\nexport default MobileModal;
+import React, { useEffect, useCallback, useRef } from 'react';
+import { classNames } from '~/utils/classNames';
+import { Button } from './Button';
+
+interface MobileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  actions?: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'full';
+  position?: 'bottom' | 'center';
+  enableDrag?: boolean;
+  swipeToClose?: boolean;
+  className?: string;
+}
+
+export const MobileModal: React.FC<MobileModalProps> = ({
+  isOpen,
+  onClose,
+  title,
+  children,
+  actions,
+  size = 'md',
+  position = 'bottom',
+  enableDrag = true,
+  swipeToClose = true,
+  className,
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
+  const [dragOffset, setDragOffset] = React.useState(0);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const touchStartY = useRef<number>(0);
+  const touchStartTime = useRef<number>(0);
+
+  const isMobile = typeof window !== 'undefined' && 
+    ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+  // Handle escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
+  // Touch handlers for swipe to close
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!swipeToClose || !isMobile) return;
+    
+    const touch = e.touches[0];
+    touchStartY.current = touch.clientY;
+    touchStartTime.current = Date.now();
+    setIsDragging(true);
+  }, [swipeToClose, isMobile]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging || !swipeToClose) return;
+    
+    const touch = e.touches[0];
+    const deltaY = touch.clientY - touchStartY.current;
+    
+    // Only allow downward swipes for bottom positioned modals
+    if (position === 'bottom' && deltaY > 0) {
+      setDragOffset(deltaY);
+      e.preventDefault();
+    }
+  }, [isDragging, swipeToClose, position]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) return;
+    
+    const deltaY = dragOffset;
+    const deltaTime = Date.now() - touchStartTime.current;
+    const velocity = deltaY / deltaTime;
+    
+    // Close if dragged down more than 100px or fast swipe
+    if (deltaY > 100 || velocity > 0.5) {
+      onClose();
+    }
+    
+    setDragOffset(0);
+    setIsDragging(false);
+  }, [isDragging, dragOffset, onClose]);
+
+  // Background click handler
+  const handleBackgroundClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }, [onClose]);
+
+  const getSizeClasses = () => {
+    const sizes = {
+      sm: 'max-w-sm',
+      md: 'max-w-md',
+      lg: 'max-w-lg',
+      full: 'max-w-full',
+    };
+    return sizes[size];
+  };
+
+  const getPositionClasses = () => {
+    if (position === 'bottom') {
+      return 'items-end justify-center';
+    }
+    return 'items-center justify-center';
+  };
+
+  const getModalClasses = () => {
+    const baseClasses = 'relative w-full bg-bolt-elements-background-depth-1 shadow-xl transition-all duration-300';
+    
+    if (position === 'bottom') {
+      return `${baseClasses} rounded-t-2xl max-h-[90vh]`;
+    }
+    
+    return `${baseClasses} rounded-2xl max-h-[85vh] mx-4`;
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex p-0">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+        onClick={handleBackgroundClick}
+      />
+      
+      {/* Modal Container */}
+      <div className={classNames('relative z-10 flex w-full', getPositionClasses())}>
+        <div 
+          ref={modalRef}
+          className={classNames(
+            getModalClasses(),
+            getSizeClasses(),
+            'transform transition-transform duration-300 ease-out',
+            isDragging ? 'transition-none' : '',
+            className
+          )}
+          style={{
+            transform: `translateY(${dragOffset}px)`,
+          }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Drag Handle */}
+          {enableDrag && position === 'bottom' && (
+            <div 
+              ref={dragHandleRef}
+              className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+            >
+              <div className="w-12 h-1.5 bg-bolt-elements-borderColor rounded-full" />
+            </div>
+          )}
+          
+          {/* Header */}
+          {title && (
+            <div className="flex items-center justify-between p-6 border-b border-bolt-elements-borderColor">
+              <h2 className="text-lg sm:text-xl font-semibold text-bolt-elements-textPrimary">
+                {title}
+              </h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onClose}
+                className="rounded-full"
+                aria-label="Close modal"
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </Button>
+            </div>
+          )}
+          
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6 mobile-scroll">
+            {children}
+          </div>
+          
+          {/* Actions */}
+          {actions && (
+            <div className="flex gap-3 p-6 border-t border-bolt-elements-borderColor">
+              {actions}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Hook for mobile modal
+export const useMobileModal = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  
+  const openModal = useCallback(() => setIsOpen(true), []);
+  const closeModal = useCallback(() => setIsOpen(false), []);
+  const toggleModal = useCallback(() => setIsOpen(prev => !prev), []);
+  
+  return {
+    isOpen,
+    openModal,
+    closeModal,
+    toggleModal,
+  };
+};
+
+export default MobileModal;

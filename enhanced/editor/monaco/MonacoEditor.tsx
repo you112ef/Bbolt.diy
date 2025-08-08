@@ -3,7 +3,7 @@ import * as monaco from 'monaco-editor';
 import { Editor } from '@monaco-editor/react';
 import { useStore } from '@nanostores/react';
 import { themeStore } from '~/lib/stores/theme';
-import { filesStore } from '~/lib/stores/files';
+import { FilesStore } from '~/lib/stores/files';
 import type { FileMap } from '~/lib/stores/files';
 
 // Import Monaco language support

@@ -15,6 +15,29 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
+      rollupOptions: {
+        external: [],
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              return 'vendor';
+            }
+          },
+        },
+      },
+    },
+    ssr: {
+      noExternal: ['@nanostores/react', 'nanostores'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+      exclude: [],
+    },
+    resolve: {
+      dedupe: ['react', 'react-dom'],
     },
     plugins: [
       nodePolyfills({

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
-import { filesStore } from '~/lib/stores/files';
+import { FilesStore } from '~/lib/stores/files';
 import { aiModelsStore, useAIModels } from '~/lib/stores/aiModels';
 import { localAIManager } from '~/enhanced/models/providers/OfflineAI';
 import { Button } from '~/components/ui/Button';
@@ -9,13 +9,12 @@ import { Card } from '~/components/ui/Card';
 import { Badge } from '~/components/ui/Badge';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Dropdown } from '~/components/ui/Dropdown';
-import { Textarea } from '~/components/ui/Textarea';
+// Textarea component not available, will use Input instead
 import { Tabs } from '~/components/ui/Tabs';
 import type { AIModel } from '~/types/aiModels';
 
 // Import LLM manager for real AI providers
-import { getLLMManager } from '~/lib/modules/llm/manager';
-import type { BaseProvider } from '~/lib/modules/llm/types';
+import { LLMManager } from '~/lib/modules/llm/manager';
 
 // Dynamic import for local AI providers
 let OllamaProvider: any = null;
@@ -64,6 +63,7 @@ interface ChatMessage {
     files?: string[];
     selectedCode?: string;
     operation?: string;
+    currentFile?: string;
   };
   isLoading?: boolean;
   error?: string;

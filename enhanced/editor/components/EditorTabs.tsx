@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
-import { filesStore } from '~/lib/stores/files';
+import { FilesStore } from '~/lib/stores/files';
 import { Button } from '~/components/ui/Button';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Tooltip } from '~/components/ui/Tooltip';

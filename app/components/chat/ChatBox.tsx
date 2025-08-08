@@ -19,6 +19,7 @@ import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
 import { McpTools } from './MCPTools';
+const MCP_DISABLED = typeof window !== 'undefined';
 
 interface ChatBoxProps {
   isModelSettingsCollapsed: boolean;
@@ -150,6 +151,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           />
         )}
       </ClientOnly>
+      {!MCP_DISABLED && (
+        <div className="mt-2">
+          <McpTools />
+        </div>
+      )}
       {props.selectedElement && (
         <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
           <div className="flex gap-2 items-center lowercase">
@@ -261,7 +267,6 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <div className="flex justify-between items-center text-sm p-4 pt-2">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <McpTools />
             <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
               <div className="i-ph:paperclip text-xl"></div>
             </IconButton>

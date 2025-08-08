@@ -6,7 +6,6 @@ import {
   convertToCoreMessages,
   formatDataStreamPart,
 } from 'ai';
-import { Experimental_StdioMCPTransport } from 'ai/mcp-stdio';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { z } from 'zod';
 import type { ToolCallAnnotation } from '~/types/context';
@@ -277,6 +276,7 @@ export class MCPService {
       throw new Error('STDIO MCP servers are not supported in this runtime. Use SSE or streamable-http instead.');
     }
 
+    const { Experimental_StdioMCPTransport } = await import('ai/mcp-stdio');
     const client = await experimental_createMCPClient({ transport: new Experimental_StdioMCPTransport(config) });
 
     return Object.assign(client, { serverName });

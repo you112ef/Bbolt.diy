@@ -1,7 +1,6 @@
 # Redirects for Cloudflare Pages - SPA routing support
 
-# API routes - handle via Functions
-/api/* /.netlify/functions/:splat 200
+# API routes handled by Cloudflare Pages Functions (no redirects required)
 
 # Handle all other routes with SPA routing (fallback to index.html)
 /* /index.html 200

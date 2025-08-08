@@ -14,15 +14,26 @@ html,
 body {
   height: 100%;
   width: 100%;
-  background-color: var(--bolt-elements-bg-depth-1);
+  background: linear-gradient(
+    135deg,
+    var(--bolt-elements-bg-depth-1) 0%,
+    color-mix(in srgb, var(--bolt-elements-bg-depth-1), var(--primary-color) 3%) 50%,
+    color-mix(in srgb, var(--bolt-elements-bg-depth-1), var(--secondary-color) 2%) 100%
+  );
+  background-attachment: fixed;
 }
 
 :root {
-  --gradient-opacity: 0.9;
-  /* Sky/Cyan Blue gradient palette */
+  --gradient-opacity: 0.6;
+  /* Enhanced transparent gradient palette */
   --primary-color: rgba(56, 189, 248, var(--gradient-opacity));   /* sky-400 */
   --secondary-color: rgba(14, 165, 233, var(--gradient-opacity)); /* sky-500 */
   --accent-color: rgba(6, 182, 212, var(--gradient-opacity));     /* cyan-500 */
+  --bg-overlay: rgba(255, 255, 255, 0.02);
+  --bg-overlay-dark: rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-bg-dark: rgba(0, 0, 0, 0.1);
+  --blur-strength: 20px;
 }
 
 .modern-scrollbar {
@@ -30,8 +41,8 @@ body {
 
   // WebKit scrollbar styling
   &::-webkit-scrollbar {
-    width: 2px;
-    height: 4px;
+    width: 3px;
+    height: 5px;
   }
 
   &::-webkit-scrollbar-track {
@@ -71,4 +82,41 @@ body {
 
   // Firefox support for inverted colors
   scrollbar-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%) transparent;
+}
+
+// Enhanced glassmorphism effects
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-strength));
+  -webkit-backdrop-filter: blur(var(--blur-strength));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-effect-dark {
+  background: var(--glass-bg-dark);
+  backdrop-filter: blur(var(--blur-strength));
+  -webkit-backdrop-filter: blur(var(--blur-strength));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+// Subtle overlay enhancements
+.enhanced-overlay {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      var(--bg-overlay) 50%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
 }

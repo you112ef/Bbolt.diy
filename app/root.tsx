@@ -19,13 +19,15 @@ import 'virtual:uno.css';
 export const links: LinksFunction = () => [
   {
     rel: 'icon',
-    href: '/favicon.svg',
-    type: 'image/svg+xml',
+    href: '/favicon-enhanced.png',
+    type: 'image/png',
+    sizes: '32x32',
   },
-  { rel: 'icon', href: '/favicon.png', type: 'image/png' },
-  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '16x16' },
+  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '192x192' },
+  { rel: 'apple-touch-icon', href: '/favicon-enhanced.png', sizes: '180x180' },
   { rel: 'manifest', href: '/site.webmanifest' },
-  { rel: 'preload', as: 'image', href: '/logo.svg', fetchPriority: 'high' as any },
+  { rel: 'preload', as: 'image', href: '/yousef-logo-enhanced.png', fetchPriority: 'high' as any },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -41,7 +43,7 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap',
   },
 ];
 
@@ -76,7 +78,7 @@ export const Head = createHead(() => (
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#7C3AED" />
+    <meta name="theme-color" content="#38bdf8" />
     <Meta />
     <Links />
 

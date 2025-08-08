@@ -2,12 +2,12 @@
 :root,
 :root[data-theme='light'] {
   --bolt-elements-borderColor: theme('colors.alpha.gray.10');
-  --bolt-elements-borderColorActive: theme('colors.accent.700');
+  --bolt-elements-borderColorActive: #0ea5e9;
 
-  --bolt-elements-bg-depth-1: theme('colors.white');
-  --bolt-elements-bg-depth-2: theme('colors.gray.50');
-  --bolt-elements-bg-depth-3: theme('colors.gray.200');
-  --bolt-elements-bg-depth-4: theme('colors.alpha.gray.5');
+  --bolt-elements-bg-depth-1: rgba(255, 255, 255, 0.95);
+  --bolt-elements-bg-depth-2: rgba(248, 250, 252, 0.8);
+  --bolt-elements-bg-depth-3: rgba(229, 231, 235, 0.7);
+  --bolt-elements-bg-depth-4: rgba(156, 163, 175, 0.1);
 
   --bolt-elements-textPrimary: theme('colors.gray.950');
   --bolt-elements-textSecondary: theme('colors.gray.600');
@@ -16,9 +16,9 @@
   --bolt-elements-code-background: theme('colors.gray.100');
   --bolt-elements-code-text: theme('colors.gray.950');
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.10');
-  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.20');
-  --bolt-elements-button-primary-text: theme('colors.accent.600');
+  --bolt-elements-button-primary-background: rgba(56, 189, 248, 0.15);
+  --bolt-elements-button-primary-backgroundHover: rgba(56, 189, 248, 0.25);
+  --bolt-elements-button-primary-text: #0ea5e9;
 
   --bolt-elements-button-secondary-background: theme('colors.alpha.gray.5');
   --bolt-elements-button-secondary-backgroundHover: theme('colors.alpha.gray.10');
@@ -38,7 +38,7 @@
   --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.10');
 
   --bolt-elements-loader-background: theme('colors.alpha.gray.10');
-  --bolt-elements-loader-progress: theme('colors.accent.600');
+  --bolt-elements-loader-progress: #38bdf8;
 
   --bolt-elements-artifacts-background: theme('colors.white');
   --bolt-elements-artifacts-backgroundHover: theme('colors.alpha.gray.2');
@@ -50,7 +50,7 @@
   --bolt-elements-actions-code-background: theme('colors.gray.800');
 
   --bolt-elements-messages-background: theme('colors.gray.100');
-  --bolt-elements-messages-linkColor: theme('colors.accent.600');
+  --bolt-elements-messages-linkColor: #0ea5e9;
   --bolt-elements-messages-code-background: theme('colors.gray.800');
   --bolt-elements-messages-inlineCode-background: theme('colors.gray.200');
   --bolt-elements-messages-inlineCode-text: theme('colors.gray.800');
@@ -63,12 +63,12 @@
 
   --bolt-elements-dividerColor: theme('colors.gray.100');
 
-  --bolt-elements-prompt-background: theme('colors.alpha.white.80');
+  --bolt-elements-prompt-background: rgba(255, 255, 255, 0.9);
 
   --bolt-elements-sidebar-dropdownShadow: theme('colors.alpha.gray.10');
-  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.10');
-  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.20');
-  --bolt-elements-sidebar-buttonText: theme('colors.accent.700');
+  --bolt-elements-sidebar-buttonBackgroundDefault: rgba(56, 189, 248, 0.1);
+  --bolt-elements-sidebar-buttonBackgroundHover: rgba(56, 189, 248, 0.2);
+  --bolt-elements-sidebar-buttonText: #0ea5e9;
 
   --bolt-elements-preview-addressBar-background: theme('colors.gray.100');
   --bolt-elements-preview-addressBar-backgroundHover: theme('colors.alpha.gray.5');
@@ -110,12 +110,12 @@
 :root,
 :root[data-theme='dark'] {
   --bolt-elements-borderColor: theme('colors.alpha.white.10');
-  --bolt-elements-borderColorActive: theme('colors.accent.500');
+  --bolt-elements-borderColorActive: #38bdf8;
 
-  --bolt-elements-bg-depth-1: theme('colors.gray.950');
-  --bolt-elements-bg-depth-2: theme('colors.gray.900');
-  --bolt-elements-bg-depth-3: theme('colors.gray.800');
-  --bolt-elements-bg-depth-4: theme('colors.alpha.white.5');
+  --bolt-elements-bg-depth-1: rgba(3, 7, 18, 0.95);
+  --bolt-elements-bg-depth-2: rgba(17, 24, 39, 0.8);
+  --bolt-elements-bg-depth-3: rgba(31, 41, 55, 0.7);
+  --bolt-elements-bg-depth-4: rgba(255, 255, 255, 0.08);
 
   --bolt-elements-textPrimary: theme('colors.white');
   --bolt-elements-textSecondary: theme('colors.gray.400');
@@ -124,9 +124,9 @@
   --bolt-elements-code-background: theme('colors.gray.800');
   --bolt-elements-code-text: theme('colors.white');
 
-  --bolt-elements-button-primary-background: theme('colors.alpha.accent.20');
-  --bolt-elements-button-primary-backgroundHover: theme('colors.alpha.accent.30');
-  --bolt-elements-button-primary-text: theme('colors.accent.500');
+  --bolt-elements-button-primary-background: rgba(56, 189, 248, 0.2);
+  --bolt-elements-button-primary-backgroundHover: rgba(56, 189, 248, 0.3);
+  --bolt-elements-button-primary-text: #38bdf8;
 
   --bolt-elements-button-secondary-background: theme('colors.alpha.white.5');
   --bolt-elements-button-secondary-backgroundHover: theme('colors.alpha.white.10');
@@ -146,7 +146,7 @@
   --bolt-elements-item-backgroundDanger: theme('colors.alpha.red.10');
 
   --bolt-elements-loader-background: theme('colors.alpha.gray.10');
-  --bolt-elements-loader-progress: theme('colors.accent.500');
+  --bolt-elements-loader-progress: #38bdf8;
 
   --bolt-elements-artifacts-background: theme('colors.gray.900');
   --bolt-elements-artifacts-backgroundHover: theme('colors.alpha.white.5');
@@ -158,7 +158,7 @@
   --bolt-elements-actions-code-background: theme('colors.gray.800');
 
   --bolt-elements-messages-background: theme('colors.gray.800');
-  --bolt-elements-messages-linkColor: theme('colors.accent.500');
+  --bolt-elements-messages-linkColor: #38bdf8;
   --bolt-elements-messages-code-background: theme('colors.gray.900');
   --bolt-elements-messages-inlineCode-background: theme('colors.gray.700');
   --bolt-elements-messages-inlineCode-text: var(--bolt-elements-textPrimary);
@@ -171,12 +171,12 @@
 
   --bolt-elements-dividerColor: theme('colors.gray.100');
 
-  --bolt-elements-prompt-background: theme('colors.alpha.gray.80');
+  --bolt-elements-prompt-background: rgba(17, 24, 39, 0.9);
 
   --bolt-elements-sidebar-dropdownShadow: theme('colors.alpha.gray.30');
-  --bolt-elements-sidebar-buttonBackgroundDefault: theme('colors.alpha.accent.10');
-  --bolt-elements-sidebar-buttonBackgroundHover: theme('colors.alpha.accent.20');
-  --bolt-elements-sidebar-buttonText: theme('colors.accent.500');
+  --bolt-elements-sidebar-buttonBackgroundDefault: rgba(56, 189, 248, 0.1);
+  --bolt-elements-sidebar-buttonBackgroundHover: rgba(56, 189, 248, 0.2);
+  --bolt-elements-sidebar-buttonText: #38bdf8;
 
   --bolt-elements-preview-addressBar-background: var(--bolt-elements-bg-depth-1);
   --bolt-elements-preview-addressBar-backgroundHover: theme('colors.alpha.white.5');

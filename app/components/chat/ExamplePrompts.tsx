@@ -4,127 +4,127 @@ import React from 'react';
 const EXAMPLE_PROMPTS = [
   // Mobile & Web Apps
   { 
-    text: 'Create a mobile-first e-commerce app with React Native navigation', 
+    text: 'إنشاء تطبيق جوال للتجارة الإلكترونية مع تنقل React Native', 
     category: 'Mobile' 
   },
   { 
-    text: 'Build a real-time chat application with WebSocket support', 
+    text: 'بناء تطبيق دردشة فورية مع دعم WebSocket', 
     category: 'Web App' 
   },
   { 
-    text: 'Develop a PWA dashboard for analytics with offline support', 
+    text: 'تطوير PWA لوحة تحكم للتحليلات مع دعم العمل دون اتصال', 
     category: 'PWA' 
   },
   
   // AI & Machine Learning
   { 
-    text: 'Implement image classification using TensorFlow.js in the browser', 
+    text: 'تطبيق تصنيف الصور باستخدام TensorFlow.js في المتصفح', 
     category: 'AI/ML' 
   },
   { 
-    text: 'Create a chatbot with natural language processing capabilities', 
+    text: 'إنشاء chatbot مع قدرات معالجة اللغة الطبيعية', 
     category: 'AI/ML' 
   },
   { 
-    text: 'Build a recommendation system using collaborative filtering', 
+    text: 'بناء نظام توصيات باستخدام التصفية التعاونية', 
     category: 'AI/ML' 
   },
   
   // Backend & APIs
   { 
-    text: 'Design a REST API with authentication, rate limiting, and documentation', 
+    text: 'تصميم REST API مع المصادقة وتحديد المعدل والتوثيق', 
     category: 'Backend' 
   },
   { 
-    text: 'Create a GraphQL server with real-time subscriptions', 
+    text: 'إنشاء خادم GraphQL مع اشتراكات في الوقت الفعلي', 
     category: 'Backend' 
   },
   { 
-    text: 'Build a microservices architecture with Docker and Kubernetes', 
+    text: 'بناء معمارية الخدمات المصغرة مع Docker وKubernetes', 
     category: 'DevOps' 
   },
   
   // Data & Analytics
   { 
-    text: 'Create interactive data visualizations with D3.js and React', 
+    text: 'إنشاء تصورات بيانات تفاعلية مع D3.js وReact', 
     category: 'Data Viz' 
   },
   { 
-    text: 'Build a real-time monitoring dashboard with metrics and alerts', 
+    text: 'بناء لوحة مراقبة في الوقت الفعلي مع المقاييس والتنبيهات', 
     category: 'Analytics' 
   },
   { 
-    text: 'Develop an ETL pipeline for processing large datasets', 
+    text: 'تطوير خط أنابيب ETL لمعالجة مجموعات البيانات الكبيرة', 
     category: 'Data Engineering' 
   },
   
   // Gaming & Interactive
   { 
-    text: 'Create a multiplayer game with WebRTC peer-to-peer networking', 
+    text: 'إنشاء لعبة متعددة اللاعبين مع شبكة WebRTC نظير إلى نظير', 
     category: 'Gaming' 
   },
   { 
-    text: 'Build a 3D interactive visualization using Three.js', 
+    text: 'بناء تصور ثلاثي الأبعاد تفاعلي باستخدام Three.js', 
     category: 'Interactive' 
   },
   { 
-    text: 'Develop a VR/AR experience for web browsers', 
+    text: 'تطوير تجربة VR/AR لمتصفحات الويب', 
     category: 'XR' 
   },
   
   // E-commerce & Business
   { 
-    text: 'Build a complete e-commerce platform with payment integration', 
+    text: 'بناء منصة تجارة إلكترونية كاملة مع تكامل الدفع', 
     category: 'E-commerce' 
   },
   { 
-    text: 'Create a CRM system with customer management and analytics', 
+    text: 'إنشاء نظام CRM مع إدارة العملاء والتحليلات', 
     category: 'Business' 
   },
   { 
-    text: 'Develop an inventory management system with barcode scanning', 
+    text: 'تطوير نظام إدارة المخزون مع مسح الباركود', 
     category: 'Business' 
   },
   
   // Security & Privacy
   { 
-    text: 'Implement end-to-end encryption for messaging applications', 
+    text: 'تطبيق التشفير من طرف إلى طرف لتطبيقات المراسلة', 
     category: 'Security' 
   },
   { 
-    text: 'Create a secure authentication system with OAuth and 2FA', 
+    text: 'إنشاء نظام مصادقة آمن مع OAuth و2FA', 
     category: 'Security' 
   },
   { 
-    text: 'Build a privacy-focused analytics platform without cookies', 
+    text: 'بناء منصة تحليلات تركز على الخصوصية بدون cookies', 
     category: 'Privacy' 
   },
   
   // IoT & Hardware
   { 
-    text: 'Create an IoT dashboard for smart home automation', 
+    text: 'إنشاء لوحة تحكم IoT لأتمتة المنزل الذكي', 
     category: 'IoT' 
   },
   { 
-    text: 'Build a sensor data collection system with Arduino integration', 
+    text: 'بناء نظام جمع بيانات المستشعرات مع تكامل Arduino', 
     category: 'Hardware' 
   },
   { 
-    text: 'Develop a real-time environmental monitoring application', 
+    text: 'تطوير تطبيق مراقبة بيئية في الوقت الفعلي', 
     category: 'IoT' 
   },
   
   // Productivity & Tools
   { 
-    text: 'Create a collaborative code editor with real-time collaboration', 
+    text: 'إنشاء محرر أكواد تعاوني مع تعاون في الوقت الفعلي', 
     category: 'Productivity' 
   },
   { 
-    text: 'Build a project management tool with Kanban boards and timelines', 
+    text: 'بناء أداة إدارة مشاريع مع لوحات Kanban والجداول الزمنية', 
     category: 'Productivity' 
   },
   { 
-    text: 'Develop a documentation generator with automatic API discovery', 
+    text: 'تطوير مولد توثيق مع اكتشاف API تلقائي', 
     category: 'Tools' 
   }
 ];
@@ -149,42 +149,37 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
   const displayPrompts = React.useMemo(() => getRandomPrompts(6), []);
   
   return (
-    <div id="examples" className="relative flex flex-col gap-4 w-full max-w-4xl mx-auto flex justify-center mt-4">
-      <div className="text-center mb-3">
-        <h3 className="bolt-text-md font-medium text-bolt-elements-textPrimary mb-1 opacity-90">
-          ✨ Explore What You Can Build
+    <div id="examples" className="relative flex flex-col gap-3 w-full max-w-3xl mx-auto flex justify-center mt-3">
+      <div className="text-center mb-2">
+        <h3 className="text-sm font-medium text-bolt-elements-textPrimary mb-1 opacity-90">
+          ✨ استكشف ما يمكنك بناؤه
         </h3>
-        <p className="bolt-text-xs text-bolt-elements-textSecondary opacity-70">
-          Click any example below to get started, or type your own idea
+        <p className="text-xs text-bolt-elements-textSecondary opacity-70">
+          انقر على أي مثال أدناه للبدء، أو اكتب فكرتك الخاصة
         </p>
       </div>
       
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"
         style={{
           animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
         }}
       >
         {displayPrompts.map((examplePrompt, index: number) => {
-          // Use a neutral, transparent appearance for all items (no colored backgrounds)
-          const categoryColor = 'bg-transparent border-transparent text-bolt-elements-textPrimary';
-          
           return (
             <button
               key={index}
               onClick={(event) => {
                 sendMessage?.(event, examplePrompt.text);
               }}
-              className={`group relative p-3 border rounded-md transition-all duration-200 hover:scale-[1.01] text-left ${
-                categoryColor
-              }`}
+              className="group relative p-2.5 border border-bolt-elements-borderColor bg-gradient-to-br from-bolt-elements-bg-depth-2/50 to-bolt-elements-bg-depth-3/30 backdrop-blur-sm rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:border-bolt-elements-borderColorActive/50 text-left"
               title={`Category: ${examplePrompt.category}`}
             >
-              <div className="flex items-start justify-between mb-2">
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-transparent">
+              <div className="flex items-start justify-between mb-1.5">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-bolt-elements-bg-depth-4/60 text-bolt-elements-textSecondary">
                   {examplePrompt.category}
                 </span>
-                <div className="text-lg opacity-60 group-hover:opacity-100 transition-opacity">
+                <div className="text-sm opacity-60 group-hover:opacity-100 transition-opacity">
                   {examplePrompt.category === 'Mobile' && '📱'}
                   {examplePrompt.category === 'Web App' && '🌐'}
                   {examplePrompt.category === 'PWA' && '⚡'}
@@ -207,18 +202,18 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
                   {examplePrompt.category === 'Tools' && '🛠️'}
                 </div>
               </div>
-              <p className="bolt-text-sm font-medium leading-snug opacity-85 group-hover:opacity-100 transition-opacity">
+              <p className="text-xs font-normal leading-relaxed text-bolt-elements-textPrimary opacity-85 group-hover:opacity-100 transition-opacity">
                 {examplePrompt.text}
               </p>
-              <div className="absolute inset-0 rounded-md opacity-0 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-color/5 to-secondary-color/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </button>
           );
         })}
       </div>
       
-      <div className="text-center mt-3">
-        <p className="bolt-text-xs text-bolt-elements-textTertiary opacity-60">
-          💡 Pro tip: Be specific about technologies, features, and requirements for better results
+      <div className="text-center mt-2">
+        <p className="text-xs text-bolt-elements-textTertiary opacity-60">
+          💡 نصيحة: كن محدداً حول التقنيات والميزات والمتطلبات للحصول على أفضل النتائج
         </p>
       </div>
     </div>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Bolt.diy logo design -->
+    <group android:scaleX="0.8"
+           android:scaleY="0.8"
+           android:pivotX="54"
+           android:pivotY="54">
+           
+        <!-- Background circle -->
+        <path
+            android:fillColor="@color/primary"
+            android:pathData="M54,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+            
+        <!-- Lightning bolt -->
+        <path
+            android:fillColor="@color/text_primary"
+            android:pathData="M45,35L58,35L50,54L65,54L55,73L42,73L50,54L35,54L45,35Z" />
+            
+        <!-- Code brackets -->
+        <path
+            android:fillColor="@color/accent"
+            android:strokeWidth="2"
+            android:strokeColor="@color/accent"
+            android:pathData="M38,42L32,48L38,54M70,42L76,48L70,54" />
+    </group>
+</vector>

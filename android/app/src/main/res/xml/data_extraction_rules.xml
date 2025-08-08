@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Include user preferences and settings -->
+        <include domain="sharedpref" path="." />
+        <include domain="database" path="." />
+        
+        <!-- Exclude sensitive and large data -->
+        <exclude domain="file" path="ai_models/" />
+        <exclude domain="file" path="cache/" />
+        <exclude domain="file" path="temp/" />
+        <exclude domain="sharedpref" path="api_keys.xml" />
+        <exclude domain="sharedpref" path="auth_tokens.xml" />
+    </cloud-backup>
+    
+    <device-transfer>
+        <!-- Include user data for device transfer -->
+        <include domain="sharedpref" path="." />
+        <include domain="database" path="." />
+        <include domain="file" path="projects/" />
+        
+        <!-- Exclude temporary and cache data -->
+        <exclude domain="file" path="cache/" />
+        <exclude domain="file" path="temp/" />
+        <exclude domain="file" path="ai_models/" />
+    </device-transfer>
+</data-extraction-rules>

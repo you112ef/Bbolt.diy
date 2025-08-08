@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internal storage -->
+    <files-path name="internal_files" path="." />
+    <cache-path name="internal_cache" path="." />
+    
+    <!-- External storage -->
+    <external-files-path name="external_files" path="." />
+    <external-cache-path name="external_cache" path="." />
+    <external-path name="external_storage" path="." />
+    
+    <!-- AI Models directory -->
+    <files-path name="ai_models" path="ai_models/" />
+    <external-files-path name="external_ai_models" path="ai_models/" />
+    
+    <!-- Project files -->
+    <files-path name="projects" path="projects/" />
+    <external-files-path name="external_projects" path="projects/" />
+    
+    <!-- Cache for temporary files -->
+    <cache-path name="temp_files" path="temp/" />
+    <external-cache-path name="external_temp" path="temp/" />
+    
+    <!-- Downloads -->
+    <external-path name="downloads" path="Download/" />
+    
+    <!-- Documents -->
+    <external-path name="documents" path="Documents/" />
+</paths>

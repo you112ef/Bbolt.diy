@@ -1,0 +1,347 @@
+/* Mobile Touch Optimizations */
+
+/* Touch target sizes - minimum 44px for accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Enhanced button touch areas */
+button, .button, [role="button"] {
+  min-height: 44px;
+  padding: 12px 16px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Improve touch response */
+  &:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Larger touch area for small buttons */
+  &.btn-sm {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+  
+  &.btn-lg {
+    min-height: 56px;
+    padding: 16px 24px;
+  }
+}
+
+/* Mobile-optimized input fields */
+input, textarea, select {
+  min-height: 44px;
+  padding: 12px 16px;
+  font-size: 16px; /* Prevent zoom on iOS */
+  border-radius: 8px;
+  
+  &:focus {
+    outline: 2px solid var(--bolt-elements-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Touch-friendly navigation */
+.touch-nav {
+  padding: 16px;
+  
+  a, button {
+    display: block;
+    padding: 16px;
+    margin: 4px 0;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    &:hover, &:focus {
+      background-color: rgba(99, 102, 241, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      background-color: rgba(99, 102, 241, 0.2);
+    }
+  }
+}
+
+/* Swipe gestures support */
+.swipeable {
+  touch-action: pan-y;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+  
+  &.swipe-left {
+    transform: translateX(-100px);
+    transition: transform 0.3s ease;
+  }
+  
+  &.swipe-right {
+    transform: translateX(100px);
+    transition: transform 0.3s ease;
+  }
+  
+  &.swipe-reset {
+    transform: translateX(0);
+    transition: transform 0.3s ease;
+  }
+}
+
+/* Pull-to-refresh indicator */
+.pull-to-refresh {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ddd;
+    border-top: 3px solid var(--bolt-elements-focus);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  
+  &.pulling {
+    padding-top: 60px;
+    
+    &::before {
+      opacity: 1;
+      top: 10px;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  100% { transform: translateX(-50%) rotate(360deg); }
+}
+
+/* Touch feedback for cards and interactive elements */
+.card, .interactive-element {
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Mobile-optimized scrollbars */
+.mobile-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.3) transparent;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(99, 102, 241, 0.5);
+    }
+  }
+}
+
+/* Haptic feedback classes */
+.haptic-light {
+  /* Will be handled by JavaScript */
+}
+
+.haptic-medium {
+  /* Will be handled by JavaScript */
+}
+
+.haptic-heavy {
+  /* Will be handled by JavaScript */
+}
+
+/* Long press detection */
+.long-pressable {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  
+  &.long-pressing::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Touch-optimized modal and dialog */
+.mobile-modal {
+  padding: 20px;
+  max-height: 90vh;
+  border-radius: 16px 16px 0 0;
+  
+  .modal-header {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--bolt-elements-borderColor);
+    
+    .close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 22px;
+      background: rgba(0, 0, 0, 0.1);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  .modal-content {
+    padding: 20px 0;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .modal-actions {
+    padding: 16px 0;
+    display: flex;
+    gap: 12px;
+    
+    button {
+      flex: 1;
+      min-height: 48px;
+    }
+  }
+}
+
+/* Touch-friendly table/grid */
+.touch-table {
+  .table-row {
+    padding: 16px;
+    border-bottom: 1px solid var(--bolt-elements-borderColor);
+    
+    &:active {
+      background: rgba(99, 102, 241, 0.05);
+    }
+  }
+  
+  .table-cell {
+    padding: 8px 0;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* Improved focus indicators for keyboard navigation */
+.focus-visible {
+  outline: 2px solid var(--bolt-elements-focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Safe area support for devices with notches */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Orientation-specific styles */
+@media screen and (orientation: landscape) {
+  .mobile-modal {
+    max-height: 80vh;
+    border-radius: 16px;
+  }
+  
+  .touch-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    a, button {
+      flex: 1;
+      margin: 0;
+    }
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  button:active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .touch-nav a:hover,
+  .touch-nav button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .touch-nav a:active,
+  .touch-nav button:active {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  button, .button {
+    border: 2px solid currentColor;
+  }
+  
+  input, textarea, select {
+    border: 2px solid currentColor;
+  }
+  
+  .focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  button:active,
+  .card:active,
+  .interactive-element:active {
+    transform: none;
+  }
+  
+  .swipeable {
+    transition: none;
+  }
+  
+  .pull-to-refresh::before {
+    animation: none;
+  }
+}

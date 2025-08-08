@@ -172,10 +172,73 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
-    this._config = config;
-    await this._createClients();
-
+    // Filter out stdio servers in unsupported environments to avoid runtime errors
+    if (stdioUnsupported()) {
+      const filtered: MCPConfig = { mcpServers: {} };
+      for (const [name, cfg] of Object.entries(config?.mcpServers || {})) {
+        if ((cfg as any).type !== 'stdio' && (cfg as any).command === undefined) {
+          filtered.mcpServers[name] = cfg as any;
+        }
+      }
+      this._config = filtered;
+    } else {
+      this._config = config;
+    }
+    // Do not eagerly initialize clients; they will be created lazily on demand
+    await this._closeClients();
     return this._mcpToolsPerServer;
+  }
+
+  private async _initializeServerIfNeeded(serverName: string): Promise<void> {
+    if (this._mcpToolsPerServer[serverName]?.client) {
+      return; // already initialized
+    }
+
+    const config = this._config?.mcpServers?.[serverName];
+    if (!config) return;
+
+    try {
+      const client = await this._createMCPClient(serverName, config);
+      try {
+        const tools = await client.tools();
+        this._registerTools(serverName, tools);
+        this._mcpToolsPerServer[serverName] = {
+          status: 'available',
+          client,
+          tools,
+          config,
+        };
+      } catch (err) {
+        logger.error(`Failed to get tools from server ${serverName}:`, err);
+        this._mcpToolsPerServer[serverName] = {
+          status: 'unavailable',
+          error: 'could not retrieve tools from server',
+          client,
+          config,
+        };
+      }
+    } catch (err) {
+      logger.error(`Failed to initialize MCP client for server: ${serverName}`, err);
+      this._mcpToolsPerServer[serverName] = {
+        status: 'unavailable',
+        error: (err as Error).message,
+        client: null,
+        config,
+      } as MCPServerUnavailable;
+    }
+  }
+
+  async ensureToolLoaded(toolName: string): Promise<boolean> {
+    if (this.isValidToolName(toolName)) return true;
+
+    // Try initializing each server lazily until tool is found
+    for (const [serverName] of Object.entries(this._config?.mcpServers || {})) {
+      await this._initializeServerIfNeeded(serverName);
+      if (this.isValidToolName(toolName)) {
+        return true;
+      }
+    }
+    return this.isValidToolName(toolName);
   }
 
   private async _createStreamableHTTPClient(
@@ -409,8 +472,18 @@ export class MCPService {
         const { toolInvocation } = part;
         const { toolName, toolCallId } = toolInvocation;
 
-        // return part as-is if tool does not exist, or if it's not a tool call result
-        if (!this.isValidToolName(toolName) || toolInvocation.state !== 'result') {
+        // If it's not a tool call result, return as-is
+        if (toolInvocation.state !== 'result') {
+          return part;
+        }
+
+        // If tool is unknown, attempt to lazily initialize servers to load it
+        if (!this.isValidToolName(toolName)) {
+          await this.ensureToolLoaded(toolName);
+        }
+
+        // Return part as-is if tool still does not exist
+        if (!this.isValidToolName(toolName)) {
           return part;
         }
 

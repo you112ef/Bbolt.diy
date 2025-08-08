@@ -92,6 +92,7 @@ export default function MongoDBConnection() {
       const newStats: MongoDBStats = {
         isConnected: true,
         ...parsedInfo,
+        connectionType: parsedInfo.connectionType || 'hosted',
         lastConnected: new Date(),
         connectionInfo: {
           serverVersion: '6.0.0', // This would come from actual connection

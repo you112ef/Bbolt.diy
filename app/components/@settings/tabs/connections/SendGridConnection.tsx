@@ -74,7 +74,7 @@ export default function SendGridConnection() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as any;
         throw new Error(errorData.errors?.[0]?.message || 'Invalid API key');
       }
 
@@ -102,7 +102,7 @@ export default function SendGridConnection() {
       });
 
       if (!userResponse.ok) {
-        const errorData = await userResponse.json();
+        const errorData = await userResponse.json() as any;
         throw new Error(errorData.errors?.[0]?.message || 'Failed to fetch user data');
       }
 
@@ -115,7 +115,7 @@ export default function SendGridConnection() {
           headers
         });
         if (reputationResponse.ok) {
-          const reputationData = await reputationResponse.json();
+          const reputationData = await reputationResponse.json() as any;
           reputation = reputationData.reputation;
         }
       } catch (error) {
@@ -140,7 +140,7 @@ export default function SendGridConnection() {
       const newStats: SendGridStats = {
         user: userData,
         reputation,
-        credits,
+        credits: credits as any,
         lastConnected: new Date()
       };
 

@@ -106,7 +106,7 @@ export default function CloudflareConnection() {
         }
       });
 
-      const zonesData = await zonesResponse.json();
+      const zonesData = await zonesResponse.json() as any;
       if (!zonesData.success) {
         throw new Error(zonesData.errors?.[0]?.message || 'Failed to fetch zones');
       }

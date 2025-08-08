@@ -422,10 +422,10 @@ const AIModelsTab = () => {
                 <div key={progress.modelId} className="bg-bolt-elements-surface rounded-lg p-2 sm:p-3">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-medium truncate">{progress.fileName}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      progress.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      progress.status === 'error' ? 'bg-red-100 text-red-800' :
-                      'bg-blue-100 text-blue-800'
+                    <span className={`text-xs px-2 py-1 rounded border ${
+                      progress.status === 'completed' ? 'border-green-500 text-green-600 bg-transparent' :
+                      progress.status === 'error' ? 'border-red-500 text-red-600 bg-transparent' :
+                      'border-blue-500 text-blue-600 bg-transparent'
                     }`}>
                       {progress.status}
                     </span>
@@ -469,10 +469,10 @@ const AIModelsTab = () => {
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium text-sm sm:text-base truncate">{model.name}</h4>
                       <span className={`px-2 py-0.5 rounded text-xs ${
-                        model.status === 'ready' ? 'bg-green-100 text-green-800' :
-                        model.status === 'loading' ? 'bg-blue-100 text-blue-800' :
-                        model.status === 'error' ? 'bg-red-100 text-red-800' :
-                        'bg-gray-100 text-gray-800'
+                        model.status === 'ready' ? 'border-green-500 text-green-600 bg-transparent' :
+                        model.status === 'loading' ? 'border-blue-500 text-blue-600 bg-transparent' :
+                        model.status === 'error' ? 'border-red-500 text-red-600 bg-transparent' :
+                        'border-gray-500 text-gray-600 bg-transparent'
                       }`}>
                         {model.status}
                       </span>

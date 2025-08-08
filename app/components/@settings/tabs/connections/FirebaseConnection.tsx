@@ -92,7 +92,7 @@ export default function FirebaseConnection() {
       const response = await fetch(projectUrl);
       
       if (response.ok) {
-        const projectData = await response.json();
+        const projectData = await response.json() as any;
         
         setStatus({
           isConnected: true,

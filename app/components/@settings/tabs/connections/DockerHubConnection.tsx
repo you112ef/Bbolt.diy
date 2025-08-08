@@ -132,7 +132,7 @@ export default function DockerHubConnection() {
         throw new Error(`Failed to fetch repositories: ${reposResponse.statusText}`);
       }
 
-      const reposData = await reposResponse.json();
+      const reposData = await reposResponse.json() as any;
       const repositories: DockerHubRepository[] = reposData.results || [];
 
       // Calculate stats

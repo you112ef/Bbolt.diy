@@ -82,7 +82,7 @@ export default function StripeConnection() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json() as any;
         throw new Error(errorData.error?.message || 'Invalid API key');
       }
 
@@ -112,7 +112,7 @@ export default function StripeConnection() {
       });
 
       if (!accountResponse.ok) {
-        const errorData = await accountResponse.json();
+        const errorData = await accountResponse.json() as any;
         throw new Error(errorData.error?.message || 'Failed to fetch account data');
       }
 

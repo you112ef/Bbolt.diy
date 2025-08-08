@@ -60,7 +60,7 @@ export default function RailwayConnection() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as any;
         if (data.data?.me) {
           setStatus({
             isConnected: true,

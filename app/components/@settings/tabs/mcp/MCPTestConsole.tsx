@@ -193,7 +193,11 @@ export const MCPTestConsole = memo(() => {
   const stats = getTestStats();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <div className="p-3 rounded-md border border-blue-500/30 bg-blue-500/10 text-sm text-blue-800 dark:text-blue-300">
+        Tip: In this environment, only SSE or streamable-http MCP servers can be tested. STDIO servers are not
+        supported and will fail to connect.
+      </div>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

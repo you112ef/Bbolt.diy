@@ -137,7 +137,8 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
             name,
             description: mcpTool.description,
             category: mcpTool.category,
-            enabled: DEFAULT_ENABLED_TOOLS.includes(name),
+            // Do not enable STDIO tools by default in browser/edge runtimes
+            enabled: DEFAULT_ENABLED_TOOLS.includes(name) && mcpTool.type !== 'stdio',
             type: mcpTool.type || 'stdio',
             command: mcpTool.command,
             args: mcpTool.args,
@@ -216,7 +217,8 @@ async function generateMCPConfigFromCommunityTools(tools: Record<string, Communi
   const mcpServers: Record<string, any> = {};
   
   Object.entries(tools).forEach(([name, tool]) => {
-    if (tool.enabled) {
+    // Skip stdio tools when running from the browser/edge runtime
+    if (tool.enabled && tool.type !== 'stdio') {
       mcpServers[name] = {
         type: tool.type || 'stdio',
         command: tool.command || '',

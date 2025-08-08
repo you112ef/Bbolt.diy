@@ -4,7 +4,6 @@ import { Dialog, DialogRoot, DialogClose, DialogTitle, DialogButton } from '~/co
 import { IconButton } from '~/components/ui/IconButton';
 import { useMCPStore } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
-import { useSettingsStore } from '~/lib/stores/settings';
 
 // Timeout helper to avoid long-hanging operations
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -28,9 +27,6 @@ export function McpTools() {
   const initialize = useMCPStore((state) => state.initialize);
   const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
   const settings = useMCPStore((state) => state.settings);
-
-  const openSettings = useSettingsStore((s) => s.openSettings);
-  const setSelectedTab = useSettingsStore((s) => s.setSelectedTab);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -94,13 +90,6 @@ export function McpTools() {
     }
   };
 
-  const openMcpSettings = () => {
-    // Open settings panel directly on MCP tab
-    setSelectedTab('mcp');
-    openSettings();
-    setIsDialogOpen(false);
-  };
-
   const serverEntries = useMemo(() => Object.entries(serverTools), [serverTools]);
 
   return (
@@ -108,7 +97,7 @@ export function McpTools() {
       <div className="flex">
         <IconButton
           onClick={() => handleDialogOpen(!isDialogOpen)}
-          title="MCP Tools"
+          title="MCP Tools Available"
           className="transition-all"
         >
           {isBooting ? (
@@ -130,7 +119,7 @@ export function McpTools() {
 
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2 gap-2">
+                  <div className="flex justify-end items-center mb-2">
                     <button
                       onClick={checkServerAvailability}
                       disabled={isCheckingServers || serverEntries.length === 0}
@@ -149,20 +138,6 @@ export function McpTools() {
                         <div className="i-ph:arrow-counter-clockwise w-3 h-3" />
                       )}
                       Check availability
-                    </button>
-
-                    <button
-                      onClick={openMcpSettings}
-                      className={classNames(
-                        'px-3 py-1.5 rounded-lg text-sm',
-                        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent',
-                        'hover:bg-bolt-elements-item-backgroundActive',
-                        'transition-all duration-200',
-                        'flex items-center gap-2',
-                      )}
-                    >
-                      <div className="i-ph:sliders w-3 h-3" />
-                      Open MCP Settings
                     </button>
                   </div>
                   {serverEntries.length > 0 ? (

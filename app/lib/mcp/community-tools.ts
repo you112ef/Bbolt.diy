@@ -396,23 +396,8 @@ export function toolRequiresAuth(toolName: string): boolean {
   return tool?.requiresAuth || false;
 }
 
-// Default enabled tools (essential ones that work without API keys)
-export const DEFAULT_ENABLED_TOOLS = [
-  "fetch",
-  "filesystem", 
-  "git",
-  "time",
-  "memory",
-  "sqlite",
-  "docker",
-  "analytics",
-  "pandas",
-  "excel",
-  "puppeteer",
-  "selenium",
-  "obsidian",
-  "raspberry-pi"
-];
+// Default enabled tools (empty to stop all by default)
+export const DEFAULT_ENABLED_TOOLS: string[] = [];
 
 // Tools that require API keys or authentication
 export const AUTH_REQUIRED_TOOLS = Object.entries(COMMUNITY_MCP_TOOLS)

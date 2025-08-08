@@ -88,6 +88,10 @@ export const Head = createHead(() => (
 
 export function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    // Ensure Arabic language and right-to-left direction
+    document.documentElement.lang = 'ar';
+    document.documentElement.dir = 'rtl';
+
     // Subscribe to theme changes after initial hydration
     const unsubscribe = themeStore.subscribe((newTheme) => {
       const currentTheme = document.documentElement.getAttribute('data-theme');

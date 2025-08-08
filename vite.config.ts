@@ -15,6 +15,53 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
+      sourcemap: false, // Disable sourcemaps to reduce memory usage for Cloudflare
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        external: [],
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('react') || id.includes('react-dom')) {
+                return 'react-vendor';
+              }
+              if (id.includes('@codemirror')) {
+                return 'codemirror';
+              }
+              if (id.includes('@radix-ui')) {
+                return 'radix';
+              }
+              if (id.includes('ai-sdk') || id.includes('@ai-sdk')) {
+                return 'ai-vendor';
+              }
+              return 'vendor';
+            }
+          },
+          // Optimize for Cloudflare Workers runtime
+          format: 'es',
+          exports: 'named',
+        },
+      },
+    },
+    ssr: {
+      noExternal: ['@nanostores/react', 'nanostores'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+      exclude: [],
+      force: true,
+    },
+    resolve: {
+      dedupe: ['react', 'react-dom'],
+      alias: {
+        'node:crypto': 'crypto-browserify',
+        crypto: 'crypto-browserify',
+        path: 'path-browserify',
+        'child_process': false as unknown as string,
+        // avoid pulling stdio transport in browser/Pages builds (use shim that throws)
+        'ai/mcp-stdio': '/app/shims/mcp-stdio-shim.ts',
+      },
     },
     plugins: [
       nodePolyfills({

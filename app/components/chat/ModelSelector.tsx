@@ -86,9 +86,9 @@ export const ModelSelector = ({
       );
     });
 
-  const filteredProviders = providerList.filter((p) =>
-    p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()),
-  );
+  const filteredProviders = providerList
+  .filter((p) => !['Ollama', 'LMStudio', 'OpenAILike', 'OfflineAI', 'Local'].includes(p.name))
+  .filter((p) => p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()));
 
   // Reset free models filter when provider changes
   useEffect(() => {

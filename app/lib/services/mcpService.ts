@@ -20,6 +20,16 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('mcp-service');
 
+const isEdgeRuntime = typeof WebSocket !== 'undefined' && typeof window === 'undefined' ? true : false;
+const isBrowser = typeof window !== 'undefined';
+const isCloudflarePages = typeof globalThis !== 'undefined' && // @ts-ignore
+  typeof (globalThis as any).WebSocketPair !== 'undefined';
+
+function stdioUnsupported(): boolean {
+  // STDIO is not supported on Cloudflare Workers/Pages or in the browser
+  return isBrowser || isCloudflarePages || isEdgeRuntime;
+}
+
 export const stdioServerConfigSchema = z
   .object({
     type: z.enum(['stdio']).optional(),
@@ -200,6 +210,10 @@ export class MCPService {
       `Creating STDIO client for '${serverName}' with command: '${config.command}' ${config.args?.join(' ') || ''}`,
     );
 
+    if (stdioUnsupported()) {
+      throw new Error('STDIO MCP servers are not supported in this runtime. Use SSE or streamable-http instead.');
+    }
+
     const client = await experimental_createMCPClient({ transport: new Experimental_StdioMCPTransport(config) });
 
     return Object.assign(client, { serverName });
@@ -225,6 +239,9 @@ export class MCPService {
     const validatedConfig = this._validateServerConfig(serverName, serverConfig);
 
     if (validatedConfig.type === 'stdio') {
+      if (stdioUnsupported()) {
+        throw new Error(`Server "${serverName}" uses stdio which is unsupported in this environment.`);
+      }
       return await this._createStdioClient(serverName, serverConfig as STDIOServerConfig);
     } else if (validatedConfig.type === 'sse') {
       return await this._createSSEClient(serverName, serverConfig as SSEServerConfig);

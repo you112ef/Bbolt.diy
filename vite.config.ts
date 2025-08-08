@@ -16,7 +16,9 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
-      sourcemap: false, // Disable sourcemaps to reduce memory usage
+      sourcemap: false, // Disable sourcemaps to reduce memory usage for Cloudflare
+      minify: 'esbuild',
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         external: [],
         output: {
@@ -31,9 +33,15 @@ export default defineConfig((config) => {
               if (id.includes('@radix-ui')) {
                 return 'radix';
               }
+              if (id.includes('ai-sdk') || id.includes('@ai-sdk')) {
+                return 'ai-vendor';
+              }
               return 'vendor';
             }
           },
+          // Optimize for Cloudflare Workers runtime
+          format: 'es',
+          exports: 'named',
         },
       },
     },
@@ -72,8 +80,8 @@ export default defineConfig((config) => {
           return null;
         },
       },
-      // Disable cloudflare dev proxy in development to avoid GLIBC issues
-      // config.mode !== 'test' && remixCloudflareDevProxy(),
+      // Enable cloudflare dev proxy for better local development
+      config.mode !== 'test' && config.mode !== 'production' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,

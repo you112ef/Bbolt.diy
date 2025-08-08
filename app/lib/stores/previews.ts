@@ -8,16 +8,7 @@ declare global {
   }
 }
 
-export interface PreviewInfo {
-  port: number;
-  ready: boolean;
-  baseUrl: string;
-}
-
-// Create a broadcast channel for preview updates
-const PREVIEW_CHANNEL = 'preview-updates';
-
-// Minimal BroadcastChannel-like interface for SSR/Workers
+// Minimal interface to avoid depending on the real BroadcastChannel in non-browser envs
 interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   close(): void;
@@ -25,10 +16,11 @@ interface BroadcastChannelLike {
 }
 
 function createBroadcastChannel(name: string): BroadcastChannelLike {
-  const hasBC = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+  const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
 
-  if (hasBC) {
-    return new (window as any).BroadcastChannel(name) as unknown as BroadcastChannelLike;
+  if (isBrowser) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new (window as any).BroadcastChannel(name) as BroadcastChannelLike;
   }
 
   // No-op shim for SSR/Workers
@@ -36,7 +28,7 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
 
   return {
     postMessage: (_message: unknown) => {
-      // no-op
+      // no-op on server/worker
     },
     close: () => {
       handler = null;
@@ -49,6 +41,15 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
     },
   } as BroadcastChannelLike;
 }
+
+export interface PreviewInfo {
+  port: number;
+  ready: boolean;
+  baseUrl: string;
+}
+
+// Create a broadcast channel for preview updates
+const PREVIEW_CHANNEL = 'preview-updates';
 
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
@@ -97,7 +98,7 @@ export class PreviewsStore {
     // Override localStorage setItem to catch all changes
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const originalSetItem = localStorage.setItem.bind(localStorage);
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (localStorage as any).setItem = (...args: [string, string]) => {
         originalSetItem(...args);
         this._broadcastStorageSync();
@@ -228,6 +229,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -240,6 +242,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'file-change',
       previewId,
@@ -255,6 +258,7 @@ export class PreviewsStore {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
 
+      if (!this.#broadcastChannel) return;
       this.#broadcastChannel.postMessage({
         type: 'file-change',
         previewId,

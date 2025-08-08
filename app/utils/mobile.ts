@@ -137,7 +137,7 @@ export function optimizeForMobile(): void {
   }
   
   // Optimize scrolling
-  document.documentElement.style.webkitOverflowScrolling = 'touch';
+  (document.documentElement.style as any).webkitOverflowScrolling = 'touch';
   
   // Prevent overscroll
   document.body.style.overscrollBehavior = 'none';

@@ -77,13 +77,13 @@ export function UserMessage({ content, parts }: UserMessageProps) {
     <div className="flex flex-col bg-transparent px-5 p-3.5 w-auto rounded-lg ml-auto">
       <div className="flex gap-3.5 mb-4">
         {images.map((item, index) => (
-          <div className="relative flex rounded-lg border border-bolt-elements-borderColor overflow-hidden">
-            <div className="h-16 w-16 bg-transparent outline-none">
+          <div className="relative flex rounded-md border border-bolt-elements-borderColor overflow-hidden">
+            <div className="h-12 w-12 bg-transparent outline-none">
               <img
                 key={index}
                 src={`data:${item.mimeType};base64,${item.data}`}
                 alt={`Image ${index + 1}`}
-                className="h-full w-full rounded-lg"
+                className="h-full w-full rounded-md"
                 style={{ objectFit: 'fill' }}
               />
             </div>

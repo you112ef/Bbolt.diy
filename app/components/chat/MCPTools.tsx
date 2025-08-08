@@ -4,23 +4,27 @@ import { Dialog, DialogRoot, DialogClose, DialogTitle, DialogButton } from '~/co
 import { IconButton } from '~/components/ui/IconButton';
 import { useMCPStore } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
+import { useSettingsStore } from '~/lib/stores/settings';
 
 export function McpTools() {
   const isInitialized = useMCPStore((state) => state.isInitialized);
   const serverTools = useMCPStore((state) => state.serverTools);
   const initialize = useMCPStore((state) => state.initialize);
   const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
+  const settings = useMCPStore((state) => state.settings);
+
+  const openSettings = useSettingsStore((s) => s.openSettings);
+  const setSelectedTab = useSettingsStore((s) => s.setSelectedTab);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCheckingServers, setIsCheckingServers] = useState(false);
   const [expandedServer, setExpandedServer] = useState<string | null>(null);
+  const [isBooting, setIsBooting] = useState(false);
 
   useEffect(() => {
-    if (!isInitialized) {
-      initialize();
-    }
-  }, [isInitialized]);
+    // No-op: defer initialization to dialog open for better UX
+  }, []);
 
   const checkServerAvailability = async () => {
     setIsCheckingServers(true);
@@ -39,8 +43,33 @@ export function McpTools() {
     setExpandedServer(expandedServer === serverName ? null : serverName);
   };
 
-  const handleDialogOpen = (open: boolean) => {
+  const handleDialogOpen = async (open: boolean) => {
     setIsDialogOpen(open);
+    if (open) {
+      try {
+        // Ensure store is initialized when opening
+        if (!isInitialized) {
+          setIsBooting(true);
+          await initialize();
+          setIsBooting(false);
+        }
+        // If there are configured servers, auto-check availability
+        const hasServers = Object.keys(settings?.mcpConfig?.mcpServers || {}).length > 0;
+        if (hasServers) {
+          await checkServerAvailability();
+        }
+      } catch (e) {
+        setIsBooting(false);
+        setError(`Initialization failed: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+  };
+
+  const openMcpSettings = () => {
+    // Open settings panel directly on MCP tab
+    setSelectedTab('mcp');
+    openSettings();
+    setIsDialogOpen(false);
   };
 
   const serverEntries = useMemo(() => Object.entries(serverTools), [serverTools]);
@@ -49,12 +78,11 @@ export function McpTools() {
     <div className="relative">
       <div className="flex">
         <IconButton
-          onClick={() => setIsDialogOpen(!isDialogOpen)}
-          title="MCP Tools Available"
-          disabled={!isInitialized}
-          className="transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => handleDialogOpen(!isDialogOpen)}
+          title="MCP Tools"
+          className="transition-all"
         >
-          {!isInitialized ? (
+          {!isInitialized || isBooting ? (
             <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
           ) : (
             <div className="i-bolt:mcp text-xl"></div>
@@ -73,7 +101,7 @@ export function McpTools() {
 
               <div className="space-y-4">
                 <div>
-                  <div className="flex justify-end items-center mb-2">
+                  <div className="flex justify-between items-center mb-2 gap-2">
                     <button
                       onClick={checkServerAvailability}
                       disabled={isCheckingServers || serverEntries.length === 0}
@@ -92,6 +120,20 @@ export function McpTools() {
                         <div className="i-ph:arrow-counter-clockwise w-3 h-3" />
                       )}
                       Check availability
+                    </button>
+
+                    <button
+                      onClick={openMcpSettings}
+                      className={classNames(
+                        'px-3 py-1.5 rounded-lg text-sm',
+                        'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent',
+                        'hover:bg-bolt-elements-item-backgroundActive',
+                        'transition-all duration-200',
+                        'flex items-center gap-2',
+                      )}
+                    >
+                      <div className="i-ph:sliders w-3 h-3" />
+                      Open MCP Settings
                     </button>
                   </div>
                   {serverEntries.length > 0 ? (

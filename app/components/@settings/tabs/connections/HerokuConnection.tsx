@@ -58,14 +58,13 @@ export default function HerokuConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('heroku_connection');
-
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
         setToken(parsed.token);
         setIsConnected(parsed.isConnected);
         setStats(parsed.stats);
-
+        
         // Verify connection is still valid
         if (parsed.isConnected && parsed.token) {
           verifyConnection(parsed.token);
@@ -82,10 +81,10 @@ export default function HerokuConnection() {
       const response = await fetch('https://api.heroku.com/account', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${apiKey}`,
-          Accept: 'application/vnd.heroku+json; version=3',
-          'Content-Type': 'application/json',
-        },
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.heroku+json; version=3',
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
@@ -98,60 +97,55 @@ export default function HerokuConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('heroku_connection');
-
       return false;
     }
   };
 
   const fetchHerokuStats = async (apiKey: string) => {
     setFetchingStats(true);
-
     try {
       const headers = {
-        Authorization: `Bearer ${apiKey}`,
-        Accept: 'application/vnd.heroku+json; version=3',
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/vnd.heroku+json; version=3',
+        'Content-Type': 'application/json'
       };
 
       // Fetch user info
       const userResponse = await fetch('https://api.heroku.com/account', {
-        headers,
+        headers
       });
 
       if (!userResponse.ok) {
         throw new Error(`Failed to fetch user data: ${userResponse.statusText}`);
       }
 
-      const userData = (await userResponse.json()) as HerokuUser;
+      const userData = await userResponse.json() as HerokuUser;
 
       // Fetch apps
       const appsResponse = await fetch('https://api.heroku.com/apps', {
-        headers,
+        headers
       });
 
       if (!appsResponse.ok) {
         throw new Error(`Failed to fetch apps: ${appsResponse.statusText}`);
       }
 
-      const appsData = (await appsResponse.json()) as HerokuApp[];
+      const appsData = await appsResponse.json() as HerokuApp[];
 
       const newStats: HerokuStats = {
         user: userData,
         apps: appsData.slice(0, 10), // Limit to first 10 apps for display
-        totalApps: appsData.length,
+        totalApps: appsData.length
       };
 
       setStats(newStats);
-
+      
       // Save to localStorage
-      localStorage.setItem(
-        'heroku_connection',
-        JSON.stringify({
-          token: apiKey,
-          isConnected: true,
-          stats: newStats,
-        }),
-      );
+      localStorage.setItem('heroku_connection', JSON.stringify({
+        token: apiKey,
+        isConnected: true,
+        stats: newStats
+      }));
 
       return newStats;
     } catch (error) {
@@ -170,14 +164,13 @@ export default function HerokuConnection() {
     try {
       // Verify the token first
       const isValid = await verifyConnection(token);
-
       if (!isValid) {
         throw new Error('Invalid API key');
       }
 
       // Fetch user data and apps
       await fetchHerokuStats(token);
-
+      
       setIsConnected(true);
       toast.success('Successfully connected to Heroku');
     } catch (error) {
@@ -241,12 +234,12 @@ export default function HerokuConnection() {
                 disabled={connecting}
                 placeholder="Enter your Heroku API key"
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -267,11 +260,11 @@ export default function HerokuConnection() {
               onClick={handleConnect}
               disabled={!token || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to Heroku'}
@@ -297,7 +290,7 @@ export default function HerokuConnection() {
                 Refresh
               </button>
             </div>
-
+            
             {stats?.user && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -324,23 +317,20 @@ export default function HerokuConnection() {
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-1 gap-4 mb-4">
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">{stats.totalApps}</div>
                     <div className="text-xs text-bolt-elements-textSecondary">Total Apps</div>
                   </div>
                 </div>
-
+                
                 {stats.apps.length > 0 && (
                   <div>
                     <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Recent Apps</h5>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {stats.apps.map((app) => (
-                        <div
-                          key={app.id}
-                          className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded"
-                        >
+                        <div key={app.id} className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded">
                           <div>
                             <div className="text-sm font-medium text-bolt-elements-textPrimary">{app.name}</div>
                             <div className="text-xs text-bolt-elements-textSecondary">
@@ -375,14 +365,14 @@ export default function HerokuConnection() {
                 )}
               </div>
             )}
-
+            
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

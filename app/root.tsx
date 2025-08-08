@@ -17,17 +17,11 @@ import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import 'virtual:uno.css';
 
 export const links: LinksFunction = () => [
-  {
-    rel: 'icon',
-    href: '/favicon-enhanced.png',
-    type: 'image/png',
-    sizes: '32x32',
-  },
+  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '32x32' },
   { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '16x16' },
   { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '192x192' },
   { rel: 'apple-touch-icon', href: '/favicon-enhanced.png', sizes: '180x180' },
   { rel: 'manifest', href: '/site.webmanifest' },
-  { rel: 'preload', as: 'image', href: '/yousef-logo-enhanced.png', fetchPriority: 'high' as any },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
   { rel: 'stylesheet', href: globalStyles },
@@ -43,32 +37,22 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
   },
 ];
 
 const inlineThemeCode = stripIndents`
-  // Immediately set theme before React hydration to prevent flashing
-  (function() {
-    try {
-      let theme = localStorage.getItem('bolt_theme');
-      
-      if (!theme) {
-        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        localStorage.setItem('bolt_theme', theme);
-      }
-      
-      const html = document.documentElement;
-      html.setAttribute('data-theme', theme);
-      
-      // Ensure the theme class is added immediately
-      html.classList.add('theme-' + theme);
-    } catch (e) {
-      // Fallback to light theme if there's any error
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.classList.add('theme-light');
+  setTutorialKitTheme();
+
+  function setTutorialKitTheme() {
+    let theme = localStorage.getItem('bolt_theme');
+
+    if (!theme) {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
-  })();
+
+    document.querySelector('html')?.setAttribute('data-theme', theme);
+  }
 `;
 
 export const Head = createHead(() => (
@@ -87,28 +71,22 @@ export const Head = createHead(() => (
 ));
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const theme = useStore(themeStore);
+
   useEffect(() => {
-    // Ensure Arabic language and right-to-left direction
+    document.querySelector('html')?.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
     document.documentElement.lang = 'ar';
     document.documentElement.dir = 'rtl';
-
-    // Subscribe to theme changes after initial hydration
-    const unsubscribe = themeStore.subscribe((newTheme) => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-
-      if (currentTheme !== newTheme) {
-        document.documentElement.setAttribute('data-theme', newTheme);
-        document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
-        document.documentElement.classList.add('theme-' + newTheme);
-      }
-    });
-
-    return unsubscribe;
   }, []);
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>{children}</DndProvider>
+      <DndProvider backend={HTML5Backend}>
+        {children}
+      </DndProvider>
       <ScrollRestoration />
       <Scripts />
     </>
@@ -118,11 +96,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
+  const theme = useStore(themeStore);
+
   useEffect(() => {
-    // Initialize logging without reading theme immediately to prevent hydration mismatch
-    const currentTheme = themeStore.get();
     logStore.logSystem('Application initialized', {
-      theme: currentTheme,
+      theme,
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),

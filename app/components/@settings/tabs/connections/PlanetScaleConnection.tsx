@@ -13,11 +13,9 @@ export default function PlanetScaleConnection() {
     setConnecting(true);
 
     try {
-      /*
-       * TODO: Implement PlanetScale API connection
-       * For now, just simulate a successful connection
-       */
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // TODO: Implement PlanetScale API connection
+      // For now, just simulate a successful connection
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setIsConnected(true);
       toast.success('Successfully connected to PlanetScale');
     } catch (error) {
@@ -66,12 +64,12 @@ export default function PlanetScaleConnection() {
                 disabled={connecting}
                 placeholder="Enter your PlanetScale API token"
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
             </div>
@@ -79,11 +77,11 @@ export default function PlanetScaleConnection() {
               onClick={handleConnect}
               disabled={!token || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to PlanetScale'}
@@ -98,10 +96,10 @@ export default function PlanetScaleConnection() {
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

@@ -11,9 +11,3 @@ interface Performance {
     usedJSHeapSize: number;
   };
 }
-
-// Ambient module for Cloudflare Pages build output to satisfy TS during typecheck
-declare module '../build/server' {
-  const build: any;
-  export = build;
-}

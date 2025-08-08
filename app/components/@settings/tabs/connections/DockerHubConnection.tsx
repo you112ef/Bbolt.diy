@@ -53,7 +53,6 @@ export default function DockerHubConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('dockerhub_connection');
-
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
@@ -61,7 +60,7 @@ export default function DockerHubConnection() {
         setToken(parsed.token);
         setIsConnected(parsed.isConnected);
         setStats(parsed.stats);
-
+        
         // Verify connection is still valid
         if (parsed.isConnected && parsed.username) {
           verifyConnection(parsed.username, parsed.token);
@@ -77,15 +76,15 @@ export default function DockerHubConnection() {
     try {
       // Try to fetch user info to verify connection
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       };
-
+      
       if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
       const response = await fetch(`https://hub.docker.com/v2/users/${user}/`, {
-        headers,
+        headers
       });
 
       if (!response.ok) {
@@ -98,44 +97,42 @@ export default function DockerHubConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('dockerhub_connection');
-
       return false;
     }
   };
 
   const fetchDockerHubStats = async (user: string, accessToken?: string) => {
     setFetchingStats(true);
-
     try {
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       };
-
+      
       if (accessToken) {
-        headers.Authorization = `Bearer ${accessToken}`;
+        headers['Authorization'] = `Bearer ${accessToken}`;
       }
 
       // Fetch user info
       const userResponse = await fetch(`https://hub.docker.com/v2/users/${user}/`, {
-        headers,
+        headers
       });
 
       if (!userResponse.ok) {
         throw new Error(`Failed to fetch user data: ${userResponse.statusText}`);
       }
 
-      const userData = (await userResponse.json()) as DockerHubUser;
+      const userData = await userResponse.json() as DockerHubUser;
 
       // Fetch repositories
       const reposResponse = await fetch(`https://hub.docker.com/v2/repositories/${user}/?page_size=100`, {
-        headers,
+        headers
       });
 
       if (!reposResponse.ok) {
         throw new Error(`Failed to fetch repositories: ${reposResponse.statusText}`);
       }
 
-      const reposData = (await reposResponse.json()) as any;
+      const reposData = await reposResponse.json() as any;
       const repositories: DockerHubRepository[] = reposData.results || [];
 
       // Calculate stats
@@ -147,21 +144,18 @@ export default function DockerHubConnection() {
         repositories: repositories.slice(0, 10), // Limit to first 10 repos for display
         totalRepos: reposData.count || repositories.length,
         totalStars,
-        totalPulls,
+        totalPulls
       };
 
       setStats(newStats);
-
+      
       // Save to localStorage
-      localStorage.setItem(
-        'dockerhub_connection',
-        JSON.stringify({
-          username: user,
-          token: accessToken || '',
-          isConnected: true,
-          stats: newStats,
-        }),
-      );
+      localStorage.setItem('dockerhub_connection', JSON.stringify({
+        username: user,
+        token: accessToken || '',
+        isConnected: true,
+        stats: newStats
+      }));
 
       return newStats;
     } catch (error) {
@@ -180,14 +174,13 @@ export default function DockerHubConnection() {
     try {
       // Verify the username/token combination
       const isValid = await verifyConnection(username, token);
-
       if (!isValid) {
         throw new Error('Invalid username or access token');
       }
 
       // Fetch user data and repositories
       await fetchDockerHubStats(username, token);
-
+      
       setIsConnected(true);
       toast.success('Successfully connected to DockerHub');
     } catch (error) {
@@ -252,12 +245,12 @@ export default function DockerHubConnection() {
                 disabled={connecting}
                 placeholder="Enter your DockerHub username"
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
             </div>
@@ -270,12 +263,12 @@ export default function DockerHubConnection() {
                 disabled={connecting}
                 placeholder="Enter your DockerHub access token (optional for public repos)"
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -296,11 +289,11 @@ export default function DockerHubConnection() {
               onClick={handleConnect}
               disabled={!username || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to DockerHub'}
@@ -326,7 +319,7 @@ export default function DockerHubConnection() {
                 Refresh
               </button>
             </div>
-
+            
             {stats?.user && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -343,7 +336,7 @@ export default function DockerHubConnection() {
                     )}
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">{stats.totalRepos}</div>
@@ -355,25 +348,23 @@ export default function DockerHubConnection() {
                   </div>
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">
-                      {stats.totalPulls > 1000000
+                      {stats.totalPulls > 1000000 
                         ? `${(stats.totalPulls / 1000000).toFixed(1)}M`
                         : stats.totalPulls > 1000
-                          ? `${(stats.totalPulls / 1000).toFixed(1)}K`
-                          : stats.totalPulls}
+                        ? `${(stats.totalPulls / 1000).toFixed(1)}K`
+                        : stats.totalPulls
+                      }
                     </div>
                     <div className="text-xs text-bolt-elements-textSecondary">Pulls</div>
                   </div>
                 </div>
-
+                
                 {stats.repositories.length > 0 && (
                   <div>
                     <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Recent Repositories</h5>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {stats.repositories.map((repo) => (
-                        <div
-                          key={`${repo.namespace}/${repo.name}`}
-                          className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded"
-                        >
+                        <div key={`${repo.namespace}/${repo.name}`} className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded">
                           <div>
                             <div className="text-sm font-medium text-bolt-elements-textPrimary">
                               {repo.namespace}/{repo.name}
@@ -391,11 +382,12 @@ export default function DockerHubConnection() {
                             </span>
                             <span className="flex items-center gap-1">
                               <div className="i-ph:download w-3 h-3" />
-                              {repo.pull_count > 1000000
+                              {repo.pull_count > 1000000 
                                 ? `${(repo.pull_count / 1000000).toFixed(1)}M`
                                 : repo.pull_count > 1000
-                                  ? `${(repo.pull_count / 1000).toFixed(1)}K`
-                                  : repo.pull_count}
+                                ? `${(repo.pull_count / 1000).toFixed(1)}K`
+                                : repo.pull_count
+                              }
                             </span>
                             {repo.is_private && (
                               <div className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
@@ -410,14 +402,14 @@ export default function DockerHubConnection() {
                 )}
               </div>
             )}
-
+            
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

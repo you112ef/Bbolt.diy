@@ -77,19 +77,7 @@ interface ToolInvocationsProps {
 }
 
 export const ToolInvocations = memo(({ toolInvocations, toolCallAnnotations, addToolResult }: ToolInvocationsProps) => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-  useEffect(() => {
-    // Initialize theme after hydration
-    const currentTheme = (document.documentElement?.getAttribute('data-theme') as 'light' | 'dark') || themeStore.get();
-    setTheme(currentTheme);
-
-    // Subscribe to theme changes
-    const unsubscribe = themeStore.subscribe(setTheme);
-
-    return unsubscribe;
-  }, []);
-
+  const theme = useStore(themeStore);
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleDetails = () => {

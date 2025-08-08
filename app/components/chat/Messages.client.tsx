@@ -50,7 +50,7 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
     };
 
     return (
-      <div id={id} className={classNames('enhanced-chat messages', props.className)} ref={ref}>
+      <div id={id} className={props.className} ref={ref}>
         {messages.length > 0
           ? messages.map((message, index) => {
               const { role, content, id: messageId, annotations, parts } = message;
@@ -65,13 +65,9 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
               return (
                 <div
                   key={index}
-                  className={classNames(
-                    'message-item flex gap-3 py-2 w-full rounded-lg transition-all duration-200',
-                    'hover:bg-bolt-elements-background-depth-1/50',
-                    {
-                      'mt-3': !isFirst,
-                    },
-                  )}
+                  className={classNames('flex gap-4 py-3 w-full rounded-lg', {
+                    'mt-4': !isFirst,
+                  })}
                 >
                   <div className="grid grid-col-1 w-full">
                     {isUserMessage ? (
@@ -98,10 +94,7 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
             })
           : null}
         {isStreaming && (
-          <div className="enhanced-loading text-center w-full text-bolt-elements-item-contentAccent mt-3">
-            <div className="i-svg-spinners:3-dots-fade text-2xl loading-spinner" />
-            <p className="loading-text mt-1">Thinking...</p>
-          </div>
+          <div className="text-center w-full  text-bolt-elements-item-contentAccent i-svg-spinners:3-dots-fade text-4xl mt-4"></div>
         )}
       </div>
     );

@@ -32,7 +32,6 @@ export default function RedisConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('redis_connection');
-
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
@@ -52,20 +51,17 @@ export default function RedisConnection() {
 
   const testConnection = async (): Promise<boolean> => {
     setTestingConnection(true);
-
     try {
       if (!host) {
         throw new Error('Host is required');
       }
 
       // Simulate connection test delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      /*
-       * In a real implementation, this would make a server-side API call
-       * to test the actual Redis connection using node-redis or ioredis
-       */
-
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // In a real implementation, this would make a server-side API call
+      // to test the actual Redis connection using node-redis or ioredis
+      
       const newStats: RedisStats = {
         isConnected: true,
         host,
@@ -77,24 +73,21 @@ export default function RedisConnection() {
           version: '7.0.0', // This would come from actual connection
           mode: 'standalone', // This would come from actual connection
           memory: '1.2GB', // This would come from actual connection
-          clients: 5, // This would come from actual connection
-        },
+          clients: 5 // This would come from actual connection
+        }
       };
 
       setStats(newStats);
-
+      
       // Save to localStorage (without password for security)
-      localStorage.setItem(
-        'redis_connection',
-        JSON.stringify({
-          host,
-          port,
-          database,
-          ssl,
-          isConnected: true,
-          stats: newStats,
-        }),
-      );
+      localStorage.setItem('redis_connection', JSON.stringify({
+        host,
+        port,
+        database,
+        ssl,
+        isConnected: true,
+        stats: newStats
+      }));
 
       return true;
     } catch (error) {
@@ -111,11 +104,10 @@ export default function RedisConnection() {
 
     try {
       const success = await testConnection();
-
       if (!success) {
         throw new Error('Connection test failed');
       }
-
+      
       setIsConnected(true);
       toast.success('Successfully connected to Redis');
     } catch (error) {
@@ -185,12 +177,12 @@ export default function RedisConnection() {
                   disabled={connecting}
                   placeholder="localhost or redis.example.com"
                   className={classNames(
-                    'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                    'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                    'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                    'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                    'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                    "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                    "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                    "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                    "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 />
               </div>
@@ -203,17 +195,17 @@ export default function RedisConnection() {
                   disabled={connecting}
                   placeholder="6379"
                   className={classNames(
-                    'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                    'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                    'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                    'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                    'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                    "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                    "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                    "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                    "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 />
               </div>
             </div>
-
+            
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-bolt-elements-textSecondary mb-2">Password (Optional)</label>
@@ -224,12 +216,12 @@ export default function RedisConnection() {
                   disabled={connecting}
                   placeholder="Leave empty if no auth required"
                   className={classNames(
-                    'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                    'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                    'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                    'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                    'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                    "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                    "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                    "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                    "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 />
               </div>
@@ -244,12 +236,12 @@ export default function RedisConnection() {
                   min="0"
                   max="15"
                   className={classNames(
-                    'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                    'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                    'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                    'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                    'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                    'disabled:opacity-50 disabled:cursor-not-allowed',
+                    "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                    "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                    "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                    "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                    "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
                   )}
                 />
               </div>
@@ -291,9 +283,7 @@ export default function RedisConnection() {
                 </a>
               </div>
               <div className="mt-2 text-xs text-bolt-elements-textSecondary">
-                <p>
-                  <strong>Note:</strong> Connection testing is simulated in browser environment.
-                </p>
+                <p><strong>Note:</strong> Connection testing is simulated in browser environment.</p>
                 <p>For production use, implement server-side Redis connection validation.</p>
               </div>
             </div>
@@ -302,11 +292,11 @@ export default function RedisConnection() {
               onClick={handleConnect}
               disabled={!host || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Testing Connection...' : 'Test & Save Connection'}
@@ -332,7 +322,7 @@ export default function RedisConnection() {
                 Test Connection
               </button>
             </div>
-
+            
             {stats && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -340,13 +330,13 @@ export default function RedisConnection() {
                     <div className="i-ph:database w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-bolt-elements-textPrimary">Redis Server</h4>
-                    <p className="text-xs text-bolt-elements-textSecondary">
-                      {stats.host}:{stats.port}
-                    </p>
+                    <h4 className="text-sm font-medium text-bolt-elements-textPrimary">
+                      Redis Server
+                    </h4>
+                    <p className="text-xs text-bolt-elements-textSecondary">{stats.host}:{stats.port}</p>
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">{stats.database}</div>
@@ -359,41 +349,39 @@ export default function RedisConnection() {
                     <div className="text-xs text-bolt-elements-textSecondary">Clients</div>
                   </div>
                 </div>
-
+                
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-bolt-elements-textSecondary">SSL Enabled</span>
-                    <span
-                      className={classNames(
-                        'font-medium',
-                        stats.ssl ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400',
-                      )}
-                    >
+                    <span className={classNames(
+                      "font-medium",
+                      stats.ssl ? "text-green-600 dark:text-green-400" : "text-yellow-600 dark:text-yellow-400"
+                    )}>
                       {stats.ssl ? 'Yes' : 'No'}
                     </span>
                   </div>
-
+                  
                   {stats.serverInfo?.version && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-bolt-elements-textSecondary">Server Version</span>
                       <span className="text-bolt-elements-textPrimary font-medium">{stats.serverInfo.version}</span>
                     </div>
                   )}
-
+                  
                   {stats.serverInfo?.mode && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-bolt-elements-textSecondary">Mode</span>
                       <span className="text-bolt-elements-textPrimary font-medium">{stats.serverInfo.mode}</span>
                     </div>
                   )}
-
+                  
                   {stats.serverInfo?.memory && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-bolt-elements-textSecondary">Memory Usage</span>
                       <span className="text-bolt-elements-textPrimary font-medium">{stats.serverInfo.memory}</span>
                     </div>
                   )}
-
+                  
                   {stats.lastConnected && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-bolt-elements-textSecondary">Last Connected</span>
@@ -405,14 +393,14 @@ export default function RedisConnection() {
                 </div>
               </div>
             )}
-
+            
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

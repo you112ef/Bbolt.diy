@@ -20,17 +20,11 @@ startTransition(() => {
             // Optional: listen for updates
             reg.onupdatefound = () => {
               const installing = reg.installing;
-
-              if (!installing) {
-                return;
-              }
-
+              if (!installing) return;
               installing.onstatechange = () => {
                 if (installing.state === 'installed') {
-                  /*
-                   * New content available; could show a toast to refresh
-                   * console.log('Service worker installed');
-                   */
+                  // New content available; could show a toast to refresh
+                  // console.log('Service worker installed');
                 }
               };
             };

@@ -22,7 +22,7 @@ export const aiModelsActions = {
   addModel: (model: AIModel) => {
     const currentModels = aiModelsStore.get();
     aiModelsStore.set([...currentModels, model]);
-
+    
     // Save to localStorage
     localStorage.setItem('bolt-ai-models', JSON.stringify([...currentModels, model]));
   },
@@ -30,17 +30,17 @@ export const aiModelsActions = {
   // Remove a model
   removeModel: (modelId: string) => {
     const currentModels = aiModelsStore.get();
-    const updatedModels = currentModels.filter((model) => model.id !== modelId);
+    const updatedModels = currentModels.filter(model => model.id !== modelId);
     aiModelsStore.set(updatedModels);
-
+    
     // Remove from localStorage
     localStorage.setItem('bolt-ai-models', JSON.stringify(updatedModels));
-
+    
     // Clean up related data
     const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.filter((session) => session.modelId !== modelId);
+    const updatedSessions = currentSessions.filter(session => session.modelId !== modelId);
     inferenceSessionsStore.set(updatedSessions);
-
+    
     const currentMetrics = modelMetricsStore.get();
     const { [modelId]: removedMetric, ...remainingMetrics } = currentMetrics;
     modelMetricsStore.set(remainingMetrics);
@@ -49,7 +49,9 @@ export const aiModelsActions = {
   // Update model status
   updateModelStatus: (modelId: string, status: AIModel['status']) => {
     const currentModels = aiModelsStore.get();
-    const updatedModels = currentModels.map((model) => (model.id === modelId ? { ...model, status } : model));
+    const updatedModels = currentModels.map(model =>
+      model.id === modelId ? { ...model, status } : model
+    );
     aiModelsStore.set(updatedModels);
     localStorage.setItem('bolt-ai-models', JSON.stringify(updatedModels));
   },
@@ -57,14 +59,13 @@ export const aiModelsActions = {
   // Get model by ID
   getModel: (modelId: string): AIModel | undefined => {
     const models = aiModelsStore.get();
-    return models.find((model) => model.id === modelId);
+    return models.find(model => model.id === modelId);
   },
 
   // Initialize from localStorage
   initializeFromStorage: () => {
     try {
       const stored = localStorage.getItem('bolt-ai-models');
-
       if (stored) {
         const models = JSON.parse(stored) as AIModel[];
         aiModelsStore.set(models);
@@ -83,26 +84,24 @@ export const aiModelsActions = {
       config,
       status: 'initializing',
       createdAt: new Date().toISOString(),
-      lastUsed: new Date().toISOString(),
+      lastUsed: new Date().toISOString()
     };
 
     const currentSessions = inferenceSessionsStore.get();
     inferenceSessionsStore.set([...currentSessions, session]);
-
+    
     return session;
   },
 
   // Update session status
   updateSessionStatus: (sessionId: string, status: LocalInferenceSession['status']) => {
     const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.map((session) =>
-      session.id === sessionId
-        ? {
-            ...session,
-            status,
-            lastUsed: new Date().toISOString(),
-          }
-        : session,
+    const updatedSessions = currentSessions.map(session =>
+      session.id === sessionId ? { 
+        ...session, 
+        status, 
+        lastUsed: new Date().toISOString() 
+      } : session
     );
     inferenceSessionsStore.set(updatedSessions);
   },
@@ -110,7 +109,7 @@ export const aiModelsActions = {
   // Remove inference session
   removeInferenceSession: (sessionId: string) => {
     const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.filter((session) => session.id !== sessionId);
+    const updatedSessions = currentSessions.filter(session => session.id !== sessionId);
     inferenceSessionsStore.set(updatedSessions);
   },
 
@@ -123,13 +122,13 @@ export const aiModelsActions = {
       totalTokensGenerated: 0,
       averageLatency: 0,
       lastUsed: new Date().toISOString(),
-      errorCount: 0,
+      errorCount: 0
     };
 
     const updatedMetrics = { ...existingMetrics, ...metrics };
     modelMetricsStore.set({
       ...currentMetrics,
-      [modelId]: updatedMetrics,
+      [modelId]: updatedMetrics
     });
   },
 
@@ -149,7 +148,7 @@ export const aiModelsActions = {
     const currentStatus = modelLoadingStore.get();
     modelLoadingStore.set({
       ...currentStatus,
-      [modelId]: loading,
+      [modelId]: loading
     });
   },
 
@@ -162,13 +161,13 @@ export const aiModelsActions = {
   // Get ready models
   getReadyModels: (): AIModel[] => {
     const models = aiModelsStore.get();
-    return models.filter((model) => model.status === 'ready');
+    return models.filter(model => model.status === 'ready');
   },
 
   // Get local models only
   getLocalModels: (): AIModel[] => {
     const models = aiModelsStore.get();
-    return models.filter((model) => model.isLocal);
+    return models.filter(model => model.isLocal);
   },
 
   // Clear all data
@@ -180,16 +179,15 @@ export const aiModelsActions = {
     modelLoadingStore.set({});
     localStorage.removeItem('bolt-ai-models');
     localStorage.removeItem('bolt-selected-model');
-  },
+  }
 };
 
 // Initialize from localStorage on module load
 if (typeof window !== 'undefined') {
   aiModelsActions.initializeFromStorage();
-
+  
   // Try to restore selected model
   const savedSelectedModel = localStorage.getItem('bolt-selected-model');
-
   if (savedSelectedModel) {
     selectedModelStore.set(savedSelectedModel);
   }

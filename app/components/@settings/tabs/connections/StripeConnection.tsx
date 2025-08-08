@@ -46,14 +46,13 @@ export default function StripeConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('stripe_connection');
-
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
         setSecretKey(parsed.secretKey || '');
         setIsConnected(parsed.isConnected || false);
         setStats(parsed.stats || null);
-
+        
         // Verify connection is still valid
         if (parsed.isConnected && parsed.secretKey) {
           verifyConnection(parsed.secretKey);
@@ -73,17 +72,17 @@ export default function StripeConnection() {
       }
 
       const isTestMode = key.startsWith('sk_test_');
-
+      
       // Test the key by fetching account information
       const response = await fetch('https://api.stripe.com/v1/account', {
         headers: {
-          Authorization: `Bearer ${key}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       });
 
       if (!response.ok) {
-        const errorData = (await response.json()) as any;
+        const errorData = await response.json() as any;
         throw new Error(errorData.error?.message || 'Invalid API key');
       }
 
@@ -93,63 +92,57 @@ export default function StripeConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('stripe_connection');
-
       return false;
     }
   };
 
   const fetchStripeStats = async (key: string) => {
     setFetchingStats(true);
-
     try {
       const isTestMode = key.startsWith('sk_test_');
-
+      
       const headers = {
-        Authorization: `Bearer ${key}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Bearer ${key}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
       };
 
       // Fetch account info
       const accountResponse = await fetch('https://api.stripe.com/v1/account', {
-        headers,
+        headers
       });
 
       if (!accountResponse.ok) {
-        const errorData = (await accountResponse.json()) as any;
+        const errorData = await accountResponse.json() as any;
         throw new Error(errorData.error?.message || 'Failed to fetch account data');
       }
 
-      const accountData = (await accountResponse.json()) as StripeAccount;
+      const accountData = await accountResponse.json() as StripeAccount;
 
       // Fetch balance
       const balanceResponse = await fetch('https://api.stripe.com/v1/balance', {
-        headers,
+        headers
       });
 
       let balanceData: StripeBalance | null = null;
-
       if (balanceResponse.ok) {
-        balanceData = (await balanceResponse.json()) as StripeBalance;
+        balanceData = await balanceResponse.json() as StripeBalance;
       }
 
       const newStats: StripeStats = {
         account: accountData,
         balance: balanceData,
         testMode: isTestMode,
-        lastConnected: new Date(),
+        lastConnected: new Date()
       };
 
       setStats(newStats);
-
+      
       // Save to localStorage (key is stored for validation purposes only)
-      localStorage.setItem(
-        'stripe_connection',
-        JSON.stringify({
-          secretKey: key,
-          isConnected: true,
-          stats: newStats,
-        }),
-      );
+      localStorage.setItem('stripe_connection', JSON.stringify({
+        secretKey: key,
+        isConnected: true,
+        stats: newStats
+      }));
 
       return newStats;
     } catch (error) {
@@ -168,14 +161,13 @@ export default function StripeConnection() {
     try {
       // Verify the key first
       const isValid = await verifyConnection(secretKey);
-
       if (!isValid) {
         throw new Error('Invalid API key');
       }
 
       // Fetch account data and balance
       await fetchStripeStats(secretKey);
-
+      
       setIsConnected(true);
       toast.success('Successfully connected to Stripe');
     } catch (error) {
@@ -211,7 +203,7 @@ export default function StripeConnection() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase(),
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 2
     }).format(amount / 100);
   };
 
@@ -247,12 +239,12 @@ export default function StripeConnection() {
                 disabled={connecting}
                 placeholder="sk_test_... or sk_live_..."
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -269,15 +261,19 @@ export default function StripeConnection() {
                 <span>Use test keys (sk_test_...) for development</span>
               </div>
             </div>
-
+            
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <div className="i-ph:info w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Free Stripe Account</span>
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Free Stripe Account
+                </span>
               </div>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                • No monthly fees, pay per transaction • Test mode available for development • Accept all major payment
-                methods • Built-in fraud protection
+                • No monthly fees, pay per transaction
+                • Test mode available for development
+                • Accept all major payment methods
+                • Built-in fraud protection
               </p>
             </div>
 
@@ -285,11 +281,11 @@ export default function StripeConnection() {
               onClick={handleConnect}
               disabled={!secretKey || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to Stripe'}
@@ -315,16 +311,14 @@ export default function StripeConnection() {
                 Refresh
               </button>
             </div>
-
+            
             {stats?.account && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <div
-                    className={classNames(
-                      'w-10 h-10 rounded-full flex items-center justify-center text-white font-medium',
-                      stats.testMode ? 'bg-orange-500' : 'bg-purple-600',
-                    )}
-                  >
+                  <div className={classNames(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-white font-medium",
+                    stats.testMode ? "bg-orange-500" : "bg-purple-600"
+                  )}>
                     <div className="i-ph:credit-card w-5 h-5" />
                   </div>
                   <div>
@@ -335,20 +329,18 @@ export default function StripeConnection() {
                       {stats.account.id} • {stats.account.country}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={classNames(
-                          'text-xs font-medium px-2 py-1 rounded-full',
-                          stats.testMode
-                            ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
-                            : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-                        )}
-                      >
+                      <span className={classNames(
+                        "text-xs font-medium px-2 py-1 rounded-full",
+                        stats.testMode 
+                          ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+                          : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      )}>
                         {stats.testMode ? 'Test Mode' : 'Live Mode'}
                       </span>
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-sm font-bold text-bolt-elements-textPrimary">
@@ -357,27 +349,19 @@ export default function StripeConnection() {
                     <div className="text-xs text-bolt-elements-textSecondary">Currency</div>
                   </div>
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
-                    <div
-                      className={classNames(
-                        'text-sm font-bold',
-                        stats.account.charges_enabled
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400',
-                      )}
-                    >
+                    <div className={classNames(
+                      "text-sm font-bold",
+                      stats.account.charges_enabled ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                    )}>
                       {stats.account.charges_enabled ? 'Enabled' : 'Disabled'}
                     </div>
                     <div className="text-xs text-bolt-elements-textSecondary">Charges</div>
                   </div>
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
-                    <div
-                      className={classNames(
-                        'text-sm font-bold',
-                        stats.account.payouts_enabled
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400',
-                      )}
-                    >
+                    <div className={classNames(
+                      "text-sm font-bold",
+                      stats.account.payouts_enabled ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                    )}>
                       {stats.account.payouts_enabled ? 'Enabled' : 'Disabled'}
                     </div>
                     <div className="text-xs text-bolt-elements-textSecondary">Payouts</div>
@@ -387,16 +371,13 @@ export default function StripeConnection() {
                 {stats.balance && (
                   <div className="space-y-3">
                     <h5 className="text-sm font-medium text-bolt-elements-textPrimary">Account Balance</h5>
-
+                    
                     {stats.balance.available.length > 0 && (
                       <div>
                         <h6 className="text-xs font-medium text-bolt-elements-textSecondary mb-2">Available</h6>
                         <div className="space-y-1">
                           {stats.balance.available.map((balance, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded"
-                            >
+                            <div key={index} className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded">
                               <span className="text-sm text-bolt-elements-textSecondary">
                                 {balance.currency.toUpperCase()}
                               </span>
@@ -414,10 +395,7 @@ export default function StripeConnection() {
                         <h6 className="text-xs font-medium text-bolt-elements-textSecondary mb-2">Pending</h6>
                         <div className="space-y-1">
                           {stats.balance.pending.map((balance, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded"
-                            >
+                            <div key={index} className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded">
                               <span className="text-sm text-bolt-elements-textSecondary">
                                 {balance.currency.toUpperCase()}
                               </span>
@@ -441,14 +419,14 @@ export default function StripeConnection() {
                 )}
               </div>
             )}
-
+            
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

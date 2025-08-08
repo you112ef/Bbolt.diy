@@ -8,7 +8,16 @@ declare global {
   }
 }
 
-// Minimal interface to avoid depending on the real BroadcastChannel in non-browser envs
+export interface PreviewInfo {
+  port: number;
+  ready: boolean;
+  baseUrl: string;
+}
+
+// Create a broadcast channel for preview updates
+const PREVIEW_CHANNEL = 'preview-updates';
+
+// Minimal BroadcastChannel-like interface for SSR/Workers
 interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   close(): void;
@@ -16,10 +25,10 @@ interface BroadcastChannelLike {
 }
 
 function createBroadcastChannel(name: string): BroadcastChannelLike {
-  const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+  const hasBC = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
 
-  if (isBrowser) {
-    return new (window as any).BroadcastChannel(name) as BroadcastChannelLike;
+  if (hasBC) {
+    return new (window as any).BroadcastChannel(name) as unknown as BroadcastChannelLike;
   }
 
   // No-op shim for SSR/Workers
@@ -27,7 +36,7 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
 
   return {
     postMessage: (_message: unknown) => {
-      // no-op on server/worker
+      // no-op
     },
     close: () => {
       handler = null;
@@ -40,15 +49,6 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
     },
   } as BroadcastChannelLike;
 }
-
-export interface PreviewInfo {
-  port: number;
-  ready: boolean;
-  baseUrl: string;
-}
-
-// Create a broadcast channel for preview updates
-const PREVIEW_CHANNEL = 'preview-updates';
 
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
@@ -228,10 +228,6 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
-    if (!this.#broadcastChannel) {
-      return;
-    }
-
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -243,10 +239,6 @@ export class PreviewsStore {
   broadcastFileChange(previewId: string) {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
-
-    if (!this.#broadcastChannel) {
-      return;
-    }
 
     this.#broadcastChannel.postMessage({
       type: 'file-change',
@@ -262,10 +254,6 @@ export class PreviewsStore {
     if (previewId) {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
-
-      if (!this.#broadcastChannel) {
-        return;
-      }
 
       this.#broadcastChannel.postMessage({
         type: 'file-change',

@@ -37,7 +37,6 @@ export default function TwilioConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('twilio_connection');
-
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
@@ -45,7 +44,7 @@ export default function TwilioConnection() {
         setAuthToken(parsed.authToken || '');
         setIsConnected(parsed.isConnected || false);
         setStats(parsed.stats || null);
-
+        
         // Verify connection is still valid
         if (parsed.isConnected && parsed.accountSid && parsed.authToken) {
           verifyConnection(parsed.accountSid, parsed.authToken);
@@ -68,16 +67,15 @@ export default function TwilioConnection() {
       const credentials = btoa(`${sid}:${token}`);
       const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}.json`, {
         headers: {
-          Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       });
 
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Invalid Account SID or Auth Token');
         }
-
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -87,42 +85,39 @@ export default function TwilioConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('twilio_connection');
-
       return false;
     }
   };
 
   const fetchTwilioStats = async (sid: string, token: string) => {
     setFetchingStats(true);
-
     try {
       const credentials = btoa(`${sid}:${token}`);
       const headers = {
-        Authorization: `Basic ${credentials}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
       };
 
       // Fetch account info
       const accountResponse = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}.json`, {
-        headers,
+        headers
       });
 
       if (!accountResponse.ok) {
         throw new Error(`Failed to fetch account data: ${accountResponse.statusText}`);
       }
 
-      const accountData = (await accountResponse.json()) as TwilioAccount;
+      const accountData = await accountResponse.json() as TwilioAccount;
 
       // Fetch balance
       let balanceData: TwilioBalance | null = null;
-
       try {
         const balanceResponse = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Balance.json`, {
-          headers,
+          headers
         });
 
         if (balanceResponse.ok) {
-          balanceData = (await balanceResponse.json()) as TwilioBalance;
+          balanceData = await balanceResponse.json() as TwilioBalance;
         }
       } catch (error) {
         // Balance endpoint might fail for some account types
@@ -132,21 +127,18 @@ export default function TwilioConnection() {
       const newStats: TwilioStats = {
         account: accountData,
         balance: balanceData,
-        lastConnected: new Date(),
+        lastConnected: new Date()
       };
 
       setStats(newStats);
-
+      
       // Save to localStorage (credentials are stored for validation purposes only)
-      localStorage.setItem(
-        'twilio_connection',
-        JSON.stringify({
-          accountSid: sid,
-          authToken: token,
-          isConnected: true,
-          stats: newStats,
-        }),
-      );
+      localStorage.setItem('twilio_connection', JSON.stringify({
+        accountSid: sid,
+        authToken: token,
+        isConnected: true,
+        stats: newStats
+      }));
 
       return newStats;
     } catch (error) {
@@ -165,14 +157,13 @@ export default function TwilioConnection() {
     try {
       // Verify the credentials first
       const isValid = await verifyConnection(accountSid, authToken);
-
       if (!isValid) {
         throw new Error('Invalid credentials');
       }
 
       // Fetch account data and balance
       await fetchTwilioStats(accountSid, authToken);
-
+      
       setIsConnected(true);
       toast.success('Successfully connected to Twilio');
     } catch (error) {
@@ -223,7 +214,7 @@ export default function TwilioConnection() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase(),
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 2
     }).format(amount);
   };
 
@@ -259,16 +250,16 @@ export default function TwilioConnection() {
                 disabled={connecting}
                 placeholder="AC..."
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
             </div>
-
+            
             <div>
               <label className="block text-sm text-bolt-elements-textSecondary mb-2">Auth Token</label>
               <input
@@ -278,12 +269,12 @@ export default function TwilioConnection() {
                 disabled={connecting}
                 placeholder="Your Twilio Auth Token"
                 className={classNames(
-                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
-                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
-                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
-                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
-                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
-                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
+                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
+                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
+                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
+                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -300,15 +291,19 @@ export default function TwilioConnection() {
                 <span>Find your Account SID and Auth Token in the Console</span>
               </div>
             </div>
-
+            
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <div className="i-ph:info w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Free Twilio Trial</span>
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Free Twilio Trial
+                </span>
               </div>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                • $15.50 free trial credit when you sign up • Send SMS, make voice calls worldwide • No monthly fees,
-                pay-as-you-go pricing • WhatsApp Business API available
+                • $15.50 free trial credit when you sign up
+                • Send SMS, make voice calls worldwide
+                • No monthly fees, pay-as-you-go pricing
+                • WhatsApp Business API available
               </p>
             </div>
 
@@ -316,11 +311,11 @@ export default function TwilioConnection() {
               onClick={handleConnect}
               disabled={!accountSid || !authToken || connecting}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
-                'text-white dark:text-white',
-                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
-                'disabled:opacity-50 disabled:cursor-not-allowed',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
+                "text-white dark:text-white",
+                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to Twilio'}
@@ -346,7 +341,7 @@ export default function TwilioConnection() {
                 Refresh
               </button>
             </div>
-
+            
             {stats?.account && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -359,23 +354,23 @@ export default function TwilioConnection() {
                     </h4>
                     <p className="text-xs text-bolt-elements-textSecondary">{stats.account.sid}</p>
                     <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={classNames(
-                          'text-xs font-medium px-2 py-1 rounded-full',
-                          stats.account.status === 'active'
-                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                            : stats.account.status === 'suspended'
-                              ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-                        )}
-                      >
+                      <span className={classNames(
+                        "text-xs font-medium px-2 py-1 rounded-full",
+                        stats.account.status === 'active'
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : stats.account.status === 'suspended'
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                      )}>
                         {stats.account.status}
                       </span>
-                      <span className="text-xs text-bolt-elements-textSecondary">{stats.account.type}</span>
+                      <span className="text-xs text-bolt-elements-textSecondary">
+                        {stats.account.type}
+                      </span>
                     </div>
                   </div>
                 </div>
-
+                
                 {stats.balance && (
                   <div className="grid grid-cols-1 gap-4 mb-4">
                     <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
@@ -386,27 +381,29 @@ export default function TwilioConnection() {
                     </div>
                   </div>
                 )}
-
+                
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-bolt-elements-textSecondary">Account Type</span>
-                    <span className="text-bolt-elements-textPrimary font-medium">{stats.account.type}</span>
+                    <span className="text-bolt-elements-textPrimary font-medium">
+                      {stats.account.type}
+                    </span>
                   </div>
-
+                  
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-bolt-elements-textSecondary">Status</span>
-                    <span className={classNames('font-medium', getStatusColor(stats.account.status))}>
+                    <span className={classNames("font-medium", getStatusColor(stats.account.status))}>
                       {stats.account.status}
                     </span>
                   </div>
-
+                  
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-bolt-elements-textSecondary">Created</span>
                     <span className="text-bolt-elements-textPrimary font-medium">
                       {new Date(stats.account.date_created).toLocaleDateString()}
                     </span>
                   </div>
-
+                  
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-bolt-elements-textSecondary">Last Updated</span>
                     <span className="text-bolt-elements-textPrimary font-medium">
@@ -425,7 +422,7 @@ export default function TwilioConnection() {
                       { name: 'Video', icon: 'i-ph:video-camera' },
                       { name: 'WhatsApp', icon: 'i-ph:whatsapp-logo' },
                       { name: 'Email', icon: 'i-ph:envelope' },
-                      { name: 'Verify', icon: 'i-ph:shield-check' },
+                      { name: 'Verify', icon: 'i-ph:shield-check' }
                     ].map((service) => (
                       <span
                         key={service.name}
@@ -447,14 +444,14 @@ export default function TwilioConnection() {
                 )}
               </div>
             )}
-
+            
             <button
               onClick={handleDisconnect}
               className={classNames(
-                'w-full px-4 py-2 rounded-md font-medium transition-colors',
-                'bg-red-600 dark:bg-red-600',
-                'text-white dark:text-white',
-                'hover:bg-red-700 dark:hover:bg-red-700',
+                "w-full px-4 py-2 rounded-md font-medium transition-colors",
+                "bg-red-600 dark:bg-red-600",
+                "text-white dark:text-white",
+                "hover:bg-red-700 dark:hover:bg-red-700"
               )}
             >
               Disconnect

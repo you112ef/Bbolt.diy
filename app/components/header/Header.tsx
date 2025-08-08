@@ -22,9 +22,14 @@ export function Header() {
       <div className="flex items-center gap-2 z-logo text-bolt-elements-textPrimary cursor-pointer enhanced-header">
         <div className="i-ph:sidebar-simple-duotone text-lg opacity-70 hover:opacity-100 transition-opacity" />
         <a href="/" className="header-title text-accent flex items-center hover:opacity-90 transition-opacity">
-          {/* <span className="i-bolt:logo-text?mask w-[46px] inline-block" /> */}
-          <img src="/logo-light-styled.png" alt="logo" className="w-20 inline-block dark:hidden opacity-90" />
-          <img src="/logo-dark-styled.png" alt="logo" className="w-20 inline-block hidden dark:block opacity-90" />
+          {/* Switched to SVG for better performance and scalability */}
+          <img
+            src="/logo.svg"
+            alt="YOUSEF.SHTIWE AI"
+            className="h-10 md:h-12 lg:h-14 inline-block opacity-90"
+            fetchPriority="high"
+            decoding="async"
+          />
         </a>
       </div>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.

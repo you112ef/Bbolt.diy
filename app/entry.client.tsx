@@ -5,6 +5,18 @@ import { hydrateRoot } from 'react-dom/client';
 startTransition(() => {
   hydrateRoot(document.getElementById('root')!, <RemixBrowser />);
 
+  // Polyfill BroadcastChannel only in the browser if missing
+  (async () => {
+    if (typeof window !== 'undefined' && typeof (window as any).BroadcastChannel === 'undefined') {
+      try {
+        const mod = await import('broadcast-channel');
+        (window as any).BroadcastChannel = (mod as any).BroadcastChannel || (mod as any).default || (mod as any);
+      } catch (err) {
+        console.warn('Failed to polyfill BroadcastChannel:', err);
+      }
+    }
+  })();
+
   if ('serviceWorker' in navigator) {
     const isLocalhost = Boolean(
       window.location.hostname === 'localhost' ||

@@ -4,6 +4,7 @@ import type { MCPConfig } from '~/lib/services/mcpService';
 import { toast } from 'react-toastify';
 import { useMCPStore } from '~/lib/stores/mcp';
 import McpServerList from '~/components/@settings/tabs/mcp/McpServerList';
+import { CommunityToolsTab } from '~/components/@settings/tabs/mcp/CommunityToolsTab';
 
 const EXAMPLE_MCP_CONFIG: MCPConfig = {
   mcpServers: {
@@ -34,6 +35,7 @@ export default function McpTab() {
   const updateSettings = useMCPStore((state) => state.updateSettings);
   const checkServersAvailabilities = useMCPStore((state) => state.checkServersAvailabilities);
 
+  const [activeTab, setActiveTab] = useState<'community' | 'manual'>('community');
   const [isSaving, setIsSaving] = useState(false);
   const [mcpConfigText, setMCPConfigText] = useState('');
   const [maxLLMSteps, setMaxLLMSteps] = useState(1);
@@ -122,7 +124,38 @@ export default function McpTab() {
   const serverEntries = useMemo(() => Object.entries(serverTools), [serverTools]);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
+      {/* Tab Navigation */}
+      <div className="flex space-x-1 bg-bolt-elements-background-depth-2 p-1 rounded-lg">
+        <button
+          onClick={() => setActiveTab('community')}
+          className={classNames(
+            'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200',
+            activeTab === 'community'
+              ? 'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary shadow-sm'
+              : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          )}
+        >
+          🌟 Community Tools
+        </button>
+        <button
+          onClick={() => setActiveTab('manual')}
+          className={classNames(
+            'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200',
+            activeTab === 'manual'
+              ? 'bg-bolt-elements-background-depth-1 text-bolt-elements-textPrimary shadow-sm'
+              : 'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+          )}
+        >
+          ⚙️ Manual Configuration
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'community' ? (
+        <CommunityToolsTab />
+      ) : (
+        <div className="max-w-2xl mx-auto space-y-6">
       <section aria-labelledby="server-status-heading">
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-base font-medium text-bolt-elements-textPrimary">MCP Servers Configured</h2>{' '}
@@ -234,6 +267,8 @@ export default function McpTab() {
           </button>
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 }

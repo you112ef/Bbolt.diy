@@ -35,7 +35,7 @@ export default function WebContainerPreview() {
 
   // Notify other tabs that this preview is ready
   const notifyPreviewReady = useCallback(() => {
-    if (broadcastChannelRef.current && previewUrl) {
+    if (typeof window !== 'undefined' && broadcastChannelRef.current && previewUrl) {
       broadcastChannelRef.current.postMessage({
         type: 'preview-ready',
         previewId,
@@ -46,13 +46,24 @@ export default function WebContainerPreview() {
   }, [previewId, previewUrl]);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof (window as any).BroadcastChannel === 'undefined') {
+      // SSR/Workers: skip BroadcastChannel usage
+      const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;
+      setPreviewUrl(url);
+      if (iframeRef.current) {
+        iframeRef.current.src = url;
+      }
+      return;
+    }
+
     // Initialize broadcast channel
     broadcastChannelRef.current = new BroadcastChannel(PREVIEW_CHANNEL);
 
     // Listen for preview updates
     broadcastChannelRef.current.onmessage = (event) => {
-      if (event.data.previewId === previewId) {
-        if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
+      const data = (event as MessageEvent & { data: any }).data;
+      if (data.previewId === previewId) {
+        if (data.type === 'refresh-preview' || data.type === 'file-change') {
           handleRefresh();
         }
       }

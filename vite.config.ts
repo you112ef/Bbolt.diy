@@ -55,6 +55,14 @@ export default defineConfig((config) => {
     },
     resolve: {
       dedupe: ['react', 'react-dom'],
+      alias: {
+        'node:crypto': 'crypto-browserify',
+        crypto: 'crypto-browserify',
+        path: 'path-browserify',
+        'child_process': false as unknown as string,
+        // avoid pulling stdio transport in browser/Pages builds
+        'ai/mcp-stdio': false as unknown as string,
+      },
     },
     plugins: [
       nodePolyfills({

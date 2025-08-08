@@ -51,6 +51,20 @@ export interface PreviewInfo {
 // Create a broadcast channel for preview updates
 const PREVIEW_CHANNEL = 'preview-updates';
 
+type BroadcastLike = {
+  postMessage: (data: any) => void;
+  onmessage: ((this: any, ev: MessageEvent) => any) | null;
+  close: () => void;
+};
+
+function createSafeBroadcastChannel(name: string): BroadcastLike | null {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    return new BroadcastChannel(name);
+  }
+
+  return null;
+}
+
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
   #webcontainer: Promise<WebContainer>;
@@ -157,7 +171,7 @@ export class PreviewsStore {
 
   // Broadcast storage state to other tabs
   private _broadcastStorageSync() {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined' && this.#storageChannel) {
       const storage: Record<string, string> = {};
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -233,6 +247,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -245,6 +260,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'file-change',
       previewId,
@@ -260,6 +276,7 @@ export class PreviewsStore {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
 
+      if (!this.#broadcastChannel) return;
       this.#broadcastChannel.postMessage({
         type: 'file-change',
         previewId,

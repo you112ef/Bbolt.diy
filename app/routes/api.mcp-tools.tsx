@@ -36,12 +36,14 @@ export const loader: LoaderFunction = async ({ context }) => {
     Object.entries(COMMUNITY_MCP_TOOLS).forEach(([name, tool]) => {
       defaultConfig.tools[name] = {
         ...tool,
+        id: name,
         name,
         enabled: DEFAULT_ENABLED_TOOLS.includes(name),
         envVars: tool.envVars?.reduce((acc, varName) => {
           acc[varName] = '';
           return acc;
-        }, {} as Record<string, string>) || {}
+        }, {} as Record<string, string>) || {},
+        requiresAuth: tool.requiresAuth,
       };
     });
 
@@ -79,6 +81,7 @@ export const action: ActionFunction = async ({ request, context }) => {
       // Validate and sanitize configuration
       validatedTools[name] = {
         ...communityTool,
+        id: name,
         name,
         enabled: Boolean(toolConfig.enabled),
         envVars: toolConfig.envVars ? 

@@ -109,6 +109,11 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
 
   return (
     <div className={classNames('community-tools-tab max-w-4xl mx-auto', className)}>
+      {/* Runtime limitation notice */}
+      <div className="mb-4 p-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 text-sm text-yellow-800 dark:text-yellow-300">
+        Note: STDIO-based MCP servers cannot run in browser/edge environments (like Cloudflare Pages). They will be
+        shown here for reference but ignored at runtime. Prefer SSE or streamable-http servers.
+      </div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -253,11 +258,13 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                         ? 'bg-blue-600' 
                         : 'bg-bolt-elements-background-depth-3'
                     )}
+                    disabled={tool.type === 'stdio'}
                   >
                     <span
                       className={classNames(
                         'inline-block h-4 w-4 transform rounded-full bg-white transition-transform shadow-lg',
-                        tool.enabled ? 'translate-x-6' : 'translate-x-1'
+                        tool.enabled ? 'translate-x-6' : 'translate-x-1',
+                        tool.type === 'stdio' ? 'opacity-50' : ''
                       )}
                     />
                   </button>

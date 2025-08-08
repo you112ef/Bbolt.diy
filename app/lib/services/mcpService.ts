@@ -20,6 +20,16 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('mcp-service');
 
+const isEdgeRuntime = typeof WebSocket !== 'undefined' && typeof window === 'undefined' ? true : false;
+const isBrowser = typeof window !== 'undefined';
+const isCloudflarePages = typeof globalThis !== 'undefined' && // @ts-ignore
+  typeof (globalThis as any).WebSocketPair !== 'undefined';
+
+function stdioUnsupported(): boolean {
+  // STDIO is not supported on Cloudflare Workers/Pages or in the browser
+  return isBrowser || isCloudflarePages || isEdgeRuntime;
+}
+
 export const stdioServerConfigSchema = z
   .object({
     type: z.enum(['stdio']).optional(),
@@ -162,10 +172,73 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
-    this._config = config;
-    await this._createClients();
-
+    // Filter out stdio servers in unsupported environments to avoid runtime errors
+    if (stdioUnsupported()) {
+      const filtered: MCPConfig = { mcpServers: {} };
+      for (const [name, cfg] of Object.entries(config?.mcpServers || {})) {
+        if ((cfg as any).type !== 'stdio' && (cfg as any).command === undefined) {
+          filtered.mcpServers[name] = cfg as any;
+        }
+      }
+      this._config = filtered;
+    } else {
+      this._config = config;
+    }
+    // Do not eagerly initialize clients; they will be created lazily on demand
+    await this._closeClients();
     return this._mcpToolsPerServer;
+  }
+
+  private async _initializeServerIfNeeded(serverName: string): Promise<void> {
+    if (this._mcpToolsPerServer[serverName]?.client) {
+      return; // already initialized
+    }
+
+    const config = this._config?.mcpServers?.[serverName];
+    if (!config) return;
+
+    try {
+      const client = await this._createMCPClient(serverName, config);
+      try {
+        const tools = await client.tools();
+        this._registerTools(serverName, tools);
+        this._mcpToolsPerServer[serverName] = {
+          status: 'available',
+          client,
+          tools,
+          config,
+        };
+      } catch (err) {
+        logger.error(`Failed to get tools from server ${serverName}:`, err);
+        this._mcpToolsPerServer[serverName] = {
+          status: 'unavailable',
+          error: 'could not retrieve tools from server',
+          client,
+          config,
+        };
+      }
+    } catch (err) {
+      logger.error(`Failed to initialize MCP client for server: ${serverName}`, err);
+      this._mcpToolsPerServer[serverName] = {
+        status: 'unavailable',
+        error: (err as Error).message,
+        client: null,
+        config,
+      } as MCPServerUnavailable;
+    }
+  }
+
+  async ensureToolLoaded(toolName: string): Promise<boolean> {
+    if (this.isValidToolName(toolName)) return true;
+
+    // Try initializing each server lazily until tool is found
+    for (const [serverName] of Object.entries(this._config?.mcpServers || {})) {
+      await this._initializeServerIfNeeded(serverName);
+      if (this.isValidToolName(toolName)) {
+        return true;
+      }
+    }
+    return this.isValidToolName(toolName);
   }
 
   private async _createStreamableHTTPClient(
@@ -200,6 +273,10 @@ export class MCPService {
       `Creating STDIO client for '${serverName}' with command: '${config.command}' ${config.args?.join(' ') || ''}`,
     );
 
+    if (stdioUnsupported()) {
+      throw new Error('STDIO MCP servers are not supported in this runtime. Use SSE or streamable-http instead.');
+    }
+
     const client = await experimental_createMCPClient({ transport: new Experimental_StdioMCPTransport(config) });
 
     return Object.assign(client, { serverName });
@@ -225,6 +302,9 @@ export class MCPService {
     const validatedConfig = this._validateServerConfig(serverName, serverConfig);
 
     if (validatedConfig.type === 'stdio') {
+      if (stdioUnsupported()) {
+        throw new Error(`Server "${serverName}" uses stdio which is unsupported in this environment.`);
+      }
       return await this._createStdioClient(serverName, serverConfig as STDIOServerConfig);
     } else if (validatedConfig.type === 'sse') {
       return await this._createSSEClient(serverName, serverConfig as SSEServerConfig);
@@ -392,8 +472,18 @@ export class MCPService {
         const { toolInvocation } = part;
         const { toolName, toolCallId } = toolInvocation;
 
-        // return part as-is if tool does not exist, or if it's not a tool call result
-        if (!this.isValidToolName(toolName) || toolInvocation.state !== 'result') {
+        // If it's not a tool call result, return as-is
+        if (toolInvocation.state !== 'result') {
+          return part;
+        }
+
+        // If tool is unknown, attempt to lazily initialize servers to load it
+        if (!this.isValidToolName(toolName)) {
+          await this.ensureToolLoaded(toolName);
+        }
+
+        // Return part as-is if tool still does not exist
+        if (!this.isValidToolName(toolName)) {
           return part;
         }
 

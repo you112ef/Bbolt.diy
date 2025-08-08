@@ -60,8 +60,8 @@ export default defineConfig((config) => {
         crypto: 'crypto-browserify',
         path: 'path-browserify',
         'child_process': false as unknown as string,
-        // avoid pulling stdio transport in browser/Pages builds
-        'ai/mcp-stdio': false as unknown as string,
+        // avoid pulling stdio transport in browser/Pages builds (use shim that throws)
+        'ai/mcp-stdio': '/app/shims/mcp-stdio-shim.ts',
       },
     },
     plugins: [

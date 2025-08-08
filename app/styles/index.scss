@@ -16,13 +16,11 @@ body {
 }
 
 :root {
-  --gradient-opacity: 0.8;
-  --primary-color: rgba(158, 117, 240, var(--gradient-opacity));
-  --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
-  --accent-color: rgba(128, 59, 239, var(--gradient-opacity));
-  // --primary-color: rgba(147, 112, 219, var(--gradient-opacity));
-  // --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
-  // --accent-color: rgba(180, 170, 220, var(--gradient-opacity));
+  --gradient-opacity: 0.9;
+  /* Sky/Cyan Blue gradient palette */
+  --primary-color: rgba(56, 189, 248, var(--gradient-opacity));   /* sky-400 */
+  --secondary-color: rgba(14, 165, 233, var(--gradient-opacity)); /* sky-500 */
+  --accent-color: rgba(6, 182, 212, var(--gradient-opacity));     /* cyan-500 */
 }
 
 .modern-scrollbar {

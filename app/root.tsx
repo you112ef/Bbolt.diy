@@ -77,17 +77,19 @@ export const Head = createHead(() => (
 ));
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const theme = useStore(themeStore);
-
   useEffect(() => {
-    // Only update if theme has actually changed
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    if (currentTheme !== theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
-      document.documentElement.classList.add('theme-' + theme);
-    }
-  }, [theme]);
+    // Subscribe to theme changes after initial hydration
+    const unsubscribe = themeStore.subscribe((newTheme) => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (currentTheme !== newTheme) {
+        document.documentElement.setAttribute('data-theme', newTheme);
+        document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
+        document.documentElement.classList.add('theme-' + newTheme);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <>
@@ -103,11 +105,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
-  const theme = useStore(themeStore);
-
   useEffect(() => {
+    // Initialize logging without reading theme immediately to prevent hydration mismatch
+    const currentTheme = themeStore.get();
     logStore.logSystem('Application initialized', {
-      theme,
+      theme: currentTheme,
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),

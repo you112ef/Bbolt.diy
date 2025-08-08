@@ -13,27 +13,28 @@ export const DEFAULT_THEME = 'light';
 
 export const themeStore = atom<Theme>(initStore());
 
-function initStore() {
-  // Always start with default theme to prevent hydration mismatch
-  // The actual theme will be set by the inline script and then updated after hydration
-  if (!import.meta.env.SSR) {
-    // Check if theme is already set in DOM (by inline script)
-    const themeAttribute = document.documentElement?.getAttribute('data-theme') as Theme;
-    if (themeAttribute && (themeAttribute === 'light' || themeAttribute === 'dark')) {
-      return themeAttribute;
+// Initialize theme from DOM after hydration
+if (!import.meta.env.SSR && typeof window !== 'undefined') {
+  // Wait for DOM to be ready and then sync with actual theme
+  setTimeout(() => {
+    const domTheme = document.documentElement?.getAttribute('data-theme') as Theme;
+    if (domTheme && (domTheme === 'light' || domTheme === 'dark') && domTheme !== themeStore.get()) {
+      themeStore.set(domTheme);
     }
-    
-    // Fallback to localStorage if DOM isn't ready yet
-    try {
-      const persistedTheme = localStorage.getItem(kTheme) as Theme | undefined;
-      if (persistedTheme && (persistedTheme === 'light' || persistedTheme === 'dark')) {
-        return persistedTheme;
-      }
-    } catch {
-      // localStorage might not be available
-    }
-  }
+  }, 0);
+}
 
+function initStore() {
+  // Always return default theme during SSR or initial load to prevent hydration mismatch
+  // The theme will be properly initialized by the inline script before React hydration
+  // and updated afterward through the subscription mechanism
+  
+  if (import.meta.env.SSR) {
+    return DEFAULT_THEME;
+  }
+  
+  // On client side, still return default initially to prevent hydration mismatch
+  // The actual theme will be set after hydration via DOM attributes or localStorage
   return DEFAULT_THEME;
 }
 

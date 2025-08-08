@@ -7,10 +7,12 @@ interface MCPToolConfig {
   description?: string;
   category?: string;
   enabled: boolean;
+  type?: 'stdio' | 'sse' | 'streamable-http';
   command?: string;
   args?: string[];
   envVars?: Record<string, string>;
   requiredEnvVars?: string[];
+  requiresAuth?: boolean;
 }
 
 interface MCPToolsSettings {
@@ -84,7 +86,8 @@ export const action: ActionFunction = async ({ request, context }) => {
             Object.entries(toolConfig.envVars).filter(([key, value]) => 
               communityTool.envVars?.includes(key) && typeof value === 'string'
             )
-          ) : {}
+          ) : {},
+        requiresAuth: communityTool.requiresAuth,
       };
     }
 
@@ -123,9 +126,9 @@ async function updateMCPServiceConfig(tools: Record<string, MCPToolConfig>) {
     Object.entries(tools).forEach(([name, tool]) => {
       if (tool.enabled) {
         mcpServers[name] = {
-          type: tool.type,
+          type: tool.type || 'stdio',
           command: tool.command,
-          args: tool.args,
+          args: tool.args || [],
           env: tool.envVars || {}
         };
       }

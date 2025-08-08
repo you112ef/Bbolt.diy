@@ -61,8 +61,9 @@ export default function WebContainerPreview() {
     // Listen for preview updates
     if (broadcastChannelRef.current) {
       broadcastChannelRef.current.onmessage = (event) => {
-        if ((event as MessageEvent & { data: any }).data.previewId === previewId) {
-          const type = (event as MessageEvent & { data: any }).data.type as string;
+        const data = (event as MessageEvent & { data: any }).data;
+        if (data?.previewId === previewId) {
+          const type = data.type as string;
           if (type === 'refresh-preview' || type === 'file-change') {
             handleRefresh();
           }

@@ -17,16 +17,25 @@ const defaultSettings = {
   },
 } satisfies MCPSettings;
 
-interface CommunityToolConfig extends MCPTool {
+interface CommunityToolConfig {
+  id: string;
   name: string;
+  description?: string;
+  category?: string;
   enabled: boolean;
+  type?: string;
+  command?: string;
+  args?: string[];
   envVars?: Record<string, string>;
+  requiredEnvVars?: string[];
 }
 
 type Store = {
   isInitialized: boolean;
   settings: MCPSettings;
   serverTools: MCPServerTools;
+  mcpServers: Record<string, any>;
+  serverConnections: Record<string, 'connected' | 'disconnected' | 'connecting'>;
   communityTools: Record<string, CommunityToolConfig>;
   error: string | null;
   isUpdatingConfig: boolean;
@@ -45,6 +54,8 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
   isInitialized: false,
   settings: defaultSettings,
   serverTools: {},
+  mcpServers: {},
+  serverConnections: {},
   communityTools: {},
   error: null,
   isUpdatingConfig: false,
@@ -113,21 +124,28 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
     try {
       const response = await fetch('/api/mcp-tools');
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json() as { success: boolean; tools?: Record<string, CommunityToolConfig> };
         set(() => ({ communityTools: data.tools || {} }));
       } else {
         // Initialize with default configuration
         const defaultTools: Record<string, CommunityToolConfig> = {};
         
         Object.entries(COMMUNITY_MCP_TOOLS).forEach(([name, tool]) => {
+          const mcpTool = tool as any; // Type assertion for community tools
           defaultTools[name] = {
-            ...tool,
+            id: name,
             name,
+            description: mcpTool.description,
+            category: mcpTool.category,
             enabled: DEFAULT_ENABLED_TOOLS.includes(name),
-            envVars: tool.envVars?.reduce((acc, varName) => {
+            type: mcpTool.type || 'stdio',
+            command: mcpTool.command,
+            args: mcpTool.args,
+            envVars: mcpTool.envVars?.reduce((acc: Record<string, string>, varName: string) => {
               acc[varName] = '';
               return acc;
-            }, {} as Record<string, string>) || {}
+            }, {} as Record<string, string>) || {},
+            requiredEnvVars: mcpTool.envVars
           };
         });
         
@@ -163,8 +181,8 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
       });
       
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save community tools');
+        const errorData = await response.json();
+        throw new Error(typeof errorData === 'object' && errorData && 'error' in errorData && typeof errorData.error === 'string' ? errorData.error : 'Failed to save community tools');
       }
       
       // Update MCP configuration with enabled tools
@@ -172,7 +190,7 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
       
     } catch (error) {
       console.error('Error saving community tools:', error);
-      throw error;
+      throw error instanceof Error ? error : new Error('Unknown error occurred');
     }
   },
 }));
@@ -200,9 +218,9 @@ async function generateMCPConfigFromCommunityTools(tools: Record<string, Communi
   Object.entries(tools).forEach(([name, tool]) => {
     if (tool.enabled) {
       mcpServers[name] = {
-        type: tool.type,
-        command: tool.command,
-        args: tool.args,
+        type: tool.type || 'stdio',
+        command: tool.command || '',
+        args: tool.args || [],
         env: tool.envVars || {}
       };
     }

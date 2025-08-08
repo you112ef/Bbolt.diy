@@ -1,10 +1,16 @@
 import { json, type ActionFunction, type LoaderFunction } from '@remix-run/cloudflare';
 import { COMMUNITY_MCP_TOOLS, DEFAULT_ENABLED_TOOLS, type MCPTool } from '~/lib/mcp/community-tools';
 
-interface MCPToolConfig extends MCPTool {
+interface MCPToolConfig {
+  id: string;
   name: string;
+  description?: string;
+  category?: string;
   enabled: boolean;
+  command?: string;
+  args?: string[];
   envVars?: Record<string, string>;
+  requiredEnvVars?: string[];
 }
 
 interface MCPToolsSettings {

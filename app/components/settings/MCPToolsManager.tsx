@@ -18,10 +18,16 @@ interface MCPToolsManagerProps {
   className?: string;
 }
 
-interface ToolConfigState extends MCPTool {
+interface ToolConfigState {
   name: string;
+  type: "stdio" | "sse" | "http";
+  command: string;
+  args: string[];
+  description: string;
+  category: string;
   enabled: boolean;
   envVars?: Record<string, string>;
+  requiresAuth?: boolean;
 }
 
 export const MCPToolsManager = memo(({ className }: MCPToolsManagerProps) => {
@@ -161,7 +167,7 @@ export const MCPToolsManager = memo(({ className }: MCPToolsManagerProps) => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-lg">
-                      {MCP_CATEGORIES[tool.category] || '🔧'}
+                      {MCP_CATEGORIES[tool.category as keyof typeof MCP_CATEGORIES] || '🔧'}
                     </span>
                     <h3 className="text-lg font-semibold text-bolt-elements-textPrimary">
                       {name}
@@ -192,7 +198,6 @@ export const MCPToolsManager = memo(({ className }: MCPToolsManagerProps) => {
                     <IconButton
                       icon="i-ph-gear-duotone"
                       size="sm"
-                      variant="ghost"
                       title="Configure environment variables"
                       onClick={() => setExpandedTool(expandedTool === name ? null : name)}
                     />

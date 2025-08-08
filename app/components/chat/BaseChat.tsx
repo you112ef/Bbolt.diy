@@ -470,6 +470,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 />
               </div>
             </StickToBottom>
+            </div>
             <div className="flex flex-col justify-center">
               {!chatStarted && (
                 <div className="flex justify-center gap-2">

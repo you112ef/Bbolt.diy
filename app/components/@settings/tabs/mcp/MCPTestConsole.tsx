@@ -1,1 +1,324 @@
-import { useState, memo } from 'react';\nimport { motion } from 'framer-motion';\nimport { toast } from 'react-toastify';\nimport { useMCPStore } from '~/lib/stores/mcp';\nimport { classNames } from '~/utils/classNames';\nimport { IconButton } from '~/components/ui/IconButton';\n\ninterface TestResult {\n  id: string;\n  timestamp: string;\n  toolName: string;\n  command: string;\n  status: 'success' | 'error' | 'running';\n  output?: string;\n  error?: string;\n  duration?: number;\n}\n\ninterface MCPTestConsoleProps {\n  className?: string;\n}\n\nexport const MCPTestConsole = memo(({ className }: MCPTestConsoleProps) => {\n  const communityTools = useMCPStore((state) => state.communityTools);\n  const serverTools = useMCPStore((state) => state.serverTools);\n  \n  const [testResults, setTestResults] = useState<TestResult[]>([]);\n  const [isRunningTests, setIsRunningTests] = useState(false);\n  const [selectedTool, setSelectedTool] = useState<string>('all');\n\n  const enabledTools = Object.entries(communityTools).filter(([_, tool]) => tool.enabled);\n\n  const runBasicTests = async () => {\n    setIsRunningTests(true);\n    const startTime = Date.now();\n    \n    try {\n      // Test 1: Check server availability\n      const availabilityTest: TestResult = {\n        id: `test-${Date.now()}-availability`,\n        timestamp: new Date().toISOString(),\n        toolName: 'System',\n        command: 'Server Availability Check',\n        status: 'running'\n      };\n      \n      setTestResults(prev => [availabilityTest, ...prev]);\n      \n      try {\n        const response = await fetch('/api/mcp-check');\n        const duration = Date.now() - startTime;\n        \n        if (response.ok) {\n          setTestResults(prev => prev.map(test => \n            test.id === availabilityTest.id \n              ? { ...test, status: 'success' as const, duration, output: 'All configured servers checked successfully' }\n              : test\n          ));\n        } else {\n          throw new Error(`HTTP ${response.status}: ${response.statusText}`);\n        }\n      } catch (error) {\n        const duration = Date.now() - startTime;\n        setTestResults(prev => prev.map(test => \n          test.id === availabilityTest.id \n            ? { ...test, status: 'error' as const, duration, error: error instanceof Error ? error.message : String(error) }\n            : test\n        ));\n      }\n      \n      // Test 2: Configuration validation\n      const configTest: TestResult = {\n        id: `test-${Date.now()}-config`,\n        timestamp: new Date().toISOString(),\n        toolName: 'System',\n        command: 'Configuration Validation',\n        status: 'running'\n      };\n      \n      setTestResults(prev => [configTest, ...prev]);\n      \n      try {\n        const enabledCount = enabledTools.length;\n        const availableCount = Object.keys(serverTools).length;\n        \n        const configOutput = `\n• Enabled tools: ${enabledCount}\n• Available servers: ${availableCount}\n• Configuration status: ${enabledCount > 0 ? 'Valid' : 'No tools enabled'}`;\n        \n        const duration = Date.now() - startTime;\n        setTestResults(prev => prev.map(test => \n          test.id === configTest.id \n            ? { ...test, status: 'success' as const, duration, output: configOutput }\n            : test\n        ));\n      } catch (error) {\n        const duration = Date.now() - startTime;\n        setTestResults(prev => prev.map(test => \n          test.id === configTest.id \n            ? { ...test, status: 'error' as const, duration, error: error instanceof Error ? error.message : String(error) }\n            : test\n        ));\n      }\n      \n      // Test 3: Tool-specific tests\n      for (const [toolName, tool] of enabledTools.slice(0, 3)) { // Limit to first 3 tools for performance\n        const toolTest: TestResult = {\n          id: `test-${Date.now()}-${toolName}`,\n          timestamp: new Date().toISOString(),\n          toolName,\n          command: `Test ${tool.command} ${tool.args.join(' ')}`,\n          status: 'running'\n        };\n        \n        setTestResults(prev => [toolTest, ...prev]);\n        \n        try {\n          // Simulate tool-specific test (in real implementation, this would test actual tool functionality)\n          await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));\n          \n          const serverStatus = serverTools[toolName];\n          const duration = Date.now() - startTime;\n          \n          if (serverStatus?.status === 'available') {\n            setTestResults(prev => prev.map(test => \n              test.id === toolTest.id \n                ? { ...test, status: 'success' as const, duration, output: `Tool is available and ready to use` }\n                : test\n            ));\n          } else {\n            throw new Error(serverStatus?.error || 'Tool not available');\n          }\n        } catch (error) {\n          const duration = Date.now() - startTime;\n          setTestResults(prev => prev.map(test => \n            test.id === toolTest.id \n              ? { ...test, status: 'error' as const, duration, error: error instanceof Error ? error.message : String(error) }\n              : test\n          ));\n        }\n      }\n      \n      toast.success('MCP integration tests completed');\n      \n    } catch (error) {\n      console.error('Error running tests:', error);\n      toast.error('Failed to run integration tests');\n    } finally {\n      setIsRunningTests(false);\n    }\n  };\n\n  const clearResults = () => {\n    setTestResults([]);\n  };\n\n  const filteredResults = selectedTool === 'all' \n    ? testResults \n    : testResults.filter(result => result.toolName === selectedTool);\n\n  const getStatusIcon = (status: TestResult['status']) => {\n    switch (status) {\n      case 'success':\n        return 'i-ph:check-circle-fill';\n      case 'error':\n        return 'i-ph:x-circle-fill';\n      case 'running':\n        return 'i-svg-spinners:90-ring-with-bg';\n    }\n  };\n\n  const getStatusColor = (status: TestResult['status']) => {\n    switch (status) {\n      case 'success':\n        return 'text-green-500';\n      case 'error':\n        return 'text-red-500';\n      case 'running':\n        return 'text-blue-500';\n    }\n  };\n\n  return (\n    <div className={classNames('mcp-test-console', className)}>\n      {/* Header */}\n      <div className=\"flex items-center justify-between mb-6\">\n        <div>\n          <h3 className=\"text-lg font-semibold text-bolt-elements-textPrimary\">\n            MCP Integration Test Console\n          </h3>\n          <p className=\"text-sm text-bolt-elements-textSecondary mt-1\">\n            Test the integration and functionality of your enabled MCP tools\n          </p>\n        </div>\n        \n        <div className=\"flex items-center gap-3\">\n          <select\n            value={selectedTool}\n            onChange={(e) => setSelectedTool(e.target.value)}\n            className=\"px-3 py-2 text-sm bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor rounded text-bolt-elements-textPrimary\"\n          >\n            <option value=\"all\">All Tools</option>\n            <option value=\"System\">System Tests</option>\n            {enabledTools.map(([name, _]) => (\n              <option key={name} value={name}>{name}</option>\n            ))}\n          </select>\n          \n          <button\n            onClick={clearResults}\n            disabled={testResults.length === 0}\n            className=\"px-3 py-2 text-sm text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary border border-bolt-elements-borderColor rounded disabled:opacity-50\"\n          >\n            Clear\n          </button>\n          \n          <button\n            onClick={runBasicTests}\n            disabled={isRunningTests || enabledTools.length === 0}\n            className={classNames(\n              'px-4 py-2 rounded-lg text-sm flex items-center gap-2',\n              'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent',\n              'hover:bg-bolt-elements-item-backgroundActive',\n              'disabled:opacity-50 disabled:cursor-not-allowed',\n            )}\n          >\n            {isRunningTests ? (\n              <>\n                <div className=\"i-svg-spinners:90-ring-with-bg w-4 h-4 animate-spin\" />\n                Running Tests...\n              </>\n            ) : (\n              <>\n                <div className=\"i-ph:play w-4 h-4\" />\n                Run Integration Tests\n              </>\n            )}\n          </button>\n        </div>\n      </div>\n\n      {/* Test Console */}\n      <div className=\"bg-gray-900 rounded-lg p-4 font-mono text-sm max-h-96 overflow-y-auto\">\n        {filteredResults.length === 0 ? (\n          <div className=\"text-gray-400 text-center py-8\">\n            {enabledTools.length === 0 \n              ? 'No enabled tools to test. Enable some community tools first.'\n              : 'No test results yet. Run integration tests to see results here.'}\n          </div>\n        ) : (\n          <div className=\"space-y-3\">\n            {filteredResults.map((result) => (\n              <motion.div\n                key={result.id}\n                initial={{ opacity: 0, y: 10 }}\n                animate={{ opacity: 1, y: 0 }}\n                className=\"border-l-2 border-gray-600 pl-4\"\n              >\n                <div className=\"flex items-center gap-3 mb-2\">\n                  <div className={classNames(\n                    getStatusIcon(result.status),\n                    'w-4 h-4',\n                    getStatusColor(result.status),\n                    result.status === 'running' && 'animate-spin'\n                  )} />\n                  \n                  <span className=\"text-gray-300\">\n                    [{new Date(result.timestamp).toLocaleTimeString()}]\n                  </span>\n                  \n                  <span className=\"text-yellow-400 font-medium\">\n                    {result.toolName}\n                  </span>\n                  \n                  <span className=\"text-gray-400\">\n                    {result.command}\n                  </span>\n                  \n                  {result.duration && (\n                    <span className=\"text-gray-500 text-xs\">\n                      ({result.duration}ms)\n                    </span>\n                  )}\n                </div>\n                \n                {result.output && (\n                  <div className=\"text-green-400 ml-7 whitespace-pre-line\">\n                    {result.output}\n                  </div>\n                )}\n                \n                {result.error && (\n                  <div className=\"text-red-400 ml-7\">\n                    Error: {result.error}\n                  </div>\n                )}\n              </motion.div>\n            ))}\n          </div>\n        )}\n      </div>\n      \n      {/* Test Summary */}\n      {testResults.length > 0 && (\n        <div className=\"mt-4 p-4 bg-bolt-elements-background-depth-2 rounded-lg\">\n          <div className=\"grid grid-cols-3 gap-4 text-center\">\n            <div>\n              <div className=\"text-lg font-semibold text-green-500\">\n                {testResults.filter(r => r.status === 'success').length}\n              </div>\n              <div className=\"text-sm text-bolt-elements-textSecondary\">Passed</div>\n            </div>\n            <div>\n              <div className=\"text-lg font-semibold text-red-500\">\n                {testResults.filter(r => r.status === 'error').length}\n              </div>\n              <div className=\"text-sm text-bolt-elements-textSecondary\">Failed</div>\n            </div>\n            <div>\n              <div className=\"text-lg font-semibold text-blue-500\">\n                {testResults.filter(r => r.status === 'running').length}\n              </div>\n              <div className=\"text-sm text-bolt-elements-textSecondary\">Running</div>\n            </div>\n          </div>\n        </div>\n      )}\n    </div>\n  );\n});\n\nMCPTestConsole.displayName = 'MCPTestConsole';
+import { useState, memo } from 'react';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { useMCPStore } from '~/lib/stores/mcp';
+import { classNames } from '~/utils/classNames';
+import { CheckIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+
+// Test result interface
+interface TestResult {
+  name: string;
+  status: 'passed' | 'failed' | 'running';
+  message: string;
+  duration?: number;
+  error?: string;
+}
+
+// Test statistics interface
+interface TestStats {
+  total: number;
+  passed: number;
+  failed: number;
+  running: number;
+}
+
+// Test console component
+export const MCPTestConsole = memo(() => {
+  const { mcpServers, serverConnections } = useMCPStore();
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [isRunning, setIsRunning] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'passed' | 'failed'>('all');
+
+  // Run comprehensive tests
+  const runTests = async () => {
+    setIsRunning(true);
+    setTestResults([]);
+    
+    const tests: TestResult[] = [];
+    
+    try {
+      // Test 1: MCP Store Configuration
+      tests.push({
+        name: 'MCP Store Configuration',
+        status: 'running',
+        message: 'Checking MCP store state...'
+      });
+      setTestResults([...tests]);
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      if (mcpServers && Object.keys(mcpServers).length > 0) {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'passed',
+          message: `Found ${Object.keys(mcpServers).length} configured servers`,
+          duration: 500
+        };
+      } else {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'failed',
+          message: 'No MCP servers configured',
+          duration: 500,
+          error: 'MCP servers object is empty or undefined'
+        };
+      }
+      setTestResults([...tests]);
+
+      // Test 2: Server Connections
+      tests.push({
+        name: 'Server Connections',
+        status: 'running',
+        message: 'Testing server connections...'
+      });
+      setTestResults([...tests]);
+      
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const connectedCount = Object.values(serverConnections || {}).filter(conn => conn === 'connected').length;
+      if (connectedCount > 0) {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'passed',
+          message: `${connectedCount} servers connected successfully`,
+          duration: 800
+        };
+      } else {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'failed',
+          message: 'No servers connected',
+          duration: 800,
+          error: 'All server connections are disconnected or undefined'
+        };
+      }
+      setTestResults([...tests]);
+
+      // Test 3: API Endpoints
+      tests.push({
+        name: 'API Endpoints',
+        status: 'running',
+        message: 'Testing API endpoints...'
+      });
+      setTestResults([...tests]);
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      try {
+        const response = await fetch('/api/mcp-check');
+        if (response.ok) {
+          tests[tests.length - 1] = {
+            ...tests[tests.length - 1],
+            status: 'passed',
+            message: 'MCP API endpoints responding',
+            duration: 1000
+          };
+        } else {
+          throw new Error(`API returned ${response.status}`);
+        }
+      } catch (error) {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'failed',
+          message: 'MCP API endpoints not responding',
+          duration: 1000,
+          error: error instanceof Error ? error.message : 'Unknown API error'
+        };
+      }
+      setTestResults([...tests]);
+
+      // Test 4: Community Tools Configuration
+      tests.push({
+        name: 'Community Tools Configuration',
+        status: 'running',
+        message: 'Validating community tools...'
+      });
+      setTestResults([...tests]);
+      
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      try {
+        const response = await fetch('/api/mcp-tools');
+        if (response.ok) {
+          const data = await response.json() as { success?: boolean; tools?: Record<string, any> };
+          if (data.success && data.tools) {
+            tests[tests.length - 1] = {
+              ...tests[tests.length - 1],
+              status: 'passed',
+              message: `${Object.keys(data.tools).length} community tools available`,
+              duration: 600
+            };
+          } else {
+            throw new Error('Invalid tools response');
+          }
+        } else {
+          throw new Error(`Tools API returned ${response.status}`);
+        }
+      } catch (error) {
+        tests[tests.length - 1] = {
+          ...tests[tests.length - 1],
+          status: 'failed',
+          message: 'Community tools configuration error',
+          duration: 600,
+          error: error instanceof Error ? error.message : 'Unknown tools error'
+        };
+      }
+      setTestResults([...tests]);
+
+      toast.success('MCP tests completed successfully');
+    } catch (error) {
+      toast.error('Test execution failed');
+      console.error('Test execution error:', error);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  // Calculate test statistics
+  const getTestStats = (): TestStats => {
+    return {
+      total: testResults.length,
+      passed: testResults.filter(t => t.status === 'passed').length,
+      failed: testResults.filter(t => t.status === 'failed').length,
+      running: testResults.filter(t => t.status === 'running').length
+    };
+  };
+
+  // Filter test results
+  const filteredResults = testResults.filter(result => {
+    if (filter === 'all') return true;
+    return result.status === filter;
+  });
+
+  const stats = getTestStats();
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-white">MCP Test Console</h2>
+          <p className="text-sm text-gray-400">
+            Run comprehensive tests to validate MCP integration
+          </p>
+        </div>
+        <button
+          onClick={runTests}
+          disabled={isRunning}
+          className={classNames(
+            'px-4 py-2 rounded-lg font-medium transition-all duration-200',
+            isRunning
+              ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          )}
+        >
+          {isRunning ? 'Running Tests...' : 'Run Tests'}
+        </button>
+      </div>
+
+      {/* Test Statistics */}
+      {testResults.length > 0 && (
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="text-2xl font-bold text-white">{stats.total}</div>
+            <div className="text-sm text-gray-400">Total Tests</div>
+          </div>
+          <div className="bg-green-900/20 rounded-lg p-4">
+            <div className="text-2xl font-bold text-green-400">{stats.passed}</div>
+            <div className="text-sm text-gray-400">Passed</div>
+          </div>
+          <div className="bg-red-900/20 rounded-lg p-4">
+            <div className="text-2xl font-bold text-red-400">{stats.failed}</div>
+            <div className="text-sm text-gray-400">Failed</div>
+          </div>
+          <div className="bg-blue-900/20 rounded-lg p-4">
+            <div className="text-2xl font-bold text-blue-400">{stats.running}</div>
+            <div className="text-sm text-gray-400">Running</div>
+          </div>
+        </div>
+      )}
+
+      {/* Filter Controls */}
+      {testResults.length > 0 && (
+        <div className="flex space-x-2">
+          {(['all', 'passed', 'failed'] as const).map((filterOption) => (
+            <button
+              key={filterOption}
+              onClick={() => setFilter(filterOption)}
+              className={classNames(
+                'px-3 py-1 rounded-md text-sm font-medium transition-colors',
+                filter === filterOption
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              )}
+            >
+              {filterOption.charAt(0).toUpperCase() + filterOption.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Test Results */}
+      <div className="space-y-3">
+        {filteredResults.map((result, index) => (
+          <motion.div
+            key={`${result.name}-${index}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={classNames(
+              'p-4 rounded-lg border',
+              result.status === 'passed' ? 'bg-green-900/10 border-green-700' : '',
+              result.status === 'failed' ? 'bg-red-900/10 border-red-700' : '',
+              result.status === 'running' ? 'bg-blue-900/10 border-blue-700' : ''
+            )}
+          >
+            <div className="flex items-start space-x-3">
+              {/* Status Icon */}
+              <div className="flex-shrink-0 mt-0.5">
+                {result.status === 'passed' && (
+                  <CheckIcon className="w-5 h-5 text-green-400" />
+                )}
+                {result.status === 'failed' && (
+                  <XMarkIcon className="w-5 h-5 text-red-400" />
+                )}
+                {result.status === 'running' && (
+                  <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                )}
+              </div>
+
+              {/* Test Details */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-white">{result.name}</h3>
+                  {result.duration && (
+                    <span className="text-xs text-gray-400">{result.duration}ms</span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-300 mt-1">{result.message}</p>
+                {result.error && (
+                  <div className="mt-2 p-2 bg-red-900/20 rounded border border-red-700">
+                    <div className="flex items-start space-x-2">
+                      <ExclamationTriangleIcon className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs text-red-300">{result.error}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {testResults.length === 0 && !isRunning && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-sm">
+            Click "Run Tests" to start MCP integration testing
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+MCPTestConsole.displayName = 'MCPTestConsole';

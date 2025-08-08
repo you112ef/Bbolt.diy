@@ -12,10 +12,18 @@ import { useMCPStore } from '~/lib/stores/mcp';
 import { classNames } from '~/utils/classNames';
 import { IconButton } from '~/components/ui/IconButton';
 
-interface CommunityToolConfig extends MCPTool {
+interface CommunityToolConfig {
+  id: string;
   name: string;
+  description: string;
+  category: string;
   enabled: boolean;
+  type: "stdio" | "sse" | "http";
+  command: string;
+  args: string[];
   envVars?: Record<string, string>;
+  requiredEnvVars?: string[];
+  requiresAuth?: boolean;
 }
 
 interface CommunityToolsTabProps {
@@ -61,7 +69,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
   const filteredTools = Object.entries(communityTools).filter(([name, tool]) => {
     const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory;
     const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+                         (tool.description || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesEnabled = !showOnlyEnabled || tool.enabled;
     
     return matchesCategory && matchesSearch && matchesEnabled;
@@ -199,7 +207,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-lg">
-                      {MCP_CATEGORIES[tool.category] || '🔧'}
+                      {MCP_CATEGORIES[tool.category as keyof typeof MCP_CATEGORIES] || '🔧'}
                     </span>
                     <h3 className="text-base font-medium text-bolt-elements-textPrimary">
                       {name}
@@ -220,7 +228,7 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                   
                   <div className="flex items-center gap-2 text-xs text-bolt-elements-textTertiary">
                     <span className="font-mono bg-bolt-elements-background-depth-2 px-2 py-1 rounded">
-                      {tool.command} {tool.args.join(' ')}
+                      {tool.command} {(tool.args || []).join(' ')}
                     </span>
                     <span>•</span>
                     <span className="capitalize">{tool.type}</span>
@@ -232,7 +240,6 @@ export const CommunityToolsTab = memo(({ className }: CommunityToolsTabProps) =>
                     <IconButton
                       icon={expandedTool === name ? "i-ph:caret-up" : "i-ph:caret-down"}
                       size="sm"
-                      variant="ghost"
                       title="Configure environment variables"
                       onClick={() => setExpandedTool(expandedTool === name ? null : name)}
                     />

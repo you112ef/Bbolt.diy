@@ -1,8 +1,5 @@
 # Redirects for Cloudflare Pages - SPA routing support
 
-# API routes - handle via Functions
-/api/* /.netlify/functions/:splat 200
-
 # Handle all other routes with SPA routing (fallback to index.html)
 /* /index.html 200
 
@@ -15,3 +12,7 @@
 /.env* / 301
 /.git* / 301
 /node_modules* / 301
+
+# Force HTTPS (handled by Cloudflare automatically)
+# Prevent access to sensitive files
+/.well-known/security.txt /security.txt 301

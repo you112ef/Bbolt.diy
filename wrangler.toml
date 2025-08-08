@@ -1,28 +1,16 @@
 #:schema node_modules/wrangler/config-schema.json
 name = "yousef-shtiwe-ai"
-compatibility_flags = ["nodejs_compat", "streams_enable_constructors"]
 compatibility_date = "2025-01-15"
 pages_build_output_dir = "./build/client"
 send_metrics = false
 
-# Enhanced configuration for Cloudflare Pages
-[build]
-command = "npm run build"
-cwd = "."
-watch_dir = "app"
-
-# Environment variables (these should be set in Cloudflare dashboard)
+# Environment variables (set these in Cloudflare dashboard)
 [env.production.vars]
 NODE_ENV = "production"
 
 [env.preview.vars]
 NODE_ENV = "development"
 
-# Functions configuration
-[[env.production.routes]]
-pattern = "/api/*"
-custom_domain = true
-
-[[env.preview.routes]]
-pattern = "/api/*"
-custom_domain = true
+# Notes:
+# - [build] and routes are not supported in Cloudflare Pages wrangler.toml and have been removed.
+# - Functions routing is handled automatically by Pages Functions directory structure.

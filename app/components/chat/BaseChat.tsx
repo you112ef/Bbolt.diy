@@ -490,6 +490,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 {!chatStarted && <StarterTemplates />}
               </div>
             </div>
+            </div>
             <div className="workbench-container">
               <ClientOnly>
                 {() => (

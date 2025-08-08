@@ -4,15 +4,36 @@ import type { MCPConfig, MCPServerTools } from '~/lib/services/mcpService';
 const MCP_SETTINGS_KEY = 'mcp_settings';
 const isBrowser = typeof window !== 'undefined';
 
+// Env-driven default MCP servers (build-time via Vite)
+const GENSPARK_URL = (import.meta as any).env?.VITE_GENSPARK_URL as string | undefined;
+const GENSPARK_TOKEN = (import.meta as any).env?.VITE_GENSPARK_TOKEN as string | undefined;
+
 type MCPSettings = {
   mcpConfig: MCPConfig;
   maxLLMSteps: number;
 };
 
+// Compose default servers from env (no-op if not set)
+function getDefaultServersFromEnv(): MCPConfig['mcpServers'] {
+  const servers: MCPConfig['mcpServers'] = {};
+
+  if (GENSPARK_URL) {
+    servers.genspark = {
+      type: 'streamable-http',
+      url: GENSPARK_URL,
+      headers: GENSPARK_TOKEN ? { Authorization: `Bearer ${GENSPARK_TOKEN}` } : undefined,
+    } as any;
+  }
+
+  return servers;
+}
+
 const defaultSettings = {
   maxLLMSteps: 5,
   mcpConfig: {
-    mcpServers: {},
+    mcpServers: {
+      ...getDefaultServersFromEnv(),
+    },
   },
 } satisfies MCPSettings;
 
@@ -56,7 +77,10 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
           }));
         }
       } else {
+        // Seed default env servers at first run
         localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(defaultSettings));
+        const serverTools = await updateServerConfig(defaultSettings.mcpConfig);
+        set(() => ({ serverTools }));
       }
     }
 

@@ -17,29 +17,62 @@ export interface PreviewInfo {
 // Create a broadcast channel for preview updates
 const PREVIEW_CHANNEL = 'preview-updates';
 
+// Minimal BroadcastChannel-like interface for SSR/Workers
+interface BroadcastChannelLike {
+  postMessage(message: unknown): void;
+  close(): void;
+  onmessage: ((event: MessageEvent & { data: any }) => void) | null;
+}
+
+function createBroadcastChannel(name: string): BroadcastChannelLike {
+  const hasBC = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+
+  if (hasBC) {
+    return new (window as any).BroadcastChannel(name) as unknown as BroadcastChannelLike;
+  }
+
+  // No-op shim for SSR/Workers
+  let handler: ((event: MessageEvent & { data: any }) => void) | null = null;
+
+  return {
+    postMessage: (_message: unknown) => {
+      // no-op
+    },
+    close: () => {
+      handler = null;
+    },
+    get onmessage() {
+      return handler;
+    },
+    set onmessage(value: ((event: MessageEvent & { data: any }) => void) | null) {
+      handler = value;
+    },
+  } as BroadcastChannelLike;
+}
+
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
   #webcontainer: Promise<WebContainer>;
-  #broadcastChannel: BroadcastChannel;
+  #broadcastChannel: BroadcastChannelLike;
   #lastUpdate = new Map<string, number>();
   #watchedFiles = new Set<string>();
   #refreshTimeouts = new Map<string, NodeJS.Timeout>();
   #REFRESH_DELAY = 300;
-  #storageChannel: BroadcastChannel;
+  #storageChannel: BroadcastChannelLike;
 
   previews = atom<PreviewInfo[]>([]);
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
-    this.#broadcastChannel = new BroadcastChannel(PREVIEW_CHANNEL);
-    this.#storageChannel = new BroadcastChannel('storage-sync-channel');
+    this.#broadcastChannel = createBroadcastChannel(PREVIEW_CHANNEL);
+    this.#storageChannel = createBroadcastChannel('storage-sync-channel');
 
     // Listen for preview updates from other tabs
     this.#broadcastChannel.onmessage = (event) => {
-      const { type, previewId } = event.data;
+      const { type, previewId } = (event as MessageEvent & { data: any }).data;
 
       if (type === 'file-change') {
-        const timestamp = event.data.timestamp;
+        const timestamp = (event as MessageEvent & { data: any }).data.timestamp as number;
         const lastUpdate = this.#lastUpdate.get(previewId) || 0;
 
         if (timestamp > lastUpdate) {
@@ -51,7 +84,10 @@ export class PreviewsStore {
 
     // Listen for storage sync messages
     this.#storageChannel.onmessage = (event) => {
-      const { storage, source } = event.data;
+      const { storage, source } = (event as MessageEvent & { data: any }).data as {
+        storage: Record<string, string>;
+        source?: string;
+      };
 
       if (storage && source !== this._getTabId()) {
         this._syncStorage(storage);
@@ -59,11 +95,11 @@ export class PreviewsStore {
     };
 
     // Override localStorage setItem to catch all changes
-    if (typeof window !== 'undefined') {
-      const originalSetItem = localStorage.setItem;
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const originalSetItem = localStorage.setItem.bind(localStorage);
 
-      localStorage.setItem = (...args) => {
-        originalSetItem.apply(localStorage, args);
+      (localStorage as any).setItem = (...args: [string, string]) => {
+        originalSetItem(...args);
         this._broadcastStorageSync();
       };
     }
@@ -119,7 +155,7 @@ export class PreviewsStore {
 
   // Broadcast storage state to other tabs
   private _broadcastStorageSync() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const storage: Record<string, string> = {};
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -142,8 +178,8 @@ export class PreviewsStore {
   async #init() {
     const webcontainer = await this.#webcontainer;
 
-    // Listen for server ready events
-    webcontainer.on('server-ready', (port, url) => {
+    // Listen for server ready events (browser only)
+    (webcontainer as unknown as { on?: Function }).on?.('server-ready', (port: number, url: string) => {
       console.log('[Preview] Server ready on port:', port, url);
       this.broadcastUpdate(url);
 
@@ -151,8 +187,8 @@ export class PreviewsStore {
       this._broadcastStorageSync();
     });
 
-    // Listen for port events
-    webcontainer.on('port', (port, type, url) => {
+    // Listen for port events (browser only)
+    (webcontainer as unknown as { on?: Function }).on?.('port', (port: number, type: 'open' | 'close', url: string) => {
       let previewInfo = this.#availablePreviews.get(port);
 
       if (type === 'close' && previewInfo) {

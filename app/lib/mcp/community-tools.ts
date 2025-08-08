@@ -1,7 +1,23 @@
 // Pre-configured MCP Tools from the Community
 // These are real working MCP servers that provide actual functionality
 
-export const COMMUNITY_MCP_TOOLS = {
+export interface MCPTool {
+  type: "stdio" | "sse" | "http";
+  command: string;
+  args: string[];
+  description: string;
+  category: string;
+  envVars?: string[];
+  requiresAuth?: boolean;
+}
+
+export interface MCPToolConfig extends MCPTool {
+  name: string;
+  enabled: boolean;
+  env?: Record<string, string>;
+}
+
+export const COMMUNITY_MCP_TOOLS: Record<string, MCPTool> = {
   // Web & APIs
   "fetch": {
     type: "stdio",
@@ -17,9 +33,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-brave-search"],
     description: "Search the web using Brave Search API",
     category: "Search & Research",
-    env: {
-      BRAVE_API_KEY: process.env.BRAVE_API_KEY || ""
-    }
+    envVars: ["BRAVE_API_KEY"],
+    requiresAuth: true
   },
 
   "google-maps": {
@@ -28,9 +43,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-google-maps"],
     description: "Search places, get directions, and map data",
     category: "Maps & Location",
-    env: {
-      GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || ""
-    }
+    envVars: ["GOOGLE_MAPS_API_KEY"],
+    requiresAuth: true
   },
 
   // Databases
@@ -48,9 +62,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-postgres"],
     description: "PostgreSQL database operations",
     category: "Database",
-    env: {
-      POSTGRES_CONNECTION_STRING: process.env.POSTGRES_CONNECTION_STRING || ""
-    }
+    envVars: ["POSTGRES_CONNECTION_STRING"],
+    requiresAuth: true
   },
 
   // File System & Git
@@ -77,9 +90,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-gdrive"],
     description: "Google Drive file operations",
     category: "Cloud Storage",
-    env: {
-      GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS || ""
-    }
+    envVars: ["GOOGLE_APPLICATION_CREDENTIALS"],
+    requiresAuth: true
   },
 
   "aws-kb": {
@@ -88,11 +100,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-aws-kb"],
     description: "AWS Knowledge Base integration",
     category: "Cloud AI",
-    env: {
-      AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID || "",
-      AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY || "",
-      AWS_REGION: process.env.AWS_REGION || "us-east-1"
-    }
+    envVars: ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION"],
+    requiresAuth: true
   },
 
   // Development Tools
@@ -102,9 +111,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-github"],
     description: "GitHub operations - repos, issues, PRs, releases",
     category: "Development",
-    env: {
-      GITHUB_PERSONAL_ACCESS_TOKEN: process.env.GITHUB_PERSONAL_ACCESS_TOKEN || ""
-    }
+    envVars: ["GITHUB_PERSONAL_ACCESS_TOKEN"],
+    requiresAuth: true
   },
 
   "docker": {
@@ -121,9 +129,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-kubernetes"],
     description: "Kubernetes cluster management",
     category: "DevOps",
-    env: {
-      KUBECONFIG: process.env.KUBECONFIG || ""
-    }
+    envVars: ["KUBECONFIG"],
+    requiresAuth: true
   },
 
   // Memory & Knowledge
@@ -150,9 +157,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["-y", "@modelcontextprotocol/server-slack"],
     description: "Slack messaging and workspace management",
     category: "Communication",
-    env: {
-      SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN || ""
-    }
+    envVars: ["SLACK_BOT_TOKEN"],
+    requiresAuth: true
   },
 
   "gmail": {
@@ -161,9 +167,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-gmail"],
     description: "Gmail email operations - read, send, manage",
     category: "Communication",
-    env: {
-      GMAIL_CREDENTIALS: process.env.GMAIL_CREDENTIALS || ""
-    }
+    envVars: ["GMAIL_CREDENTIALS"],
+    requiresAuth: true
   },
 
   // Analytics & Monitoring
@@ -190,10 +195,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-sentry"],
     description: "Sentry error tracking and monitoring",
     category: "Monitoring",
-    env: {
-      SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN || "",
-      SENTRY_ORG: process.env.SENTRY_ORG || ""
-    }
+    envVars: ["SENTRY_AUTH_TOKEN", "SENTRY_ORG"],
+    requiresAuth: true
   },
 
   // AI & Machine Learning  
@@ -203,9 +206,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-openai"],
     description: "OpenAI API integration for AI operations",
     category: "AI & ML",
-    env: {
-      OPENAI_API_KEY: process.env.OPENAI_API_KEY || ""
-    }
+    envVars: ["OPENAI_API_KEY"],
+    requiresAuth: true
   },
 
   "anthropic": {
@@ -213,10 +215,9 @@ export const COMMUNITY_MCP_TOOLS = {
     command: "uvx",
     args: ["mcp-server-anthropic"],
     description: "Anthropic Claude API integration",
-    category: "AI & ML", 
-    env: {
-      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || ""
-    }
+    category: "AI & ML",
+    envVars: ["ANTHROPIC_API_KEY"],
+    requiresAuth: true
   },
 
   // Data Processing
@@ -260,9 +261,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-hubspot"],
     description: "HubSpot CRM integration",
     category: "CRM & Business",
-    env: {
-      HUBSPOT_ACCESS_TOKEN: process.env.HUBSPOT_ACCESS_TOKEN || ""
-    }
+    envVars: ["HUBSPOT_ACCESS_TOKEN"],
+    requiresAuth: true
   },
 
   "salesforce": {
@@ -271,11 +271,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-salesforce"],
     description: "Salesforce CRM operations",
     category: "CRM & Business",
-    env: {
-      SALESFORCE_USERNAME: process.env.SALESFORCE_USERNAME || "",
-      SALESFORCE_PASSWORD: process.env.SALESFORCE_PASSWORD || "",
-      SALESFORCE_SECURITY_TOKEN: process.env.SALESFORCE_SECURITY_TOKEN || ""
-    }
+    envVars: ["SALESFORCE_USERNAME", "SALESFORCE_PASSWORD", "SALESFORCE_SECURITY_TOKEN"],
+    requiresAuth: true
   },
 
   // E-commerce
@@ -285,10 +282,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-shopify"],
     description: "Shopify store management",
     category: "E-commerce",
-    env: {
-      SHOPIFY_ACCESS_TOKEN: process.env.SHOPIFY_ACCESS_TOKEN || "",
-      SHOPIFY_SHOP_DOMAIN: process.env.SHOPIFY_SHOP_DOMAIN || ""
-    }
+    envVars: ["SHOPIFY_ACCESS_TOKEN", "SHOPIFY_SHOP_DOMAIN"],
+    requiresAuth: true
   },
 
   // Task Management
@@ -298,9 +293,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-notion"],
     description: "Notion workspace integration",
     category: "Productivity",
-    env: {
-      NOTION_API_KEY: process.env.NOTION_API_KEY || ""
-    }
+    envVars: ["NOTION_API_KEY"],
+    requiresAuth: true
   },
 
   "trello": {
@@ -309,10 +303,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-trello"],
     description: "Trello board management",
     category: "Productivity",
-    env: {
-      TRELLO_API_KEY: process.env.TRELLO_API_KEY || "",
-      TRELLO_TOKEN: process.env.TRELLO_TOKEN || ""
-    }
+    envVars: ["TRELLO_API_KEY", "TRELLO_TOKEN"],
+    requiresAuth: true
   },
 
   // Financial & Payment
@@ -322,9 +314,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-stripe"],
     description: "Stripe payment processing",
     category: "Finance & Payment",
-    env: {
-      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || ""
-    }
+    envVars: ["STRIPE_SECRET_KEY"],
+    requiresAuth: true
   },
 
   // IoT & Hardware
@@ -343,9 +334,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-youtube"],
     description: "YouTube API integration",
     category: "Media & Content",
-    env: {
-      YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || ""
-    }
+    envVars: ["YOUTUBE_API_KEY"],
+    requiresAuth: true
   },
 
   "twitter": {
@@ -354,9 +344,8 @@ export const COMMUNITY_MCP_TOOLS = {
     args: ["mcp-server-twitter"],
     description: "Twitter/X API integration",
     category: "Social Media",
-    env: {
-      TWITTER_BEARER_TOKEN: process.env.TWITTER_BEARER_TOKEN || ""
-    }
+    envVars: ["TWITTER_BEARER_TOKEN"],
+    requiresAuth: true
   }
 };
 
@@ -390,6 +379,23 @@ export const MCP_CATEGORIES = {
   "Social Media": "📱"
 };
 
+// Helper functions
+export function getToolsByCategory(category: string): string[] {
+  return Object.entries(COMMUNITY_MCP_TOOLS)
+    .filter(([_, tool]) => tool.category === category)
+    .map(([name, _]) => name);
+}
+
+export function getRequiredEnvVars(toolName: string): string[] {
+  const tool = COMMUNITY_MCP_TOOLS[toolName];
+  return tool?.envVars || [];
+}
+
+export function toolRequiresAuth(toolName: string): boolean {
+  const tool = COMMUNITY_MCP_TOOLS[toolName];
+  return tool?.requiresAuth || false;
+}
+
 // Default enabled tools (essential ones that work without API keys)
 export const DEFAULT_ENABLED_TOOLS = [
   "fetch",
@@ -397,28 +403,24 @@ export const DEFAULT_ENABLED_TOOLS = [
   "git",
   "time",
   "memory",
-  "sqlite"
+  "sqlite",
+  "docker",
+  "analytics",
+  "pandas",
+  "excel",
+  "puppeteer",
+  "selenium",
+  "obsidian",
+  "raspberry-pi"
 ];
 
-// Tools that require API keys
-export const API_KEY_REQUIRED_TOOLS = [
-  "brave-search",
-  "google-maps", 
-  "postgres",
-  "gdrive",
-  "aws-kb",
-  "github",
-  "slack",
-  "gmail",
-  "sentry",
-  "openai",
-  "anthropic",
-  "hubspot",
-  "salesforce",
-  "shopify",
-  "notion",
-  "trello",
-  "stripe",
-  "youtube",
-  "twitter"
-];
+// Tools that require API keys or authentication
+export const AUTH_REQUIRED_TOOLS = Object.entries(COMMUNITY_MCP_TOOLS)
+  .filter(([_, tool]) => tool.requiresAuth)
+  .map(([name, _]) => name);
+
+// All available tool names
+export const ALL_TOOL_NAMES = Object.keys(COMMUNITY_MCP_TOOLS);
+
+// Get all categories
+export const ALL_CATEGORIES = [...new Set(Object.values(COMMUNITY_MCP_TOOLS).map(tool => tool.category))];

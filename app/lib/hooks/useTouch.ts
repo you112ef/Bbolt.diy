@@ -1,1 +1,327 @@
-import { useCallback, useEffect, useRef, useState } from 'react';\n\n// Touch gesture types\ntype GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';\ntype SwipeDirection = 'left' | 'right' | 'up' | 'down';\ntype HapticType = 'light' | 'medium' | 'heavy';\n\n// Configuration interfaces\ninterface TouchConfig {\n  threshold: number; // Minimum distance for swipe\n  velocity: number; // Minimum velocity for swipe\n  timeLimit: number; // Maximum time for swipe\n  longPressDelay: number; // Long press delay\n  enableHaptics: boolean;\n  preventScroll: boolean;\n}\n\ninterface TouchData {\n  startX: number;\n  startY: number;\n  currentX: number;\n  currentY: number;\n  deltaX: number;\n  deltaY: number;\n  distance: number;\n  angle: number;\n  velocity: number;\n  duration: number;\n  direction: SwipeDirection | null;\n}\n\ninterface GestureHandlers {\n  onTap?: (data: TouchData) => void;\n  onLongPress?: (data: TouchData) => void;\n  onSwipe?: (direction: SwipeDirection, data: TouchData) => void;\n  onPan?: (data: TouchData) => void;\n  onPinch?: (scale: number, data: TouchData) => void;\n  onTouchStart?: (data: TouchData) => void;\n  onTouchMove?: (data: TouchData) => void;\n  onTouchEnd?: (data: TouchData) => void;\n}\n\nconst DEFAULT_CONFIG: TouchConfig = {\n  threshold: 50,\n  velocity: 0.3,\n  timeLimit: 500,\n  longPressDelay: 500,\n  enableHaptics: true,\n  preventScroll: false,\n};\n\nexport const useTouch = (\n  elementRef: React.RefObject<HTMLElement>,\n  handlers: GestureHandlers = {},\n  config: Partial<TouchConfig> = {}\n) => {\n  const fullConfig = { ...DEFAULT_CONFIG, ...config };\n  const [isPressed, setIsPressed] = useState(false);\n  const [touchData, setTouchData] = useState<TouchData | null>(null);\n  \n  const startTimeRef = useRef<number>(0);\n  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);\n  const initialTouchRef = useRef<{ x: number; y: number } | null>(null);\n  const lastTouchRef = useRef<{ x: number; y: number; time: number } | null>(null);\n  \n  // Multi-touch for pinch\n  const initialDistanceRef = useRef<number>(0);\n  const lastScaleRef = useRef<number>(1);\n\n  // Haptic feedback\n  const triggerHaptic = useCallback((type: HapticType) => {\n    if (!fullConfig.enableHaptics) return;\n    \n    if ('Haptics' in window && (window as any).Haptics) {\n      const Haptics = (window as any).Haptics;\n      const styles = {\n        light: 'LIGHT',\n        medium: 'MEDIUM',\n        heavy: 'HEAVY'\n      };\n      Haptics.impact({ style: styles[type] });\n    } else if ('vibrate' in navigator) {\n      const patterns = {\n        light: [10],\n        medium: [20],\n        heavy: [50]\n      };\n      navigator.vibrate(patterns[type]);\n    }\n  }, [fullConfig.enableHaptics]);\n\n  // Calculate gesture data\n  const calculateTouchData = useCallback((touch: Touch): TouchData => {\n    const initial = initialTouchRef.current;\n    if (!initial) {\n      return {\n        startX: touch.clientX,\n        startY: touch.clientY,\n        currentX: touch.clientX,\n        currentY: touch.clientY,\n        deltaX: 0,\n        deltaY: 0,\n        distance: 0,\n        angle: 0,\n        velocity: 0,\n        duration: 0,\n        direction: null,\n      };\n    }\n\n    const deltaX = touch.clientX - initial.x;\n    const deltaY = touch.clientY - initial.y;\n    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);\n    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);\n    const duration = Date.now() - startTimeRef.current;\n    const velocity = duration > 0 ? distance / duration : 0;\n\n    let direction: SwipeDirection | null = null;\n    if (distance > fullConfig.threshold) {\n      const absAngle = Math.abs(angle);\n      if (absAngle < 45) direction = 'right';\n      else if (absAngle > 135) direction = 'left';\n      else if (angle > 0) direction = 'down';\n      else direction = 'up';\n    }\n\n    return {\n      startX: initial.x,\n      startY: initial.y,\n      currentX: touch.clientX,\n      currentY: touch.clientY,\n      deltaX,\n      deltaY,\n      distance,\n      angle,\n      velocity,\n      duration,\n      direction,\n    };\n  }, [fullConfig.threshold]);\n\n  // Calculate distance between two touches\n  const getDistance = (touch1: Touch, touch2: Touch): number => {\n    const dx = touch1.clientX - touch2.clientX;\n    const dy = touch1.clientY - touch2.clientY;\n    return Math.sqrt(dx * dx + dy * dy);\n  };\n\n  // Touch event handlers\n  const handleTouchStart = useCallback((e: TouchEvent) => {\n    const touch = e.touches[0];\n    const now = Date.now();\n    \n    initialTouchRef.current = { x: touch.clientX, y: touch.clientY };\n    lastTouchRef.current = { x: touch.clientX, y: touch.clientY, time: now };\n    startTimeRef.current = now;\n    setIsPressed(true);\n    \n    const data = calculateTouchData(touch);\n    setTouchData(data);\n    handlers.onTouchStart?.(data);\n    \n    // Multi-touch handling\n    if (e.touches.length === 2) {\n      initialDistanceRef.current = getDistance(e.touches[0], e.touches[1]);\n      lastScaleRef.current = 1;\n    }\n    \n    // Start long press timer\n    if (handlers.onLongPress) {\n      longPressTimerRef.current = setTimeout(() => {\n        triggerHaptic('medium');\n        handlers.onLongPress!(data);\n      }, fullConfig.longPressDelay);\n    }\n    \n    if (fullConfig.preventScroll) {\n      e.preventDefault();\n    }\n  }, [calculateTouchData, handlers, fullConfig, triggerHaptic]);\n\n  const handleTouchMove = useCallback((e: TouchEvent) => {\n    const touch = e.touches[0];\n    const data = calculateTouchData(touch);\n    setTouchData(data);\n    \n    // Cancel long press if moved too much\n    if (data.distance > 10 && longPressTimerRef.current) {\n      clearTimeout(longPressTimerRef.current);\n      longPressTimerRef.current = null;\n    }\n    \n    // Handle pinch gesture\n    if (e.touches.length === 2 && handlers.onPinch) {\n      const currentDistance = getDistance(e.touches[0], e.touches[1]);\n      const scale = currentDistance / initialDistanceRef.current;\n      \n      if (Math.abs(scale - lastScaleRef.current) > 0.01) {\n        handlers.onPinch(scale, data);\n        lastScaleRef.current = scale;\n      }\n    }\n    \n    // Handle pan gesture\n    if (handlers.onPan && data.distance > 5) {\n      handlers.onPan(data);\n    }\n    \n    handlers.onTouchMove?.(data);\n    \n    if (fullConfig.preventScroll) {\n      e.preventDefault();\n    }\n  }, [calculateTouchData, handlers, fullConfig]);\n\n  const handleTouchEnd = useCallback((e: TouchEvent) => {\n    const touch = e.changedTouches[0];\n    const data = calculateTouchData(touch);\n    setIsPressed(false);\n    setTouchData(null);\n    \n    // Clear long press timer\n    if (longPressTimerRef.current) {\n      clearTimeout(longPressTimerRef.current);\n      longPressTimerRef.current = null;\n    }\n    \n    // Determine gesture type\n    const isSwipe = data.distance > fullConfig.threshold && \n                   data.velocity > fullConfig.velocity &&\n                   data.duration < fullConfig.timeLimit;\n    \n    if (isSwipe && data.direction && handlers.onSwipe) {\n      triggerHaptic('medium');\n      handlers.onSwipe(data.direction, data);\n    } else if (data.distance < 10 && data.duration < 300 && handlers.onTap) {\n      triggerHaptic('light');\n      handlers.onTap(data);\n    }\n    \n    handlers.onTouchEnd?.(data);\n    \n    // Reset refs\n    initialTouchRef.current = null;\n    lastTouchRef.current = null;\n    initialDistanceRef.current = 0;\n    lastScaleRef.current = 1;\n  }, [calculateTouchData, handlers, fullConfig, triggerHaptic]);\n\n  const handleTouchCancel = useCallback(() => {\n    setIsPressed(false);\n    setTouchData(null);\n    \n    if (longPressTimerRef.current) {\n      clearTimeout(longPressTimerRef.current);\n      longPressTimerRef.current = null;\n    }\n    \n    // Reset refs\n    initialTouchRef.current = null;\n    lastTouchRef.current = null;\n  }, []);\n\n  // Setup event listeners\n  useEffect(() => {\n    const element = elementRef.current;\n    if (!element) return;\n\n    const options = { passive: !fullConfig.preventScroll };\n    \n    element.addEventListener('touchstart', handleTouchStart, options);\n    element.addEventListener('touchmove', handleTouchMove, options);\n    element.addEventListener('touchend', handleTouchEnd, options);\n    element.addEventListener('touchcancel', handleTouchCancel, options);\n\n    return () => {\n      element.removeEventListener('touchstart', handleTouchStart);\n      element.removeEventListener('touchmove', handleTouchMove);\n      element.removeEventListener('touchend', handleTouchEnd);\n      element.removeEventListener('touchcancel', handleTouchCancel);\n    };\n  }, [elementRef, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel, fullConfig.preventScroll]);\n\n  // Cleanup on unmount\n  useEffect(() => {\n    return () => {\n      if (longPressTimerRef.current) {\n        clearTimeout(longPressTimerRef.current);\n      }\n    };\n  }, []);\n\n  return {\n    isPressed,\n    touchData,\n    triggerHaptic,\n  };\n};\n\n// Hook for simple swipe detection\nexport const useSwipe = (\n  elementRef: React.RefObject<HTMLElement>,\n  onSwipe: (direction: SwipeDirection) => void,\n  config?: Partial<TouchConfig>\n) => {\n  return useTouch(elementRef, { onSwipe }, config);\n};\n\n// Hook for tap detection\nexport const useTap = (\n  elementRef: React.RefObject<HTMLElement>,\n  onTap: () => void,\n  config?: Partial<TouchConfig>\n) => {\n  return useTouch(elementRef, { onTap }, config);\n};\n\n// Hook for long press detection\nexport const useLongPress = (\n  elementRef: React.RefObject<HTMLElement>,\n  onLongPress: () => void,\n  config?: Partial<TouchConfig>\n) => {\n  return useTouch(elementRef, { onLongPress }, config);\n};\n\nexport default useTouch;
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+// Touch gesture types
+type GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';
+type SwipeDirection = 'left' | 'right' | 'up' | 'down';
+type HapticType = 'light' | 'medium' | 'heavy';
+
+// Configuration interfaces
+interface TouchConfig {
+  threshold: number; // Minimum distance for swipe
+  velocity: number; // Minimum velocity for swipe
+  timeLimit: number; // Maximum time for swipe
+  longPressDelay: number; // Long press delay
+  enableHaptics: boolean;
+  preventScroll: boolean;
+}
+
+interface TouchData {
+  startX: number;
+  startY: number;
+  currentX: number;
+  currentY: number;
+  deltaX: number;
+  deltaY: number;
+  distance: number;
+  angle: number;
+  velocity: number;
+  duration: number;
+  direction: SwipeDirection | null;
+}
+
+interface GestureHandlers {
+  onTap?: (data: TouchData) => void;
+  onLongPress?: (data: TouchData) => void;
+  onSwipe?: (direction: SwipeDirection, data: TouchData) => void;
+  onPan?: (data: TouchData) => void;
+  onPinch?: (scale: number, data: TouchData) => void;
+  onTouchStart?: (data: TouchData) => void;
+  onTouchMove?: (data: TouchData) => void;
+  onTouchEnd?: (data: TouchData) => void;
+}
+
+const DEFAULT_CONFIG: TouchConfig = {
+  threshold: 50,
+  velocity: 0.3,
+  timeLimit: 500,
+  longPressDelay: 500,
+  enableHaptics: true,
+  preventScroll: false,
+};
+
+export const useTouch = (
+  elementRef: React.RefObject<HTMLElement>,
+  handlers: GestureHandlers = {},
+  config: Partial<TouchConfig> = {}
+) => {
+  const fullConfig = { ...DEFAULT_CONFIG, ...config };
+  const [isPressed, setIsPressed] = useState(false);
+  const [touchData, setTouchData] = useState<TouchData | null>(null);
+  
+  const startTimeRef = useRef<number>(0);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const initialTouchRef = useRef<{ x: number; y: number } | null>(null);
+  const lastTouchRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  
+  // Multi-touch for pinch
+  const initialDistanceRef = useRef<number>(0);
+  const lastScaleRef = useRef<number>(1);
+
+  // Haptic feedback
+  const triggerHaptic = useCallback((type: HapticType) => {
+    if (!fullConfig.enableHaptics) return;
+    
+    if ('Haptics' in window && (window as any).Haptics) {
+      const Haptics = (window as any).Haptics;
+      const styles = {
+        light: 'LIGHT',
+        medium: 'MEDIUM',
+        heavy: 'HEAVY'
+      };
+      Haptics.impact({ style: styles[type] });
+    } else if ('vibrate' in navigator) {
+      const patterns = {
+        light: [10],
+        medium: [20],
+        heavy: [50]
+      };
+      navigator.vibrate(patterns[type]);
+    }
+  }, [fullConfig.enableHaptics]);
+
+  // Calculate gesture data
+  const calculateTouchData = useCallback((touch: Touch): TouchData => {
+    const initial = initialTouchRef.current;
+    if (!initial) {
+      return {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        currentX: touch.clientX,
+        currentY: touch.clientY,
+        deltaX: 0,
+        deltaY: 0,
+        distance: 0,
+        angle: 0,
+        velocity: 0,
+        duration: 0,
+        direction: null,
+      };
+    }
+
+    const deltaX = touch.clientX - initial.x;
+    const deltaY = touch.clientY - initial.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+    const duration = Date.now() - startTimeRef.current;
+    const velocity = duration > 0 ? distance / duration : 0;
+
+    let direction: SwipeDirection | null = null;
+    if (distance > fullConfig.threshold) {
+      const absAngle = Math.abs(angle);
+      if (absAngle < 45) direction = 'right';
+      else if (absAngle > 135) direction = 'left';
+      else if (angle > 0) direction = 'down';
+      else direction = 'up';
+    }
+
+    return {
+      startX: initial.x,
+      startY: initial.y,
+      currentX: touch.clientX,
+      currentY: touch.clientY,
+      deltaX,
+      deltaY,
+      distance,
+      angle,
+      velocity,
+      duration,
+      direction,
+    };
+  }, [fullConfig.threshold]);
+
+  // Calculate distance between two touches
+  const getDistance = (touch1: Touch, touch2: Touch): number => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  // Touch event handlers
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    const now = Date.now();
+    
+    initialTouchRef.current = { x: touch.clientX, y: touch.clientY };
+    lastTouchRef.current = { x: touch.clientX, y: touch.clientY, time: now };
+    startTimeRef.current = now;
+    setIsPressed(true);
+    
+    const data = calculateTouchData(touch);
+    setTouchData(data);
+    handlers.onTouchStart?.(data);
+    
+    // Multi-touch handling
+    if (e.touches.length === 2) {
+      initialDistanceRef.current = getDistance(e.touches[0], e.touches[1]);
+      lastScaleRef.current = 1;
+    }
+    
+    // Start long press timer
+    if (handlers.onLongPress) {
+      longPressTimerRef.current = setTimeout(() => {
+        triggerHaptic('medium');
+        handlers.onLongPress!(data);
+      }, fullConfig.longPressDelay);
+    }
+    
+    if (fullConfig.preventScroll) {
+      e.preventDefault();
+    }
+  }, [calculateTouchData, handlers, fullConfig, triggerHaptic]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    const touch = e.touches[0];
+    const data = calculateTouchData(touch);
+    setTouchData(data);
+    
+    // Cancel long press if moved too much
+    if (data.distance > 10 && longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    
+    // Handle pinch gesture
+    if (e.touches.length === 2 && handlers.onPinch) {
+      const currentDistance = getDistance(e.touches[0], e.touches[1]);
+      const scale = currentDistance / initialDistanceRef.current;
+      
+      if (Math.abs(scale - lastScaleRef.current) > 0.01) {
+        handlers.onPinch(scale, data);
+        lastScaleRef.current = scale;
+      }
+    }
+    
+    // Handle pan gesture
+    if (handlers.onPan && data.distance > 5) {
+      handlers.onPan(data);
+    }
+    
+    handlers.onTouchMove?.(data);
+    
+    if (fullConfig.preventScroll) {
+      e.preventDefault();
+    }
+  }, [calculateTouchData, handlers, fullConfig]);
+
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const data = calculateTouchData(touch);
+    setIsPressed(false);
+    setTouchData(null);
+    
+    // Clear long press timer
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    
+    // Determine gesture type
+    const isSwipe = data.distance > fullConfig.threshold && 
+                   data.velocity > fullConfig.velocity &&
+                   data.duration < fullConfig.timeLimit;
+    
+    if (isSwipe && data.direction && handlers.onSwipe) {
+      triggerHaptic('medium');
+      handlers.onSwipe(data.direction, data);
+    } else if (data.distance < 10 && data.duration < 300 && handlers.onTap) {
+      triggerHaptic('light');
+      handlers.onTap(data);
+    }
+    
+    handlers.onTouchEnd?.(data);
+    
+    // Reset refs
+    initialTouchRef.current = null;
+    lastTouchRef.current = null;
+    initialDistanceRef.current = 0;
+    lastScaleRef.current = 1;
+  }, [calculateTouchData, handlers, fullConfig, triggerHaptic]);
+
+  const handleTouchCancel = useCallback(() => {
+    setIsPressed(false);
+    setTouchData(null);
+    
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    
+    // Reset refs
+    initialTouchRef.current = null;
+    lastTouchRef.current = null;
+  }, []);
+
+  // Setup event listeners
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const options = { passive: !fullConfig.preventScroll };
+    
+    element.addEventListener('touchstart', handleTouchStart, options);
+    element.addEventListener('touchmove', handleTouchMove, options);
+    element.addEventListener('touchend', handleTouchEnd, options);
+    element.addEventListener('touchcancel', handleTouchCancel, options);
+
+    return () => {
+      element.removeEventListener('touchstart', handleTouchStart);
+      element.removeEventListener('touchmove', handleTouchMove);
+      element.removeEventListener('touchend', handleTouchEnd);
+      element.removeEventListener('touchcancel', handleTouchCancel);
+    };
+  }, [elementRef, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel, fullConfig.preventScroll]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
+
+  return {
+    isPressed,
+    touchData,
+    triggerHaptic,
+  };
+};
+
+// Hook for simple swipe detection
+export const useSwipe = (
+  elementRef: React.RefObject<HTMLElement>,
+  onSwipe: (direction: SwipeDirection) => void,
+  config?: Partial<TouchConfig>
+) => {
+  return useTouch(elementRef, { onSwipe }, config);
+};
+
+// Hook for tap detection
+export const useTap = (
+  elementRef: React.RefObject<HTMLElement>,
+  onTap: () => void,
+  config?: Partial<TouchConfig>
+) => {
+  return useTouch(elementRef, { onTap }, config);
+};
+
+// Hook for long press detection
+export const useLongPress = (
+  elementRef: React.RefObject<HTMLElement>,
+  onLongPress: () => void,
+  config?: Partial<TouchConfig>
+) => {
+  return useTouch(elementRef, { onLongPress }, config);
+};
+
+export default useTouch;

@@ -47,16 +47,19 @@ export default function WebContainerPreview() {
 
   useEffect(() => {
     // Initialize broadcast channel
-    broadcastChannelRef.current = new BroadcastChannel(PREVIEW_CHANNEL);
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      broadcastChannelRef.current = new BroadcastChannel(PREVIEW_CHANNEL);
+    }
 
     // Listen for preview updates
-    broadcastChannelRef.current.onmessage = (event) => {
-      if (event.data.previewId === previewId) {
-        if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
-          handleRefresh();
+    if (broadcastChannelRef.current)
+      broadcastChannelRef.current.onmessage = (event) => {
+        if (event.data.previewId === previewId) {
+          if (event.data.type === 'refresh-preview' || event.data.type === 'file-change') {
+            handleRefresh();
+          }
         }
-      }
-    };
+      };
 
     // Construct the WebContainer preview URL
     const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;

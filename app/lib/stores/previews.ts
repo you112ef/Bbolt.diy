@@ -17,25 +17,39 @@ export interface PreviewInfo {
 // Create a broadcast channel for preview updates
 const PREVIEW_CHANNEL = 'preview-updates';
 
+type BroadcastLike = {
+  postMessage: (data: any) => void;
+  onmessage: ((this: any, ev: MessageEvent) => any) | null;
+  close: () => void;
+};
+
+function createSafeBroadcastChannel(name: string): BroadcastLike | null {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    return new BroadcastChannel(name);
+  }
+
+  return null;
+}
+
 export class PreviewsStore {
   #availablePreviews = new Map<number, PreviewInfo>();
   #webcontainer: Promise<WebContainer>;
-  #broadcastChannel: BroadcastChannel;
+  #broadcastChannel: BroadcastLike | null;
   #lastUpdate = new Map<string, number>();
   #watchedFiles = new Set<string>();
   #refreshTimeouts = new Map<string, NodeJS.Timeout>();
   #REFRESH_DELAY = 300;
-  #storageChannel: BroadcastChannel;
+  #storageChannel: BroadcastLike | null;
 
   previews = atom<PreviewInfo[]>([]);
 
   constructor(webcontainerPromise: Promise<WebContainer>) {
     this.#webcontainer = webcontainerPromise;
-    this.#broadcastChannel = new BroadcastChannel(PREVIEW_CHANNEL);
-    this.#storageChannel = new BroadcastChannel('storage-sync-channel');
+    this.#broadcastChannel = createSafeBroadcastChannel(PREVIEW_CHANNEL);
+    this.#storageChannel = createSafeBroadcastChannel('storage-sync-channel');
 
     // Listen for preview updates from other tabs
-    this.#broadcastChannel.onmessage = (event) => {
+    if (this.#broadcastChannel) this.#broadcastChannel.onmessage = (event) => {
       const { type, previewId } = event.data;
 
       if (type === 'file-change') {
@@ -50,7 +64,7 @@ export class PreviewsStore {
     };
 
     // Listen for storage sync messages
-    this.#storageChannel.onmessage = (event) => {
+    if (this.#storageChannel) this.#storageChannel.onmessage = (event) => {
       const { storage, source } = event.data;
 
       if (storage && source !== this._getTabId()) {
@@ -119,7 +133,7 @@ export class PreviewsStore {
 
   // Broadcast storage state to other tabs
   private _broadcastStorageSync() {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && this.#storageChannel) {
       const storage: Record<string, string> = {};
 
       for (let i = 0; i < localStorage.length; i++) {
@@ -192,6 +206,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -204,6 +219,7 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
+    if (!this.#broadcastChannel) return;
     this.#broadcastChannel.postMessage({
       type: 'file-change',
       previewId,
@@ -219,6 +235,7 @@ export class PreviewsStore {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
 
+      if (!this.#broadcastChannel) return;
       this.#broadcastChannel.postMessage({
         type: 'file-change',
         previewId,

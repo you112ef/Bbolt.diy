@@ -149,18 +149,18 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
   const displayPrompts = React.useMemo(() => getRandomPrompts(6), []);
   
   return (
-    <div id="examples" className="relative flex flex-col gap-6 w-full max-w-4xl mx-auto flex justify-center mt-6">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
+    <div id="examples" className="relative flex flex-col gap-4 w-full max-w-4xl mx-auto flex justify-center mt-4">
+      <div className="text-center mb-3">
+        <h3 className="bolt-text-md font-medium text-bolt-elements-textPrimary mb-1 opacity-90">
           ✨ Explore What You Can Build
         </h3>
-        <p className="text-sm text-bolt-elements-textSecondary">
+        <p className="bolt-text-xs text-bolt-elements-textSecondary opacity-70">
           Click any example below to get started, or type your own idea
         </p>
       </div>
       
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"
         style={{
           animation: '.25s ease-out 0s 1 _fade-and-move-in_g2ptj_1 forwards',
         }}
@@ -197,7 +197,7 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
               onClick={(event) => {
                 sendMessage?.(event, examplePrompt.text);
               }}
-              className={`group relative p-4 border rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-md text-left ${
+              className={`group relative p-3 border rounded-md transition-all duration-200 hover:scale-[1.01] hover:shadow-md text-left bolt-glass ${
                 categoryColor
               }`}
               title={`Category: ${examplePrompt.category}`}
@@ -229,17 +229,17 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
                   {examplePrompt.category === 'Tools' && '🛠️'}
                 </div>
               </div>
-              <p className="text-sm font-medium leading-relaxed">
+              <p className="bolt-text-sm font-medium leading-snug opacity-85 group-hover:opacity-100 transition-opacity">
                 {examplePrompt.text}
               </p>
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent to-white/10 dark:to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="absolute inset-0 rounded-md bg-gradient-to-r from-transparent to-white/10 dark:to-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </button>
           );
         })}
       </div>
       
-      <div className="text-center mt-4">
-        <p className="text-xs text-bolt-elements-textTertiary">
+      <div className="text-center mt-3">
+        <p className="bolt-text-xs text-bolt-elements-textTertiary opacity-60">
           💡 Pro tip: Be specific about technologies, features, and requirements for better results
         </p>
       </div>

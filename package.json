@@ -11,7 +11,9 @@
     "email": "yousef@shtiwe.dev"
   },
   "scripts": {
-    "deploy": "npm run build && wrangler pages deploy",
+    "deploy": "npm run build && wrangler pages deploy --compatibility-date=2025-01-15",
+    "deploy:production": "npm run build && wrangler pages deploy --compatibility-date=2025-01-15 --env production",
+    "deploy:preview": "npm run build && wrangler pages deploy --compatibility-date=2025-01-15 --env preview",
     "build": "remix vite:build",
     "dev:local": "NODE_ENV=development remix vite:dev --host 0.0.0.0 --port 5173",
     "dev": "NODE_ENV=development remix vite:dev --host 0.0.0.0 --port 5173",

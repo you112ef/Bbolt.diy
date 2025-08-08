@@ -42,17 +42,27 @@ export const links: LinksFunction = () => [
 ];
 
 const inlineThemeCode = stripIndents`
-  setTutorialKitTheme();
-
-  function setTutorialKitTheme() {
-    let theme = localStorage.getItem('bolt_theme');
-
-    if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Immediately set theme before React hydration to prevent flashing
+  (function() {
+    try {
+      let theme = localStorage.getItem('bolt_theme');
+      
+      if (!theme) {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        localStorage.setItem('bolt_theme', theme);
+      }
+      
+      const html = document.documentElement;
+      html.setAttribute('data-theme', theme);
+      
+      // Ensure the theme class is added immediately
+      html.classList.add('theme-' + theme);
+    } catch (e) {
+      // Fallback to light theme if there's any error
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.documentElement.classList.add('theme-light');
     }
-
-    document.querySelector('html')?.setAttribute('data-theme', theme);
-  }
+  })();
 `;
 
 export const Head = createHead(() => (
@@ -70,7 +80,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const theme = useStore(themeStore);
 
   useEffect(() => {
-    document.querySelector('html')?.setAttribute('data-theme', theme);
+    // Only update if theme has actually changed
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    if (currentTheme !== theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
+      document.documentElement.classList.add('theme-' + theme);
+    }
   }, [theme]);
 
   return (

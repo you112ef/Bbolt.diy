@@ -116,13 +116,8 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
 
     // Add body for non-GET/HEAD requests
     if (!['GET', 'HEAD'].includes(request.method)) {
-      fetchOptions.body = request.body;
-      fetchOptions.duplex = 'half';
-
-      /*
-       * Note: duplex property is removed to ensure TypeScript compatibility
-       * across different environments and versions
-       */
+      fetchOptions.body = request.body as any;
+      // Do not set fetchOptions.duplex in Cloudflare runtime; not part of types
     }
 
     // Forward the request to the target URL

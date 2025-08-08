@@ -10,6 +10,7 @@ type PagesFn = (context: any) => Response | Promise<Response>;
 export const onRequest: PagesFn = async (context: any) => {
   try {
     // Import the server build dynamically
+    // @ts-ignore - The build artifact exists at runtime; TS can't resolve it during typecheck
     const serverBuild = (await import('../build/server')) as unknown as ServerBuild;
 
     // Create the app load context with Cloudflare-specific data
@@ -18,19 +19,20 @@ export const onRequest: PagesFn = async (context: any) => {
         cloudflare: {
           cf: context.request?.cf,
           ctx: {
-            waitUntil: context.waitUntil?.bind?.(context) || (() => {}),
-            passThroughOnException: () => {},
-          },
+            waitUntil: (...args: any[]) => (context as any)?.waitUntil?.(...args),
+            passThroughOnException: () => (context as any)?.passThroughOnException?.(),
+            // props is not required here for runtime; avoid strict typing
+          } as any,
           caches: (globalThis as any).caches,
           env: (context as any).env as AnyEnv,
         },
-      };
+      } as AppLoadContext;
     };
 
     // Create the Pages Function handler with proper error handling
     const handler = createPagesFunctionHandler({
       build: serverBuild,
-      getLoadContext,
+      getLoadContext: getLoadContext as unknown as () => AppLoadContext,
       mode: process.env.NODE_ENV as 'development' | 'production',
     });
 

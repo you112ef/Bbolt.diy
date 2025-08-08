@@ -28,6 +28,7 @@ interface CommunityToolConfig {
   args?: string[];
   envVars?: Record<string, string>;
   requiredEnvVars?: string[];
+  requiresAuth?: boolean;
 }
 
 type Store = {
@@ -146,7 +147,8 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
               acc[varName] = '';
               return acc;
             }, {} as Record<string, string>) || {},
-            requiredEnvVars: mcpTool.envVars
+            requiredEnvVars: mcpTool.envVars,
+            requiresAuth: mcpTool.requiresAuth,
           };
         });
         

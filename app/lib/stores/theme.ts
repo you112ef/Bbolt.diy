@@ -18,6 +18,7 @@ if (!import.meta.env.SSR && typeof window !== 'undefined') {
   // Wait for DOM to be ready and then sync with actual theme
   setTimeout(() => {
     const domTheme = document.documentElement?.getAttribute('data-theme') as Theme;
+
     if (domTheme && (domTheme === 'light' || domTheme === 'dark') && domTheme !== themeStore.get()) {
       themeStore.set(domTheme);
     }
@@ -25,16 +26,20 @@ if (!import.meta.env.SSR && typeof window !== 'undefined') {
 }
 
 function initStore() {
-  // Always return default theme during SSR or initial load to prevent hydration mismatch
-  // The theme will be properly initialized by the inline script before React hydration
-  // and updated afterward through the subscription mechanism
-  
+  /*
+   * Always return default theme during SSR or initial load to prevent hydration mismatch
+   * The theme will be properly initialized by the inline script before React hydration
+   * and updated afterward through the subscription mechanism
+   */
+
   if (import.meta.env.SSR) {
     return DEFAULT_THEME;
   }
-  
-  // On client side, still return default initially to prevent hydration mismatch
-  // The actual theme will be set after hydration via DOM attributes or localStorage
+
+  /*
+   * On client side, still return default initially to prevent hydration mismatch
+   * The actual theme will be set after hydration via DOM attributes or localStorage
+   */
   return DEFAULT_THEME;
 }
 

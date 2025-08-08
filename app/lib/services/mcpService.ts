@@ -20,9 +20,10 @@ import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('mcp-service');
 
-const isEdgeRuntime = typeof WebSocket !== 'undefined' && typeof window === 'undefined' ? true : false;
+const isEdgeRuntime = !!(typeof WebSocket !== 'undefined' && typeof window === 'undefined');
 const isBrowser = typeof window !== 'undefined';
-const isCloudflarePages = typeof globalThis !== 'undefined' && // @ts-ignore
+const isCloudflarePages =
+  typeof globalThis !== 'undefined' && // @ts-ignore
   typeof (globalThis as any).WebSocketPair !== 'undefined';
 
 function stdioUnsupported(): boolean {
@@ -172,9 +173,11 @@ export class MCPService {
 
   async updateConfig(config: MCPConfig) {
     logger.debug('updating config', JSON.stringify(config));
+
     // Filter out stdio servers in unsupported environments to avoid runtime errors
     if (stdioUnsupported()) {
       const filtered: MCPConfig = { mcpServers: {} };
+
       for (const [name, cfg] of Object.entries(config?.mcpServers || {})) {
         if ((cfg as any).type !== 'stdio' && (cfg as any).command === undefined) {
           filtered.mcpServers[name] = cfg as any;
@@ -184,8 +187,10 @@ export class MCPService {
     } else {
       this._config = config;
     }
+
     // Do not eagerly initialize clients; they will be created lazily on demand
     await this._closeClients();
+
     return this._mcpToolsPerServer;
   }
 
@@ -195,10 +200,14 @@ export class MCPService {
     }
 
     const config = this._config?.mcpServers?.[serverName];
-    if (!config) return;
+
+    if (!config) {
+      return;
+    }
 
     try {
       const client = await this._createMCPClient(serverName, config);
+
       try {
         const tools = await client.tools();
         this._registerTools(serverName, tools);
@@ -229,15 +238,19 @@ export class MCPService {
   }
 
   async ensureToolLoaded(toolName: string): Promise<boolean> {
-    if (this.isValidToolName(toolName)) return true;
+    if (this.isValidToolName(toolName)) {
+      return true;
+    }
 
     // Try initializing each server lazily until tool is found
     for (const [serverName] of Object.entries(this._config?.mcpServers || {})) {
       await this._initializeServerIfNeeded(serverName);
+
       if (this.isValidToolName(toolName)) {
         return true;
       }
     }
+
     return this.isValidToolName(toolName);
   }
 
@@ -305,6 +318,7 @@ export class MCPService {
       if (stdioUnsupported()) {
         throw new Error(`Server "${serverName}" uses stdio which is unsupported in this environment.`);
       }
+
       return await this._createStdioClient(serverName, serverConfig as STDIOServerConfig);
     } else if (validatedConfig.type === 'sse') {
       return await this._createSSEClient(serverName, serverConfig as SSEServerConfig);

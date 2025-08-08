@@ -19,7 +19,6 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
   const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
 
   if (isBrowser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new (window as any).BroadcastChannel(name) as BroadcastChannelLike;
   }
 
@@ -98,7 +97,7 @@ export class PreviewsStore {
     // Override localStorage setItem to catch all changes
     if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
       const originalSetItem = localStorage.setItem.bind(localStorage);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       (localStorage as any).setItem = (...args: [string, string]) => {
         originalSetItem(...args);
         this._broadcastStorageSync();
@@ -229,7 +228,10 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
-    if (!this.#broadcastChannel) return;
+    if (!this.#broadcastChannel) {
+      return;
+    }
+
     this.#broadcastChannel.postMessage({
       type: 'state-change',
       previewId,
@@ -242,7 +244,10 @@ export class PreviewsStore {
     const timestamp = Date.now();
     this.#lastUpdate.set(previewId, timestamp);
 
-    if (!this.#broadcastChannel) return;
+    if (!this.#broadcastChannel) {
+      return;
+    }
+
     this.#broadcastChannel.postMessage({
       type: 'file-change',
       previewId,
@@ -258,7 +263,10 @@ export class PreviewsStore {
       const timestamp = Date.now();
       this.#lastUpdate.set(previewId, timestamp);
 
-      if (!this.#broadcastChannel) return;
+      if (!this.#broadcastChannel) {
+        return;
+      }
+
       this.#broadcastChannel.postMessage({
         type: 'file-change',
         previewId,

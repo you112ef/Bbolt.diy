@@ -3,139 +3,142 @@ import React from 'react';
 // Enhanced example prompts covering diverse real-world scenarios
 const EXAMPLE_PROMPTS = [
   // Mobile & Web Apps
-  { 
-    text: 'إنشاء تطبيق جوال للتجارة الإلكترونية مع تنقل React Native', 
-    category: 'Mobile' 
+  {
+    text: 'إنشاء تطبيق جوال للتجارة الإلكترونية مع تنقل React Native',
+    category: 'Mobile',
   },
-  { 
-    text: 'بناء تطبيق دردشة فورية مع دعم WebSocket', 
-    category: 'Web App' 
+  {
+    text: 'بناء تطبيق دردشة فورية مع دعم WebSocket',
+    category: 'Web App',
   },
-  { 
-    text: 'تطوير PWA لوحة تحكم للتحليلات مع دعم العمل دون اتصال', 
-    category: 'PWA' 
+  {
+    text: 'تطوير PWA لوحة تحكم للتحليلات مع دعم العمل دون اتصال',
+    category: 'PWA',
   },
-  
+
   // AI & Machine Learning
-  { 
-    text: 'تطبيق تصنيف الصور باستخدام TensorFlow.js في المتصفح', 
-    category: 'AI/ML' 
+  {
+    text: 'تطبيق تصنيف الصور باستخدام TensorFlow.js في المتصفح',
+    category: 'AI/ML',
   },
-  { 
-    text: 'إنشاء chatbot مع قدرات معالجة اللغة الطبيعية', 
-    category: 'AI/ML' 
+  {
+    text: 'إنشاء chatbot مع قدرات معالجة اللغة الطبيعية',
+    category: 'AI/ML',
   },
-  { 
-    text: 'بناء نظام توصيات باستخدام التصفية التعاونية', 
-    category: 'AI/ML' 
+  {
+    text: 'بناء نظام توصيات باستخدام التصفية التعاونية',
+    category: 'AI/ML',
   },
-  
+
   // Backend & APIs
-  { 
-    text: 'تصميم REST API مع المصادقة وتحديد المعدل والتوثيق', 
-    category: 'Backend' 
+  {
+    text: 'تصميم REST API مع المصادقة وتحديد المعدل والتوثيق',
+    category: 'Backend',
   },
-  { 
-    text: 'إنشاء خادم GraphQL مع اشتراكات في الوقت الفعلي', 
-    category: 'Backend' 
+  {
+    text: 'إنشاء خادم GraphQL مع اشتراكات في الوقت الفعلي',
+    category: 'Backend',
   },
-  { 
-    text: 'بناء معمارية الخدمات المصغرة مع Docker وKubernetes', 
-    category: 'DevOps' 
+  {
+    text: 'بناء معمارية الخدمات المصغرة مع Docker وKubernetes',
+    category: 'DevOps',
   },
-  
+
   // Data & Analytics
-  { 
-    text: 'إنشاء تصورات بيانات تفاعلية مع D3.js وReact', 
-    category: 'Data Viz' 
+  {
+    text: 'إنشاء تصورات بيانات تفاعلية مع D3.js وReact',
+    category: 'Data Viz',
   },
-  { 
-    text: 'بناء لوحة مراقبة في الوقت الفعلي مع المقاييس والتنبيهات', 
-    category: 'Analytics' 
+  {
+    text: 'بناء لوحة مراقبة في الوقت الفعلي مع المقاييس والتنبيهات',
+    category: 'Analytics',
   },
-  { 
-    text: 'تطوير خط أنابيب ETL لمعالجة مجموعات البيانات الكبيرة', 
-    category: 'Data Engineering' 
+  {
+    text: 'تطوير خط أنابيب ETL لمعالجة مجموعات البيانات الكبيرة',
+    category: 'Data Engineering',
   },
-  
+
   // Gaming & Interactive
-  { 
-    text: 'إنشاء لعبة متعددة اللاعبين مع شبكة WebRTC نظير إلى نظير', 
-    category: 'Gaming' 
+  {
+    text: 'إنشاء لعبة متعددة اللاعبين مع شبكة WebRTC نظير إلى نظير',
+    category: 'Gaming',
   },
-  { 
-    text: 'بناء تصور ثلاثي الأبعاد تفاعلي باستخدام Three.js', 
-    category: 'Interactive' 
+  {
+    text: 'بناء تصور ثلاثي الأبعاد تفاعلي باستخدام Three.js',
+    category: 'Interactive',
   },
-  { 
-    text: 'تطوير تجربة VR/AR لمتصفحات الويب', 
-    category: 'XR' 
+  {
+    text: 'تطوير تجربة VR/AR لمتصفحات الويب',
+    category: 'XR',
   },
-  
+
   // E-commerce & Business
-  { 
-    text: 'بناء منصة تجارة إلكترونية كاملة مع تكامل الدفع', 
-    category: 'E-commerce' 
+  {
+    text: 'بناء منصة تجارة إلكترونية كاملة مع تكامل الدفع',
+    category: 'E-commerce',
   },
-  { 
-    text: 'إنشاء نظام CRM مع إدارة العملاء والتحليلات', 
-    category: 'Business' 
+  {
+    text: 'إنشاء نظام CRM مع إدارة العملاء والتحليلات',
+    category: 'Business',
   },
-  { 
-    text: 'تطوير نظام إدارة المخزون مع مسح الباركود', 
-    category: 'Business' 
+  {
+    text: 'تطوير نظام إدارة المخزون مع مسح الباركود',
+    category: 'Business',
   },
-  
+
   // Security & Privacy
-  { 
-    text: 'تطبيق التشفير من طرف إلى طرف لتطبيقات المراسلة', 
-    category: 'Security' 
+  {
+    text: 'تطبيق التشفير من طرف إلى طرف لتطبيقات المراسلة',
+    category: 'Security',
   },
-  { 
-    text: 'إنشاء نظام مصادقة آمن مع OAuth و2FA', 
-    category: 'Security' 
+  {
+    text: 'إنشاء نظام مصادقة آمن مع OAuth و2FA',
+    category: 'Security',
   },
-  { 
-    text: 'بناء منصة تحليلات تركز على الخصوصية بدون cookies', 
-    category: 'Privacy' 
+  {
+    text: 'بناء منصة تحليلات تركز على الخصوصية بدون cookies',
+    category: 'Privacy',
   },
-  
+
   // IoT & Hardware
-  { 
-    text: 'إنشاء لوحة تحكم IoT لأتمتة المنزل الذكي', 
-    category: 'IoT' 
+  {
+    text: 'إنشاء لوحة تحكم IoT لأتمتة المنزل الذكي',
+    category: 'IoT',
   },
-  { 
-    text: 'بناء نظام جمع بيانات المستشعرات مع تكامل Arduino', 
-    category: 'Hardware' 
+  {
+    text: 'بناء نظام جمع بيانات المستشعرات مع تكامل Arduino',
+    category: 'Hardware',
   },
-  { 
-    text: 'تطوير تطبيق مراقبة بيئية في الوقت الفعلي', 
-    category: 'IoT' 
+  {
+    text: 'تطوير تطبيق مراقبة بيئية في الوقت الفعلي',
+    category: 'IoT',
   },
-  
+
   // Productivity & Tools
-  { 
-    text: 'إنشاء محرر أكواد تعاوني مع تعاون في الوقت الفعلي', 
-    category: 'Productivity' 
+  {
+    text: 'إنشاء محرر أكواد تعاوني مع تعاون في الوقت الفعلي',
+    category: 'Productivity',
   },
-  { 
-    text: 'بناء أداة إدارة مشاريع مع لوحات Kanban والجداول الزمنية', 
-    category: 'Productivity' 
+  {
+    text: 'بناء أداة إدارة مشاريع مع لوحات Kanban والجداول الزمنية',
+    category: 'Productivity',
   },
-  { 
-    text: 'تطوير مولد توثيق مع اكتشاف API تلقائي', 
-    category: 'Tools' 
-  }
+  {
+    text: 'تطوير مولد توثيق مع اكتشاف API تلقائي',
+    category: 'Tools',
+  },
 ];
 
 // Group prompts by category for better organization
 const getPromptsByCategory = () => {
-  const categories = [...new Set(EXAMPLE_PROMPTS.map(p => p.category))];
-  return categories.reduce((acc, category) => {
-    acc[category] = EXAMPLE_PROMPTS.filter(p => p.category === category);
-    return acc;
-  }, {} as Record<string, typeof EXAMPLE_PROMPTS>);
+  const categories = [...new Set(EXAMPLE_PROMPTS.map((p) => p.category))];
+  return categories.reduce(
+    (acc, category) => {
+      acc[category] = EXAMPLE_PROMPTS.filter((p) => p.category === category);
+      return acc;
+    },
+    {} as Record<string, typeof EXAMPLE_PROMPTS>,
+  );
 };
 
 // Get random prompts for variety
@@ -147,18 +150,16 @@ const getRandomPrompts = (count: number = 8) => {
 export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined }) {
   // Use random prompts for variety on each render
   const displayPrompts = React.useMemo(() => getRandomPrompts(6), []);
-  
+
   return (
     <div id="examples" className="relative flex flex-col gap-3 w-full max-w-3xl mx-auto flex justify-center mt-3">
       <div className="text-center mb-2">
-        <h3 className="text-sm font-medium text-bolt-elements-textPrimary mb-1 opacity-90">
-          ✨ استكشف ما يمكنك بناؤه
-        </h3>
+        <h3 className="text-sm font-medium text-bolt-elements-textPrimary mb-1 opacity-90">✨ استكشف ما يمكنك بناؤه</h3>
         <p className="text-xs text-bolt-elements-textSecondary opacity-70">
           انقر على أي مثال أدناه للبدء، أو اكتب فكرتك الخاصة
         </p>
       </div>
-      
+
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"
         style={{
@@ -210,7 +211,7 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
           );
         })}
       </div>
-      
+
       <div className="text-center mt-2">
         <p className="text-xs text-bolt-elements-textTertiary opacity-60">
           💡 نصيحة: كن محدداً حول التقنيات والميزات والمتطلبات للحصول على أفضل النتائج

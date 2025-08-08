@@ -91,6 +91,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     // Subscribe to theme changes after initial hydration
     const unsubscribe = themeStore.subscribe((newTheme) => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
+
       if (currentTheme !== newTheme) {
         document.documentElement.setAttribute('data-theme', newTheme);
         document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, '');
@@ -103,9 +104,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>
-        {children}
-      </DndProvider>
+      <DndProvider backend={HTML5Backend}>{children}</DndProvider>
       <ScrollRestoration />
       <Scripts />
     </>

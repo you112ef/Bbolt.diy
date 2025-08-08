@@ -66,9 +66,10 @@ export default function ConnectionsTab() {
     { component: TwilioConnection, category: 'communication', priority: 2 },
   ];
 
-  const filteredConnections = activeCategory === 'all' 
-    ? connections.sort((a, b) => a.priority - b.priority)
-    : connections.filter(conn => conn.category === activeCategory).sort((a, b) => a.priority - b.priority);
+  const filteredConnections =
+    activeCategory === 'all'
+      ? connections.sort((a, b) => a.priority - b.priority)
+      : connections.filter((conn) => conn.category === activeCategory).sort((a, b) => a.priority - b.priority);
 
   return (
     <div className="space-y-6">
@@ -166,7 +167,7 @@ export default function ConnectionsTab() {
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_RAILWAY_API_TOKEN=your_railway_token
                 </div>
-                
+
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Database Services
                 </div>
@@ -185,7 +186,7 @@ export default function ConnectionsTab() {
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_REDIS_URL=your_redis_url
                 </div>
-                
+
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Firebase Configuration
                 </div>
@@ -195,7 +196,7 @@ export default function ConnectionsTab() {
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_FIREBASE_PROJECT_ID=your_project_id
                 </div>
-                
+
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Cloudflare Services
                 </div>
@@ -205,14 +206,14 @@ export default function ConnectionsTab() {
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_CLOUDFLARE_ZONE_ID=your_zone_id
                 </div>
-                
+
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Payment Services
                 </div>
                 <div className="text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">
                   VITE_STRIPE_SECRET_KEY=your_stripe_secret_key
                 </div>
-                
+
                 <div className="text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary mt-2">
                   # Communication Services
                 </div>
@@ -271,7 +272,7 @@ export default function ConnectionsTab() {
                 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all',
                 activeCategory === category.id
                   ? 'bg-bolt-elements-item-backgroundActive text-bolt-elements-textPrimary'
-                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-item-backgroundActive/50 hover:text-bolt-elements-textPrimary'
+                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-item-backgroundActive/50 hover:text-bolt-elements-textPrimary',
               )}
             >
               <div className={`${category.icon} w-4 h-4`} />
@@ -300,7 +301,7 @@ export default function ConnectionsTab() {
       </div>
 
       {/* Enhanced help section with free tier information */}
-      <motion.div 
+      <motion.div
         className="space-y-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -312,8 +313,8 @@ export default function ConnectionsTab() {
             <span className="font-medium">Troubleshooting Tip:</span>
           </p>
           <p className="mb-2">
-            If you're having trouble with connections, try using the troubleshooting tool at the top of this page. It can
-            help diagnose and fix common connection issues.
+            If you're having trouble with connections, try using the troubleshooting tool at the top of this page. It
+            can help diagnose and fix common connection issues.
           </p>
           <p>For persistent issues:</p>
           <ol className="list-decimal list-inside pl-4 mt-1">

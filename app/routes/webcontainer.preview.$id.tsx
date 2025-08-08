@@ -6,10 +6,11 @@ const PREVIEW_CHANNEL = 'preview-updates';
 
 function createChannel(name: string) {
   const isBrowser = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
+
   if (isBrowser) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new (window as any).BroadcastChannel(name) as BroadcastChannel;
   }
+
   return null;
 }
 
@@ -59,9 +60,11 @@ export default function WebContainerPreview() {
       // SSR/Workers: skip BroadcastChannel usage
       const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;
       setPreviewUrl(url);
+
       if (iframeRef.current) {
         iframeRef.current.src = url;
       }
+
       return;
     }
 
@@ -72,8 +75,10 @@ export default function WebContainerPreview() {
     if (broadcastChannelRef.current) {
       broadcastChannelRef.current.onmessage = (event) => {
         const data = (event as MessageEvent & { data: any }).data;
+
         if (data?.previewId === previewId) {
           const type = data.type as string;
+
           if (type === 'refresh-preview' || type === 'file-change') {
             handleRefresh();
           }

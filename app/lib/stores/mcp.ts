@@ -103,6 +103,7 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
       } else {
         // Seed default env servers at first run
         localStorage.setItem(MCP_SETTINGS_KEY, JSON.stringify(defaultSettings));
+
         const serverTools = await updateServerConfig(defaultSettings.mcpConfig);
         set(() => ({ serverTools }));
       }
@@ -144,17 +145,18 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
 
     set(() => ({ serverTools }));
   },
-  
+
   loadCommunityTools: async () => {
     try {
       const response = await fetch('/api/mcp-tools');
+
       if (response.ok) {
-        const data = await response.json() as { success: boolean; tools?: Record<string, CommunityToolConfig> };
+        const data = (await response.json()) as { success: boolean; tools?: Record<string, CommunityToolConfig> };
         set(() => ({ communityTools: data.tools || {} }));
       } else {
         // Initialize with default configuration
         const defaultTools: Record<string, CommunityToolConfig> = {};
-        
+
         Object.entries(COMMUNITY_MCP_TOOLS).forEach(([name, tool]) => {
           const mcpTool = tool as any; // Type assertion for community tools
           defaultTools[name] = {
@@ -162,59 +164,69 @@ export const useMCPStore = create<Store & Actions>((set, get) => ({
             name,
             description: mcpTool.description,
             category: mcpTool.category,
+
             // Do not enable STDIO tools by default in browser/edge runtimes
             enabled: DEFAULT_ENABLED_TOOLS.includes(name) && mcpTool.type !== 'stdio',
             type: mcpTool.type || 'stdio',
             command: mcpTool.command,
             args: mcpTool.args,
-            envVars: mcpTool.envVars?.reduce((acc: Record<string, string>, varName: string) => {
-              acc[varName] = '';
-              return acc;
-            }, {} as Record<string, string>) || {},
+            envVars:
+              mcpTool.envVars?.reduce(
+                (acc: Record<string, string>, varName: string) => {
+                  acc[varName] = '';
+                  return acc;
+                },
+                {} as Record<string, string>,
+              ) || {},
             requiredEnvVars: mcpTool.envVars,
             requiresAuth: mcpTool.requiresAuth,
           };
         });
-        
+
         set(() => ({ communityTools: defaultTools }));
       }
     } catch (error) {
       console.error('Error loading community tools:', error);
-      set(() => ({ error: `Failed to load community tools: ${error instanceof Error ? error.message : String(error)}` }));
+      set(() => ({
+        error: `Failed to load community tools: ${error instanceof Error ? error.message : String(error)}`,
+      }));
     }
   },
-  
+
   updateCommunityTool: async (toolName: string, updates: Partial<CommunityToolConfig>) => {
     const { communityTools } = get();
     const updatedTools = {
       ...communityTools,
       [toolName]: {
         ...communityTools[toolName],
-        ...updates
-      }
+        ...updates,
+      },
     };
-    
+
     set(() => ({ communityTools: updatedTools }));
   },
-  
+
   saveCommunityTools: async () => {
     const { communityTools } = get();
-    
+
     try {
       const response = await fetch('/api/mcp-tools', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tools: communityTools })
+        body: JSON.stringify({ tools: communityTools }),
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(typeof errorData === 'object' && errorData && 'error' in errorData && typeof errorData.error === 'string' ? errorData.error : 'Failed to save community tools');
+        throw new Error(
+          typeof errorData === 'object' && errorData && 'error' in errorData && typeof errorData.error === 'string'
+            ? errorData.error
+            : 'Failed to save community tools',
+        );
       }
-      
+
       // Update MCP configuration with enabled tools
       await generateMCPConfigFromCommunityTools(communityTools);
-      
     } catch (error) {
       console.error('Error saving community tools:', error);
       throw error instanceof Error ? error : new Error('Unknown error occurred');
@@ -241,7 +253,7 @@ async function updateServerConfig(config: MCPConfig) {
 // Helper function to generate MCP config from community tools
 async function generateMCPConfigFromCommunityTools(tools: Record<string, CommunityToolConfig>) {
   const mcpServers: Record<string, any> = {};
-  
+
   Object.entries(tools).forEach(([name, tool]) => {
     // Skip stdio tools when running from the browser/edge runtime
     if (tool.enabled && tool.type !== 'stdio') {
@@ -249,7 +261,7 @@ async function generateMCPConfigFromCommunityTools(tools: Record<string, Communi
         type: tool.type || 'stdio',
         command: tool.command || '',
         args: tool.args || [],
-        env: tool.envVars || {}
+        env: tool.envVars || {},
       };
     }
   });
@@ -259,7 +271,7 @@ async function generateMCPConfigFromCommunityTools(tools: Record<string, Communi
     const response = await fetch('/api/mcp-update-config', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mcpServers })
+      body: JSON.stringify({ mcpServers }),
     });
 
     if (!response.ok) {

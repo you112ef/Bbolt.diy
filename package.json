@@ -146,7 +146,7 @@
     "istextorbinary": "^9.5.0",
     "jose": "^5.9.6",
     "js-cookie": "^3.0.5",
-    "jspdf": "^2.5.2",
+    "jspdf": "^3.0.1",
     "jszip": "^3.10.1",
     "lucide-react": "^0.485.0",
     "mime": "^4.0.4",
@@ -214,7 +214,7 @@
     "is-ci": "^3.0.1",
     "jsdom": "^26.0.0",
     "node-fetch": "^3.3.2",
-    "pnpm": "^9.14.4",
+    "pnpm": "^10.14.0",
     "prettier": "^3.5.3",
     "rimraf": "^4.4.1",
     "stream-browserify": "^3.0.0",
@@ -223,6 +223,12 @@
     "vite-plugin-copy": "^0.1.6",
     "vitest": "^2.1.7",
     "wrangler": "^4.5.1"
+  },
+  "overrides": {
+    "nanoid": ">=3.3.8",
+    "esbuild": ">=0.25.0",
+    "estree-util-value-to-estree": ">=3.3.3",
+    "dompurify": ">=3.2.4"
   },
   "resolutions": {
     "@typescript-eslint/utils": "^8.0.0-alpha.30"

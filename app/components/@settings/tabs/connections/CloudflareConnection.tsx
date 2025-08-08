@@ -39,13 +39,14 @@ export default function CloudflareConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('cloudflare_connection');
+
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
         setToken(parsed.token);
         setIsConnected(parsed.isConnected);
         setStats(parsed.stats);
-        
+
         // Verify connection is still valid
         if (parsed.isConnected && parsed.token) {
           verifyConnection(parsed.token);
@@ -62,12 +63,13 @@ export default function CloudflareConnection() {
       const response = await fetch('https://api.cloudflare.com/client/v4/user/tokens/verify', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      const data = await response.json() as any;
+      const data = (await response.json()) as any;
+
       if (!data.success) {
         throw new Error(data.errors?.[0]?.message || 'Token verification failed');
       }
@@ -78,22 +80,25 @@ export default function CloudflareConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('cloudflare_connection');
+
       return false;
     }
   };
 
   const fetchCloudflareStats = async (apiToken: string) => {
     setFetchingStats(true);
+
     try {
       // Fetch user info
       const userResponse = await fetch('https://api.cloudflare.com/client/v4/user', {
         headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      const userData = await userResponse.json() as any;
+      const userData = (await userResponse.json()) as any;
+
       if (!userData.success) {
         throw new Error(userData.errors?.[0]?.message || 'Failed to fetch user data');
       }
@@ -101,12 +106,13 @@ export default function CloudflareConnection() {
       // Fetch zones
       const zonesResponse = await fetch('https://api.cloudflare.com/client/v4/zones?per_page=50', {
         headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      const zonesData = await zonesResponse.json() as any;
+      const zonesData = (await zonesResponse.json()) as any;
+
       if (!zonesData.success) {
         throw new Error(zonesData.errors?.[0]?.message || 'Failed to fetch zones');
       }
@@ -114,17 +120,20 @@ export default function CloudflareConnection() {
       const newStats: CloudflareStats = {
         user: userData.result,
         zones: zonesData.result || [],
-        totalZones: zonesData.result_info?.total_count || zonesData.result?.length || 0
+        totalZones: zonesData.result_info?.total_count || zonesData.result?.length || 0,
       };
 
       setStats(newStats);
-      
+
       // Save to localStorage
-      localStorage.setItem('cloudflare_connection', JSON.stringify({
-        token: apiToken,
-        isConnected: true,
-        stats: newStats
-      }));
+      localStorage.setItem(
+        'cloudflare_connection',
+        JSON.stringify({
+          token: apiToken,
+          isConnected: true,
+          stats: newStats,
+        }),
+      );
 
       return newStats;
     } catch (error) {
@@ -143,13 +152,14 @@ export default function CloudflareConnection() {
     try {
       // Verify the token first
       const isValid = await verifyConnection(token);
+
       if (!isValid) {
         throw new Error('Invalid API token');
       }
 
       // Fetch user data and zones
       await fetchCloudflareStats(token);
-      
+
       setIsConnected(true);
       toast.success('Successfully connected to Cloudflare');
     } catch (error) {
@@ -213,12 +223,12 @@ export default function CloudflareConnection() {
                 disabled={connecting}
                 placeholder="Enter your Cloudflare API token"
                 className={classNames(
-                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
-                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
-                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
-                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
-                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
+                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
+                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
+                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
+                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -239,11 +249,11 @@ export default function CloudflareConnection() {
               onClick={handleConnect}
               disabled={!token || connecting}
               className={classNames(
-                "w-full px-4 py-2 rounded-md font-medium transition-colors",
-                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
-                "text-white dark:text-white",
-                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
+                'w-full px-4 py-2 rounded-md font-medium transition-colors',
+                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
+                'text-white dark:text-white',
+                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to Cloudflare'}
@@ -269,7 +279,7 @@ export default function CloudflareConnection() {
                 Refresh
               </button>
             </div>
-            
+
             {stats?.user && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -278,15 +288,14 @@ export default function CloudflareConnection() {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-bolt-elements-textPrimary">
-                      {stats.user.first_name && stats.user.last_name 
+                      {stats.user.first_name && stats.user.last_name
                         ? `${stats.user.first_name} ${stats.user.last_name}`
-                        : stats.user.username || stats.user.email
-                      }
+                        : stats.user.username || stats.user.email}
                     </h4>
                     <p className="text-xs text-bolt-elements-textSecondary">{stats.user.email}</p>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">{stats.totalZones}</div>
@@ -294,28 +303,33 @@ export default function CloudflareConnection() {
                   </div>
                   <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                     <div className="text-lg font-bold text-bolt-elements-textPrimary">
-                      {stats.zones.filter(z => z.status === 'active').length}
+                      {stats.zones.filter((z) => z.status === 'active').length}
                     </div>
                     <div className="text-xs text-bolt-elements-textSecondary">Active Zones</div>
                   </div>
                 </div>
-                
+
                 {stats.zones.length > 0 && (
                   <div>
                     <h5 className="text-sm font-medium text-bolt-elements-textPrimary mb-2">Recent Zones</h5>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
                       {stats.zones.slice(0, 5).map((zone) => (
-                        <div key={zone.id} className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded">
+                        <div
+                          key={zone.id}
+                          className="flex items-center justify-between p-2 bg-bolt-elements-background dark:bg-bolt-elements-background rounded"
+                        >
                           <div>
                             <div className="text-sm font-medium text-bolt-elements-textPrimary">{zone.name}</div>
                             <div className="text-xs text-bolt-elements-textSecondary">{zone.plan.name}</div>
                           </div>
-                          <div className={classNames(
-                            "px-2 py-1 rounded-full text-xs font-medium",
-                            zone.status === 'active' 
-                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                              : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          )}>
+                          <div
+                            className={classNames(
+                              'px-2 py-1 rounded-full text-xs font-medium',
+                              zone.status === 'active'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+                            )}
+                          >
                             {zone.status}
                           </div>
                         </div>
@@ -325,14 +339,14 @@ export default function CloudflareConnection() {
                 )}
               </div>
             )}
-            
+
             <button
               onClick={handleDisconnect}
               className={classNames(
-                "w-full px-4 py-2 rounded-md font-medium transition-colors",
-                "bg-red-600 dark:bg-red-600",
-                "text-white dark:text-white",
-                "hover:bg-red-700 dark:hover:bg-red-700"
+                'w-full px-4 py-2 rounded-md font-medium transition-colors',
+                'bg-red-600 dark:bg-red-600',
+                'text-white dark:text-white',
+                'hover:bg-red-700 dark:hover:bg-red-700',
               )}
             >
               Disconnect

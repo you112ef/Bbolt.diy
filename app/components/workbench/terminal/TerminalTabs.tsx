@@ -17,14 +17,15 @@ export const DEFAULT_TERMINAL_SIZE = 25;
 export const TerminalTabs = memo(() => {
   const showTerminal = useStore(workbenchStore.showTerminal);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  
+
   useEffect(() => {
     // Initialize theme after hydration
-    const currentTheme = document.documentElement?.getAttribute('data-theme') as 'light' | 'dark' || themeStore.get();
+    const currentTheme = (document.documentElement?.getAttribute('data-theme') as 'light' | 'dark') || themeStore.get();
     setTheme(currentTheme);
-    
+
     // Subscribe to theme changes
     const unsubscribe = themeStore.subscribe(setTheme);
+
     return unsubscribe;
   }, []);
 
@@ -158,8 +159,8 @@ export const TerminalTabs = memo(() => {
                       )}
                       onClick={() => setActiveTerminal(index)}
                     >
-                                             <div className="i-ph:terminal-window-duotone text-base" />
-                       Bolt Terminal
+                      <div className="i-ph:terminal-window-duotone text-base" />
+                      Bolt Terminal
                     </button>
                   ) : (
                     <React.Fragment>
@@ -175,8 +176,8 @@ export const TerminalTabs = memo(() => {
                         )}
                         onClick={() => setActiveTerminal(index)}
                       >
-                                                 <div className="i-ph:terminal-window-duotone text-base" />
-                         Terminal {terminalCount > 1 && index}
+                        <div className="i-ph:terminal-window-duotone text-base" />
+                        Terminal {terminalCount > 1 && index}
                         <button
                           className="bg-transparent text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary hover:bg-transparent rounded"
                           onClick={(e) => {

@@ -13,15 +13,15 @@ export const ThemeSwitch = memo(({ className }: ThemeSwitchProps) => {
 
   useEffect(() => {
     // Get theme from DOM or store after hydration
-    const theme = document.documentElement.getAttribute('data-theme') as 'light' | 'dark' || themeStore.get();
+    const theme = (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || themeStore.get();
     setCurrentTheme(theme);
     setDomLoaded(true);
-    
+
     // Subscribe to theme changes
     const unsubscribe = themeStore.subscribe((newTheme) => {
       setCurrentTheme(newTheme);
     });
-    
+
     return unsubscribe;
   }, []);
 

@@ -42,20 +42,23 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant, 
-    size, 
-    _asChild = false, 
-    enableHaptics = true,
-    hapticType = 'light',
-    longPressDelay = 500,
-    onLongPress,
-    onClick,
-    onTouchStart,
-    onTouchEnd,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      _asChild = false,
+      enableHaptics = true,
+      hapticType = 'light',
+      longPressDelay = 500,
+      onLongPress,
+      onClick,
+      onTouchStart,
+      onTouchEnd,
+      ...props
+    },
+    ref,
+  ) => {
     const [isPressed, setIsPressed] = React.useState(false);
     const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
     const [isMobile, setIsMobile] = React.useState(false);
@@ -65,56 +68,68 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }, []);
 
     const triggerHaptic = React.useCallback(() => {
-      if (!enableHaptics || !isMobile) return;
-      
+      if (!enableHaptics || !isMobile) {
+        return;
+      }
+
       if ('Haptics' in window && (window as any).Haptics) {
         const Haptics = (window as any).Haptics;
         const styles = {
           light: 'LIGHT',
           medium: 'MEDIUM',
-          heavy: 'HEAVY'
+          heavy: 'HEAVY',
         };
         Haptics.impact({ style: styles[hapticType] });
       } else if ('vibrate' in navigator) {
         const patterns = {
           light: [10],
           medium: [20],
-          heavy: [50]
+          heavy: [50],
         };
         navigator.vibrate(patterns[hapticType]);
       }
     }, [enableHaptics, hapticType, isMobile]);
 
-    const handleTouchStart = React.useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
-      setIsPressed(true);
-      triggerHaptic();
-      
-      if (onLongPress) {
-        longPressTimerRef.current = setTimeout(() => {
-          onLongPress();
-        }, longPressDelay);
-      }
-      
-      onTouchStart?.(e);
-    }, [triggerHaptic, onLongPress, longPressDelay, onTouchStart]);
-
-    const handleTouchEnd = React.useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
-      setIsPressed(false);
-      
-      if (longPressTimerRef.current) {
-        clearTimeout(longPressTimerRef.current);
-        longPressTimerRef.current = null;
-      }
-      
-      onTouchEnd?.(e);
-    }, [onTouchEnd]);
-
-    const handleClick = React.useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-      if (!isMobile) {
+    const handleTouchStart = React.useCallback(
+      (e: React.TouchEvent<HTMLButtonElement>) => {
+        setIsPressed(true);
         triggerHaptic();
-      }
-      onClick?.(e);
-    }, [onClick, triggerHaptic, isMobile]);
+
+        if (onLongPress) {
+          longPressTimerRef.current = setTimeout(() => {
+            onLongPress();
+          }, longPressDelay);
+        }
+
+        onTouchStart?.(e);
+      },
+      [triggerHaptic, onLongPress, longPressDelay, onTouchStart],
+    );
+
+    const handleTouchEnd = React.useCallback(
+      (e: React.TouchEvent<HTMLButtonElement>) => {
+        setIsPressed(false);
+
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+
+        onTouchEnd?.(e);
+      },
+      [onTouchEnd],
+    );
+
+    const handleClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (!isMobile) {
+          triggerHaptic();
+        }
+
+        onClick?.(e);
+      },
+      [onClick, triggerHaptic, isMobile],
+    );
 
     React.useEffect(() => {
       return () => {
@@ -130,11 +145,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         'active:scale-95': isMobile,
         'transform transition-transform': true,
       },
-      className
+      className,
     );
 
     return (
-      <button 
+      <button
         className={buttonClasses}
         ref={ref}
         onClick={handleClick}
@@ -144,7 +159,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
         }}
-        {...props} 
+        {...props}
       />
     );
   },

@@ -7,7 +7,10 @@ import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'YOUSEF.SHTIWE AI' }, { name: 'description', content: 'Talk with YOUSEF.SHTIWE AI, an advanced AI development platform' }];
+  return [
+    { title: 'YOUSEF.SHTIWE AI' },
+    { name: 'description', content: 'Talk with YOUSEF.SHTIWE AI, an advanced AI development platform' },
+  ];
 };
 
 export async function loader(args: LoaderFunctionArgs) {

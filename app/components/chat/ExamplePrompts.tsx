@@ -167,40 +167,15 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
         }}
       >
         {displayPrompts.map((examplePrompt, index: number) => {
-          const categoryColors = {
-            'Mobile': 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200',
-            'Web App': 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200',
-            'PWA': 'bg-sky-50 border-sky-200 text-sky-800 dark:bg-sky-950 dark:border-sky-800 dark:text-sky-200',
-            'AI/ML': 'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-200',
-            'Backend': 'bg-gray-50 border-gray-200 text-gray-800 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-200',
-            'DevOps': 'bg-indigo-50 border-indigo-200 text-indigo-800 dark:bg-indigo-950 dark:border-indigo-800 dark:text-indigo-200',
-            'Data Viz': 'bg-teal-50 border-teal-200 text-teal-800 dark:bg-teal-950 dark:border-teal-800 dark:text-teal-200',
-            'Analytics': 'bg-cyan-50 border-cyan-200 text-cyan-800 dark:bg-cyan-950 dark:border-cyan-800 dark:text-cyan-200',
-            'Data Engineering': 'bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200',
-            'Gaming': 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200',
-            'Interactive': 'bg-pink-50 border-pink-200 text-pink-800 dark:bg-pink-950 dark:border-pink-800 dark:text-pink-200',
-            'XR': 'bg-sky-50 border-sky-200 text-sky-800 dark:bg-sky-950 dark:border-sky-800 dark:text-sky-200',
-            'E-commerce': 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-200',
-            'Business': 'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-950 dark:border-slate-800 dark:text-slate-200',
-            'Security': 'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200',
-            'Privacy': 'bg-stone-50 border-stone-200 text-stone-800 dark:bg-stone-950 dark:border-stone-800 dark:text-stone-200',
-            'IoT': 'bg-lime-50 border-lime-200 text-lime-800 dark:bg-lime-950 dark:border-lime-800 dark:text-lime-200',
-            'Hardware': 'bg-zinc-50 border-zinc-200 text-zinc-800 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-200',
-            'Productivity': 'bg-sky-50 border-sky-200 text-sky-800 dark:bg-sky-950 dark:border-sky-800 dark:text-sky-200',
-            'Tools': 'bg-neutral-50 border-neutral-200 text-neutral-800 dark:bg-neutral-950 dark:border-neutral-800 dark:text-neutral-200'
-          };
-          
-          const categoryColor = categoryColors[examplePrompt.category as keyof typeof categoryColors] || categoryColors['Tools'];
-          
           return (
             <button
               key={index}
               onClick={(event) => {
                 sendMessage?.(event, examplePrompt.text);
               }}
-              className={`group relative p-4 border rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-md text-left ${
-                categoryColor
-              }`}
+              className={
+                'group relative p-4 rounded-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-md text-left bg-bolt-elements-background-depth-1 dark:bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor'
+              }
               title={`Category: ${examplePrompt.category}`}
             >
               <div className="flex items-start justify-between mb-2">

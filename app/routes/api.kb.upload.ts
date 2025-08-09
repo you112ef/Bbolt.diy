@@ -1,4 +1,5 @@
 import { json } from '@remix-run/cloudflare';
+import { addDocument, KnowledgeDocument } from '~/lib/persistence/knowledgeStore';
 
 export async function action({ request }: { request: Request }) {
   const contentType = request.headers.get('content-type') || '';
@@ -12,11 +13,18 @@ export async function action({ request }: { request: Request }) {
     return json({ error: 'file is required' }, { status: 400 });
   }
 
-  // TODO: Persist file (S3/minio) and schedule indexing job
-  const docId = `doc_${Date.now()}`;
-  const name = file.name;
-  const size = file.size;
-  const type = file.type;
+  const text = await file.text().catch(() => '');
 
-  return json({ id: docId, name, size, type });
+  const doc: KnowledgeDocument = {
+    id: `doc_${Date.now()}`,
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    text,
+    createdAt: new Date().toISOString(),
+  };
+
+  addDocument(doc);
+
+  return json({ id: doc.id, name: doc.name, size: doc.size, type: doc.type });
 }

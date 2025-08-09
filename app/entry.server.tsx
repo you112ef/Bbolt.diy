@@ -24,7 +24,7 @@ export default async function handleRequest(
     const prefersArabic = /\bar\b|\bar[-_]/i.test(acceptLanguage);
     selectedLang = prefersArabic ? 'ar' : 'en';
   }
-  const dir = selectedLang.startsWith('ar') ? 'rtl' : 'ltr';
+  const dir = 'ltr';
 
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
     signal: request.signal,
@@ -41,7 +41,7 @@ export default async function handleRequest(
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="${selectedLang}" dir="${dir}" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
+            `<!DOCTYPE html><html lang="${selectedLang}" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
           ),
         ),
       );

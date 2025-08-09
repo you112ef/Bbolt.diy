@@ -5,6 +5,7 @@ import { classNames } from '~/utils/classNames';
 import { Switch } from '~/components/ui/Switch';
 import type { UserProfile } from '~/components/@settings/core/types';
 import { isMac } from '~/utils/os';
+import { useI18n } from '~/lib/i18n';
 
 // Helper to get modifier key symbols/text
 const getModifierSymbol = (modifier: string): string => {
@@ -21,6 +22,7 @@ const getModifierSymbol = (modifier: string): string => {
 };
 
 export default function SettingsTab() {
+  const { language, setLanguage, t } = useI18n();
   const [currentTimezone, setCurrentTimezone] = useState('');
   const [settings, setSettings] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('bolt_user_profile');
@@ -28,7 +30,7 @@ export default function SettingsTab() {
       ? JSON.parse(saved)
       : {
           notifications: true,
-          language: 'en',
+          language: language || 'ar',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         };
   });
@@ -76,11 +78,15 @@ export default function SettingsTab() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="i-ph:translate-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Language</label>
+            <label className="block text-sm text-bolt-elements-textSecondary">{t('settings.language') || 'Language'}</label>
           </div>
           <select
             value={settings.language}
-            onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
+            onChange={(e) => {
+              const newLang = e.target.value;
+              setSettings((prev) => ({ ...prev, language: newLang }));
+              if (newLang === 'ar' || newLang === 'en') setLanguage(newLang as 'ar' | 'en');
+            }}
             className={classNames(
               'w-full px-3 py-2 rounded-lg text-sm',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
@@ -91,6 +97,7 @@ export default function SettingsTab() {
             )}
           >
             <option value="en">English</option>
+            <option value="ar">العربية</option>
             <option value="es">Español</option>
             <option value="fr">Français</option>
             <option value="de">Deutsch</option>

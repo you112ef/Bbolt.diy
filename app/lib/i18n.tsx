@@ -41,7 +41,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     loadTranslations(language).then(setMessages);
     document.documentElement.lang = language;
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    // Keep LTR layout regardless of language
     setCookie('lang', language);
   }, [language]);
 

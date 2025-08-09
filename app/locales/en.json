@@ -35,6 +35,8 @@
   "chat.typeMessage": "Type your message...",
   "chat.send": "Send",
 
+  "settings.language": "Language",
+
   "category.Mobile": "Mobile",
   "category.Web App": "Web App",
   "category.PWA": "PWA",

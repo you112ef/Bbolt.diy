@@ -35,6 +35,8 @@
   "chat.typeMessage": "اكتب رسالتك...",
   "chat.send": "إرسال",
 
+  "settings.language": "اللغة",
+
   "category.Mobile": "تطبيقات الموبايل",
   "category.Web App": "تطبيقات الويب",
   "category.PWA": "تطبيقات ويب تقدمية",

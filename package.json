@@ -48,7 +48,8 @@
     "mobile:copy": "npx cap copy",
     "mobile:sync": "npx cap sync",
     "android:release": "npm run mobile:build && cd android && ./gradlew assembleRelease",
-    "android:debug": "npm run mobile:build && cd android && ./gradlew assembleDebug"
+    "android:debug": "npm run mobile:build && cd android && ./gradlew assembleDebug",
+    "mcp:devtools": "go install github.com/sammcj/mcp-devtools@HEAD"
   },
   "engines": {
     "node": ">=18.18.0"

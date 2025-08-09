@@ -304,8 +304,9 @@ const performAIInference = async (
     // Try Ollama provider if available
     if (OllamaProvider) {
       try {
-        const llmManager = useMemo(() => new LLMManager(), []);
-        const ollama = new OllamaProvider({ baseURL: 'http://127.0.0.1:11434' });
+        const llmManager = LLMManager.getInstance(import.meta.env);
+        const ollamaBase = (import.meta as any).env?.OLLAMA_API_BASE_URL || undefined;
+        const ollama = new OllamaProvider({ baseURL: ollamaBase });
         
         // Check if Ollama is available
         const ollamaModels = await ollama.getModels?.();
@@ -328,7 +329,8 @@ const performAIInference = async (
     // Try LM Studio provider if available
     if (LMStudioProvider) {
       try {
-        const lmstudio = new LMStudioProvider({ baseURL: 'http://127.0.0.1:1234' });
+        const lmstudioBase = (import.meta as any).env?.LMSTUDIO_API_BASE_URL || undefined;
+        const lmstudio = new LMStudioProvider({ baseURL: lmstudioBase });
         
         const response = await lmstudio.chat?.([{
           role: 'user',
@@ -1714,7 +1716,7 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const files = useStore(workbenchStore.files);
   const availableModels = useAIModels();
-  const llmManager = useMemo(() => new LLMManager(), []);
+  const llmManager = LLMManager.getInstance(import.meta.env);
 
   useEffect(() => {
     // Initialize local AI providers on component mount

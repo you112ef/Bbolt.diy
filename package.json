@@ -48,7 +48,8 @@
     "mobile:copy": "npx cap copy",
     "mobile:sync": "npx cap sync",
     "android:release": "npm run mobile:build && cd android && ./gradlew assembleRelease",
-    "android:debug": "npm run mobile:build && cd android && ./gradlew assembleDebug"
+    "android:debug": "npm run mobile:build && cd android && ./gradlew assembleDebug",
+    "mcp:devtools": "go install github.com/sammcj/mcp-devtools@HEAD"
   },
   "engines": {
     "node": ">=18.18.0"
@@ -173,7 +174,12 @@
     "use-debounce": "^10.0.4",
     "vite-plugin-node-polyfills": "^0.22.0",
     "zod": "^3.24.1",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "@xenova/transformers": "^2.17.1"
+  },
+  "optionalDependencies": {
+    "mongodb": "^6.10.0",
+    "ioredis": "^5.4.1"
   },
   "devDependencies": {
     "@blitz/eslint-plugin": "0.1.0",

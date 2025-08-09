@@ -118,3 +118,28 @@ export default function App() {
     </I18nProvider>
   );
 }
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return (
+    <html>
+      <head>
+        <title>Application Error</title>
+      </head>
+      <body style={{ padding: 20, fontFamily: 'ui-sans-serif, system-ui' }}>
+        <h1 style={{ color: '#dc2626', marginBottom: 12 }}>Application Error</h1>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#111827', color: '#f9fafb', padding: 12, borderRadius: 8 }}>
+          {String(error?.message || error)}
+        </pre>
+        {error?.stack && (
+          <details open style={{ marginTop: 12 }}>
+            <summary>Stack trace</summary>
+            <pre style={{ whiteSpace: 'pre-wrap', background: '#111827', color: '#f9fafb', padding: 12, borderRadius: 8 }}>
+              {error.stack}
+            </pre>
+          </details>
+        )}
+        <script dangerouslySetInnerHTML={{ __html: 'console.error(' + JSON.stringify(String(error?.stack || error)) + ');' }} />
+      </body>
+    </html>
+  );
+}

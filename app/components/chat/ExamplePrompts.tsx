@@ -204,7 +204,7 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
               title={`Category: ${examplePrompt.category}`}
             >
               <div className="flex items-start justify-between mb-2">
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/50 dark:bg-black/20">
+                <span className="text-xs font-medium">
                   {t(`category.${examplePrompt.category}`)}
                 </span>
                 <div className="text-lg opacity-60 group-hover:opacity-100 transition-opacity">

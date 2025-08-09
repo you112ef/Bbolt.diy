@@ -13,6 +13,16 @@ export default async function handleRequest(
   remixContext: any,
   _loadContext: AppLoadContext,
 ) {
+  // Ensure BroadcastChannel exists in Workers/SSR environments
+  if (typeof (globalThis as any).BroadcastChannel === 'undefined') {
+    try {
+      const mod = await import('broadcast-channel');
+      (globalThis as any).BroadcastChannel = (mod as any).BroadcastChannel || (mod as any).default || (mod as any);
+    } catch (err) {
+      // Silently ignore if polyfill can't be loaded
+    }
+  }
+
   // await initializeModelList({});
 
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {

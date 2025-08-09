@@ -14,6 +14,7 @@ import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
 import { searchDocuments } from '~/lib/persistence/knowledgeStore';
+import { addUsage } from '~/lib/persistence/usageStore';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -223,6 +224,12 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               cumulativeUsage.completionTokens += usage.completionTokens || 0;
               cumulativeUsage.promptTokens += usage.promptTokens || 0;
               cumulativeUsage.totalTokens += usage.totalTokens || 0;
+              addUsage({
+                timestamp: new Date().toISOString(),
+                promptTokens: usage.promptTokens || 0,
+                completionTokens: usage.completionTokens || 0,
+                totalTokens: usage.totalTokens || 0,
+              });
             }
 
             if (finishReason !== 'length') {

@@ -24,6 +24,8 @@ interface BroadcastChannelLike {
   onmessage: ((event: MessageEvent & { data: any }) => void) | null;
 }
 
+import { createBroadcastChannel as _createBroadcastChannelShim } from "~/lib/shims/broadcastChannel";
+
 function createBroadcastChannel(name: string): BroadcastChannelLike {
   const hasBC = typeof window !== 'undefined' && typeof (window as any).BroadcastChannel !== 'undefined';
 
@@ -31,23 +33,23 @@ function createBroadcastChannel(name: string): BroadcastChannelLike {
     return new (window as any).BroadcastChannel(name) as unknown as BroadcastChannelLike;
   }
 
-  // No-op shim for SSR/Workers
-  let handler: ((event: MessageEvent & { data: any }) => void) | null = null;
+  // Use shared shim (in-memory) to avoid divergence
+  const bc: any = _createBroadcastChannelShim(name);
 
-  return {
-    postMessage: (_message: unknown) => {
-      // no-op
-    },
-    close: () => {
-      handler = null;
-    },
-    get onmessage() {
+  let handler: ((event: MessageEvent & { data: any }) => void) | null = null;
+  Object.defineProperty(bc, 'onmessage', {
+    get() {
       return handler;
     },
-    set onmessage(value: ((event: MessageEvent & { data: any }) => void) | null) {
-      handler = value;
+    set(v) {
+      handler = v as any;
+      if (typeof bc.addEventListener === 'function') {
+        bc.addEventListener('message', handler as any);
+      }
     },
-  } as BroadcastChannelLike;
+  });
+
+  return bc as BroadcastChannelLike;
 }
 
 export class PreviewsStore {

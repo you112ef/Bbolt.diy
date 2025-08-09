@@ -2,6 +2,8 @@ import { json, type LoaderFunctionArgs } from '@remix-run/cloudflare';
 import { useLoaderData } from '@remix-run/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { createBroadcastChannel } from "~/lib/shims/broadcastChannel";
+
 const PREVIEW_CHANNEL = 'preview-updates';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -17,7 +19,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export default function WebContainerPreview() {
   const { previewId } = useLoaderData<typeof loader>();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const broadcastChannelRef = useRef<BroadcastChannel>();
+  const broadcastChannelRef = useRef<ReturnType<typeof createBroadcastChannel>>();
   const [previewUrl, setPreviewUrl] = useState('');
 
   // Handle preview refresh
@@ -57,7 +59,7 @@ export default function WebContainerPreview() {
     }
 
     // Initialize broadcast channel
-    broadcastChannelRef.current = new BroadcastChannel(PREVIEW_CHANNEL);
+    broadcastChannelRef.current = createBroadcastChannel(PREVIEW_CHANNEL);
 
     // Listen for preview updates
     broadcastChannelRef.current.onmessage = (event) => {

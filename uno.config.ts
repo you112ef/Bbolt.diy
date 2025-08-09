@@ -239,6 +239,7 @@ export default defineConfig({
     }),
     presetIcons({
       warn: true,
+      scale: 1,
       collections: {
         ...customIconCollection,
         si: () => import('@iconify-json/simple-icons/icons.json').then((i) => i.default),

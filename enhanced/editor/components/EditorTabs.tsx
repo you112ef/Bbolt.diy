@@ -4,7 +4,6 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { Button } from '~/components/ui/Button';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Tooltip } from '~/components/ui/Tooltip';
-import type { FileMap } from '~/lib/stores/files';
 
 interface EditorTab {
   filePath: string;
@@ -219,23 +218,23 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
   onTabReorder,
   className,
 }) => {
-  const files = useStore(workbenchStore);
+  // Subscribe to files and unsaved files to trigger re-renders
+  useStore(workbenchStore.files);
+  const unsavedSet = useStore(workbenchStore.unsavedFiles);
   const [draggedTabIndex, setDraggedTabIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Convert file paths to tab objects
   const tabs: EditorTab[] = openTabs.map((filePath) => {
-    const file = workbenchStore.files.get()[filePath];
     const fileName = filePath.split('/').pop() || filePath;
-    
+    const isDirty = unsavedSet instanceof Set ? unsavedSet.has(filePath) : false;
     return {
       filePath,
       fileName,
       isActive: activeTab === filePath,
-      isDirty: file?.unsaved || false,
-      isPinned: file?.pinned || false,
-      language: file?.language,
+      isDirty,
+      isPinned: false,
     };
   });
 
@@ -347,8 +346,8 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
 
   const handleCloseSavedTabs = () => {
     openTabs.forEach(filePath => {
-      const file = workbenchStore.files.get()[filePath];
-      if (!file?.unsaved) {
+      const isUnsaved = unsavedSet instanceof Set ? unsavedSet.has(filePath) : false;
+      if (!isUnsaved) {
         onTabClose(filePath);
       }
     });

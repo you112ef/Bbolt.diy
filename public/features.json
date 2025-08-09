@@ -1,0 +1,16 @@
+[
+  {
+    "id": "dark-mode",
+    "name": "Dark Mode",
+    "description": "Enable dark theme across the app",
+    "viewed": false,
+    "releaseDate": "2025-03-01"
+  },
+  {
+    "id": "tab-management",
+    "name": "Tab Management",
+    "description": "Customize and save tab layouts",
+    "viewed": false,
+    "releaseDate": "2025-03-15"
+  }
+]

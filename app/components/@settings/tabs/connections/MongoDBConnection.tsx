@@ -71,29 +71,25 @@ export default function MongoDBConnection() {
     setTestingConnection(true);
 
     try {
-      /*
-       * Since we can't directly connect to MongoDB from the browser,
-       * we'll validate the connection string format and simulate a connection test
-       */
-
       if (!connStr.startsWith('mongodb://') && !connStr.startsWith('mongodb+srv://')) {
         throw new Error('Invalid MongoDB connection string format');
       }
 
-      // Parse the connection string to validate it
-      const parsedInfo = parseConnectionString(connStr);
+      // Call server-side API to test the actual connection
+      const res = await fetch('/api/connections/mongodb/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connectionString: connStr }),
+      });
 
-      if (!parsedInfo.host) {
-        throw new Error('Invalid hostname in connection string');
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(err.message || 'Failed to test MongoDB connection');
       }
 
-      // Simulate connection test delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const payload = await res.json();
 
-      /*
-       * In a real implementation, this would make a server-side API call
-       * to test the actual MongoDB connection
-       */
+      const parsedInfo = parseConnectionString(connStr);
 
       const newStats: MongoDBStats = {
         isConnected: true,
@@ -101,15 +97,14 @@ export default function MongoDBConnection() {
         connectionType: parsedInfo.connectionType || 'hosted',
         lastConnected: new Date(),
         connectionInfo: {
-          serverVersion: '6.0.0', // This would come from actual connection
-          platform: 'Unknown', // This would come from actual connection
-          maxWireVersion: 17, // This would come from actual connection
+          serverVersion: payload?.server?.version,
+          platform: payload?.server?.platform,
+          maxWireVersion: payload?.server?.maxWireVersion,
         },
       };
 
       setStats(newStats);
 
-      // Save to localStorage
       localStorage.setItem(
         'mongodb_connection',
         JSON.stringify({
@@ -232,12 +227,6 @@ export default function MongoDBConnection() {
                     Connection String Guide
                     <div className="i-ph:arrow-square-out w-4 h-4" />
                   </a>
-                </div>
-                <div className="mt-2 text-xs text-bolt-elements-textSecondary">
-                  <p>
-                    <strong>Note:</strong> Connection testing is simulated in browser environment.
-                  </p>
-                  <p>For production use, implement server-side MongoDB connection validation.</p>
                 </div>
               </div>
             </div>

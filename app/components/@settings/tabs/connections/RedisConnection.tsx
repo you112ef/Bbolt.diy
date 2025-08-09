@@ -58,13 +58,18 @@ export default function RedisConnection() {
         throw new Error('Host is required');
       }
 
-      // Simulate connection test delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await fetch('/api/connections/redis/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host, port: Number(port), password, database: Number(database), ssl }),
+      });
 
-      /*
-       * In a real implementation, this would make a server-side API call
-       * to test the actual Redis connection using node-redis or ioredis
-       */
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(err.message || 'Failed to test Redis connection');
+      }
+
+      const payload = await res.json();
 
       const newStats: RedisStats = {
         isConnected: true,
@@ -74,10 +79,10 @@ export default function RedisConnection() {
         ssl,
         lastConnected: new Date(),
         serverInfo: {
-          version: '7.0.0', // This would come from actual connection
-          mode: 'standalone', // This would come from actual connection
-          memory: '1.2GB', // This would come from actual connection
-          clients: 5, // This would come from actual connection
+          version: payload?.server?.version,
+          mode: payload?.server?.mode,
+          memory: payload?.server?.memory,
+          clients: payload?.server?.clients,
         },
       };
 
@@ -291,10 +296,7 @@ export default function RedisConnection() {
                 </a>
               </div>
               <div className="mt-2 text-xs text-bolt-elements-textSecondary">
-                <p>
-                  <strong>Note:</strong> Connection testing is simulated in browser environment.
-                </p>
-                <p>For production use, implement server-side Redis connection validation.</p>
+                <p>Connection is validated server-side for accuracy and security.</p>
               </div>
             </div>
 

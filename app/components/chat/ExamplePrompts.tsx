@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '~/lib/i18n';
 
 // Enhanced example prompts covering diverse real-world scenarios
 const EXAMPLE_PROMPTS = [
@@ -147,15 +148,15 @@ const getRandomPrompts = (count: number = 8) => {
 export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInput?: string): void | undefined }) {
   // Use random prompts for variety on each render
   const displayPrompts = React.useMemo(() => getRandomPrompts(6), []);
-  
+  const { t } = useI18n();
   return (
     <div id="examples" className="relative flex flex-col gap-6 w-full max-w-4xl mx-auto flex justify-center mt-6">
       <div className="text-center mb-4">
         <h3 className="text-lg font-medium text-bolt-elements-textPrimary mb-2">
-          ✨ Explore What You Can Build
+          ✨ {t('examples.title')}
         </h3>
         <p className="text-sm text-bolt-elements-textSecondary">
-          Click any example below to get started, or type your own idea
+          {t('examples.subtitle')}
         </p>
       </div>
       
@@ -204,7 +205,7 @@ export function ExamplePrompts(sendMessage?: { (event: React.UIEvent, messageInp
             >
               <div className="flex items-start justify-between mb-2">
                 <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/50 dark:bg-black/20">
-                  {examplePrompt.category}
+                  {t(`category.${examplePrompt.category}`)}
                 </span>
                 <div className="text-lg opacity-60 group-hover:opacity-100 transition-opacity">
                   {examplePrompt.category === 'Mobile' && '📱'}

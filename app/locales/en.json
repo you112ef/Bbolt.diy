@@ -3,5 +3,56 @@
   "app.subtitle": "Welcome to YOUSEF.SHTIWE AI",
   "actions.save": "Save",
   "actions.cancel": "Cancel",
-  "search.placeholder": "Search..."
+  "search.placeholder": "Search...",
+
+  "provider.select": "Select provider",
+  "provider.search": "Search providers...",
+  "provider.none": "No providers found",
+
+  "model.select": "Select model",
+  "model.search": "Search models...",
+  "model.onlyFree": "Free models only",
+  "model.free": "Free model",
+  "model.none": "No models found",
+  "model.noneFree": "No free models found",
+
+  "common.loading": "Loading...",
+
+  "examples.title": "Explore What You Can Build",
+  "examples.subtitle": "Click any example below to get started, or type your own idea",
+
+  "menu.newChat": "Start new chat",
+  "menu.enterSelect": "Enter selection mode",
+  "menu.exitSelect": "Exit selection mode",
+  "menu.searchChats": "Search chats...",
+  "menu.yourChats": "Your Chats",
+  "menu.deselectAll": "Deselect all",
+  "menu.selectAll": "Select all",
+  "menu.deleteSelected": "Delete selected",
+  "menu.noConversations": "No previous conversations",
+  "menu.noMatches": "No matches found",
+
+  "chat.typeMessage": "Type your message...",
+  "chat.send": "Send",
+
+  "category.Mobile": "Mobile",
+  "category.Web App": "Web App",
+  "category.PWA": "PWA",
+  "category.AI/ML": "AI/ML",
+  "category.Backend": "Backend",
+  "category.DevOps": "DevOps",
+  "category.Data Viz": "Data Viz",
+  "category.Analytics": "Analytics",
+  "category.Data Engineering": "Data Engineering",
+  "category.Gaming": "Gaming",
+  "category.Interactive": "Interactive",
+  "category.XR": "XR",
+  "category.E-commerce": "E-commerce",
+  "category.Business": "Business",
+  "category.Security": "Security",
+  "category.Privacy": "Privacy",
+  "category.IoT": "IoT",
+  "category.Hardware": "Hardware",
+  "category.Productivity": "Productivity",
+  "category.Tools": "Tools"
 }

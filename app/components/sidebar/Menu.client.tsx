@@ -14,6 +14,7 @@ import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { profileStore } from '~/lib/stores/profile';
+import { useI18n } from '~/lib/i18n';
 
 const menuVariants = {
   closed: {
@@ -73,6 +74,7 @@ export const Menu = () => {
   const profile = useStore(profileStore);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const { t } = useI18n();
 
   const { filteredItems: filteredList, handleSearchChange } = useSearchFilter({
     items: list,
@@ -367,7 +369,7 @@ export const Menu = () => {
                 className="flex-1 flex gap-2 items-center bg-transparent text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-2 rounded-lg px-4 py-2 transition-colors border border-bolt-elements-borderColor"
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
-                <span className="text-sm font-medium">Start new chat</span>
+                <span className="text-sm font-medium">{t('menu.newChat')}</span>
               </a>
               <button
                 onClick={toggleSelectionMode}
@@ -377,7 +379,7 @@ export const Menu = () => {
                     ? 'bg-sky-600 dark:bg-sky-500 text-white border border-sky-700 dark:border-sky-600'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
                 )}
-                aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
+                aria-label={selectionMode ? t('menu.exitSelect') : t('menu.enterSelect')}
               >
                 <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
               </button>
@@ -389,18 +391,18 @@ export const Menu = () => {
               <input
                 className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-sky-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
                 type="search"
-                placeholder="Search chats..."
+                placeholder={t('menu.searchChats')}
                 onChange={handleSearchChange}
-                aria-label="Search chats"
+                aria-label={t('menu.searchChats')}
               />
             </div>
           </div>
           <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
+            <div className="font-medium text-gray-600 dark:text-gray-400">{t('menu.yourChats')}</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={selectAll}>
-                  {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
+                  {selectedItems.length === filteredList.length ? t('menu.deselectAll') : t('menu.selectAll')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -408,7 +410,7 @@ export const Menu = () => {
                   onClick={handleBulkDeleteClick}
                   disabled={selectedItems.length === 0}
                 >
-                  Delete selected
+                  {t('menu.deleteSelected')}
                 </Button>
               </div>
             )}
@@ -416,7 +418,7 @@ export const Menu = () => {
           <div className="flex-1 overflow-auto px-3 pb-3">
             {filteredList.length === 0 && (
               <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
-                {list.length === 0 ? 'No previous conversations' : 'No matches found'}
+                {list.length === 0 ? t('menu.noConversations') : t('menu.noMatches')}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>

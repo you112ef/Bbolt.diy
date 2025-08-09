@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import { classNames } from '~/utils/classNames';
+import { useI18n } from '~/lib/i18n';
 
 interface ModelSelectorProps {
   model?: string;
@@ -39,6 +40,7 @@ export const ModelSelector = ({
   providerList,
   modelLoading,
 }: ModelSelectorProps) => {
+  const { t } = useI18n();
   const [modelSearchQuery, setModelSearchQuery] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [focusedModelIndex, setFocusedModelIndex] = useState(-1);
@@ -269,7 +271,7 @@ export const ModelSelector = ({
           tabIndex={0}
         >
           <div className="flex items-center justify-between">
-            <div className="truncate">{provider?.name || 'Select provider'}</div>
+            <div className="truncate">{provider?.name || t('provider.select')}</div>
             <div
               className={classNames(
                 'i-ph:caret-down w-4 h-4 text-bolt-elements-textSecondary opacity-75',
@@ -292,7 +294,7 @@ export const ModelSelector = ({
                   type="text"
                   value={providerSearchQuery}
                   onChange={(e) => setProviderSearchQuery(e.target.value)}
-                  placeholder="Search providers..."
+                  placeholder={t('provider.search')}
                   className={classNames(
                     'w-full pl-2 py-1.5 rounded-md text-sm',
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
@@ -327,7 +329,7 @@ export const ModelSelector = ({
               )}
             >
               {filteredProviders.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">No providers found</div>
+                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">{t('provider.none')}</div>
               ) : (
                 filteredProviders.map((providerOption, index) => (
                   <div
@@ -396,7 +398,7 @@ export const ModelSelector = ({
           tabIndex={0}
         >
           <div className="flex items-center justify-between">
-            <div className="truncate">{modelList.find((m) => m.name === model)?.label || 'Select model'}</div>
+            <div className="truncate">{modelList.find((m) => m.name === model)?.label || t('model.select')}</div>
             <div
               className={classNames(
                 'i-ph:caret-down w-4 h-4 text-bolt-elements-textSecondary opacity-75',
@@ -431,7 +433,7 @@ export const ModelSelector = ({
                     )}
                   >
                     <span className="i-ph:gift text-xs" />
-                    Free models only
+                    {t('model.onlyFree')}
                   </button>
                   {showFreeModelsOnly && (
                     <span className="text-xs text-bolt-elements-textTertiary">
@@ -448,7 +450,7 @@ export const ModelSelector = ({
                   type="text"
                   value={modelSearchQuery}
                   onChange={(e) => setModelSearchQuery(e.target.value)}
-                  placeholder="Search models..."
+                  placeholder={t('model.search')}
                   className={classNames(
                     'w-full pl-2 py-1.5 rounded-md text-sm',
                     'bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor',
@@ -483,11 +485,9 @@ export const ModelSelector = ({
               )}
             >
               {modelLoading === 'all' || modelLoading === provider?.name ? (
-                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">Loading...</div>
+                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">{t('common.loading')}</div>
               ) : filteredModels.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">
-                  {showFreeModelsOnly ? 'No free models found' : 'No models found'}
-                </div>
+                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">{showFreeModelsOnly ? t('model.noneFree') : t('model.none')}</div>
               ) : (
                 filteredModels.map((modelOption, index) => (
                   <div
@@ -516,7 +516,7 @@ export const ModelSelector = ({
                     <div className="flex items-center justify-between">
                       <span>{modelOption.label}</span>
                       {isModelLikelyFree(modelOption, provider?.name) && (
-                        <span className="i-ph:gift text-xs text-sky-400 ml-2" title="Free model" />
+                        <span className="i-ph:gift text-xs text-sky-400 ml-2" title={t('model.free') as string} />
                       )}
                     </div>
                   </div>

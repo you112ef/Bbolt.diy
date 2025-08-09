@@ -3,5 +3,56 @@
   "app.subtitle": "مرحباً بك في YOUSEF.SHTIWE AI",
   "actions.save": "حفظ",
   "actions.cancel": "إلغاء",
-  "search.placeholder": "ابحث..."
+  "search.placeholder": "ابحث...",
+
+  "provider.select": "اختر مزوداً",
+  "provider.search": "ابحث عن المزودين...",
+  "provider.none": "لا يوجد مزودون",
+
+  "model.select": "اختر نموذجاً",
+  "model.search": "ابحث عن النماذج...",
+  "model.onlyFree": "النماذج المجانية فقط",
+  "model.free": "نموذج مجاني",
+  "model.none": "لا توجد نماذج",
+  "model.noneFree": "لا توجد نماذج مجانية",
+
+  "common.loading": "جارٍ التحميل...",
+
+  "examples.title": "استكشف ما يمكنك بناؤه",
+  "examples.subtitle": "انقر أي مثال للبدء أو اكتب فكرتك الخاصة",
+
+  "menu.newChat": "بدء محادثة جديدة",
+  "menu.enterSelect": "دخول وضع التحديد",
+  "menu.exitSelect": "الخروج من وضع التحديد",
+  "menu.searchChats": "ابحث في المحادثات...",
+  "menu.yourChats": "محادثاتك",
+  "menu.deselectAll": "إلغاء تحديد الكل",
+  "menu.selectAll": "تحديد الكل",
+  "menu.deleteSelected": "حذف المحدد",
+  "menu.noConversations": "لا توجد محادثات سابقة",
+  "menu.noMatches": "لا توجد نتائج مطابقة",
+
+  "chat.typeMessage": "اكتب رسالتك...",
+  "chat.send": "إرسال",
+
+  "category.Mobile": "تطبيقات الموبايل",
+  "category.Web App": "تطبيقات الويب",
+  "category.PWA": "تطبيقات ويب تقدمية",
+  "category.AI/ML": "ذكاء اصطناعي/تعلم آلة",
+  "category.Backend": "خلفية",
+  "category.DevOps": "ديف أوبس",
+  "category.Data Viz": "تصوير البيانات",
+  "category.Analytics": "تحليلات",
+  "category.Data Engineering": "هندسة البيانات",
+  "category.Gaming": "ألعاب",
+  "category.Interactive": "تفاعلي",
+  "category.XR": "واقع ممتد",
+  "category.E-commerce": "تجارة إلكترونية",
+  "category.Business": "أعمال",
+  "category.Security": "أمن",
+  "category.Privacy": "خصوصية",
+  "category.IoT": "إنترنت الأشياء",
+  "category.Hardware": "عتاد",
+  "category.Productivity": "إنتاجية",
+  "category.Tools": "أدوات"
 }

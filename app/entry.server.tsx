@@ -18,7 +18,12 @@ export default async function handleRequest(
   // Determine language and direction (default to Arabic/RTL)
   const cookies = request.headers.get('cookie') || '';
   const cookieLangMatch = cookies.match(/(?:^|;)\s*lang=([^;]+)/);
-  const selectedLang = (cookieLangMatch && decodeURIComponent(cookieLangMatch[1])) || 'ar';
+  let selectedLang = (cookieLangMatch && decodeURIComponent(cookieLangMatch[1])) || '';
+  if (!selectedLang) {
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const prefersArabic = /\bar\b|\bar[-_]/i.test(acceptLanguage);
+    selectedLang = prefersArabic ? 'ar' : 'en';
+  }
   const dir = selectedLang.startsWith('ar') ? 'rtl' : 'ltr';
 
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {

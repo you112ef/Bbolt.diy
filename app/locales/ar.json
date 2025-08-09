@@ -36,6 +36,17 @@
   "chat.send": "إرسال",
 
   "settings.language": "اللغة",
+  "settings.updated": "تم تحديث الإعدادات",
+  "settings.updateFailed": "فشل في تحديث الإعدادات",
+  "settings.preferences": "التفضيلات",
+  "settings.notifications": "الإشعارات",
+  "settings.notificationsEnabled": "تم تفعيل الإشعارات",
+  "settings.notificationsDisabled": "تم تعطيل الإشعارات",
+  "settings.time": "إعدادات الوقت",
+  "settings.timezone": "المنطقة الزمنية",
+  "settings.shortcuts": "اختصارات لوحة المفاتيح",
+  "settings.toggleTheme": "تبديل النمط",
+  "settings.toggleThemeHint": "التبديل بين الوضعين الفاتح والداكن",
 
   "category.Mobile": "تطبيقات الموبايل",
   "category.Web App": "تطبيقات الويب",

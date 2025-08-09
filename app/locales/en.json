@@ -36,6 +36,17 @@
   "chat.send": "Send",
 
   "settings.language": "Language",
+  "settings.updated": "Settings updated",
+  "settings.updateFailed": "Failed to update settings",
+  "settings.preferences": "Preferences",
+  "settings.notifications": "Notifications",
+  "settings.notificationsEnabled": "Notifications are enabled",
+  "settings.notificationsDisabled": "Notifications are disabled",
+  "settings.time": "Time Settings",
+  "settings.timezone": "Timezone",
+  "settings.shortcuts": "Keyboard Shortcuts",
+  "settings.toggleTheme": "Toggle Theme",
+  "settings.toggleThemeHint": "Switch between light and dark mode",
 
   "category.Mobile": "Mobile",
   "category.Web App": "Web App",

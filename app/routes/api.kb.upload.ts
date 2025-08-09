@@ -1,5 +1,5 @@
 import { json } from '@remix-run/cloudflare';
-import { addDocument, KnowledgeDocument } from '~/lib/persistence/knowledgeStore';
+import { addDocument } from '~/lib/persistence/knowledgeStore';
 
 export async function action({ request }: { request: Request }) {
   const contentType = request.headers.get('content-type') || '';
@@ -15,16 +15,15 @@ export async function action({ request }: { request: Request }) {
 
   const text = await file.text().catch(() => '');
 
-  const doc: KnowledgeDocument = {
-    id: `doc_${Date.now()}`,
+  const id = `doc_${Date.now()}`;
+  await addDocument({
+    id,
     name: file.name,
     size: file.size,
     type: file.type,
     text,
     createdAt: new Date().toISOString(),
-  };
+  });
 
-  addDocument(doc);
-
-  return json({ id: doc.id, name: doc.name, size: doc.size, type: doc.type });
+  return json({ id, name: file.name, size: file.size, type: file.type });
 }

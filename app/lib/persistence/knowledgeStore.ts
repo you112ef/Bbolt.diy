@@ -11,33 +11,31 @@ export type KnowledgeStore = {
   docs: Map<string, KnowledgeDocument>;
 };
 
-// Use a global store to survive module reloads in dev
 const g = globalThis as any;
-if (!g.__knowledgeStore) {
-  g.__knowledgeStore = { docs: new Map<string, KnowledgeDocument>() } as KnowledgeStore;
+if (!g.__knowledgeStoreV2) {
+  g.__knowledgeStoreV2 = { docs: new Map<string, KnowledgeDocument>() } as KnowledgeStore;
+}
+const store: KnowledgeStore = g.__knowledgeStoreV2 as KnowledgeStore;
+
+export async function addDocument(doc: KnowledgeDocument) {
+  store.docs.set(doc.id, doc);
 }
 
-export const knowledgeStore: KnowledgeStore = g.__knowledgeStore as KnowledgeStore;
-
-export function addDocument(doc: KnowledgeDocument) {
-  knowledgeStore.docs.set(doc.id, doc);
+export async function getDocument(id: string) {
+  return store.docs.get(id);
 }
 
-export function getDocument(id: string) {
-  return knowledgeStore.docs.get(id);
+export async function listDocuments(): Promise<KnowledgeDocument[]> {
+  return Array.from(store.docs.values()).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
-export function listDocuments(): KnowledgeDocument[] {
-  return Array.from(knowledgeStore.docs.values()).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+export async function deleteDocument(id: string) {
+  store.docs.delete(id);
 }
 
-export function deleteDocument(id: string) {
-  knowledgeStore.docs.delete(id);
-}
-
-export function searchDocuments(query: string, limit = 10) {
+export async function searchDocuments(query: string, limit = 10) {
   const q = query.toLowerCase();
-  const scored = Array.from(knowledgeStore.docs.values())
+  const scored = Array.from(store.docs.values())
     .map((d) => {
       const hay = `${d.name}\n${d.text || ''}`.toLowerCase();
       const count = hay.split(q).length - 1;

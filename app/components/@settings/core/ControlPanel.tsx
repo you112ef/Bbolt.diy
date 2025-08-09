@@ -27,6 +27,7 @@ import ServiceStatusTab from '~/components/@settings/tabs/providers/status/Servi
 import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab';
 import McpTab from '~/components/@settings/tabs/mcp/McpTab';
 import AIModelsTab from '~/components/@settings/tabs/ai-models/AIModelsTab';
+import CustomAISettingsTab from '~/components/@settings/tabs/ai-models/CustomAISettingsTab';
 
 interface ControlPanelProps {
   open: boolean;
@@ -137,6 +138,8 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
         return <LocalProvidersTab />;
       case 'ai-models':
         return <AIModelsTab />;
+      case 'ai-custom':
+        return <CustomAISettingsTab />;
       case 'connection':
         return <ConnectionsTab />;
       case 'event-logs':

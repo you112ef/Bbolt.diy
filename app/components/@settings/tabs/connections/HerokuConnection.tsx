@@ -294,7 +294,7 @@ export default function HerokuConnection() {
             {stats?.user && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                  <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-white font-medium">
                     {stats.user.name?.[0] || stats.user.email[0].toUpperCase()}
                   </div>
                   <div>

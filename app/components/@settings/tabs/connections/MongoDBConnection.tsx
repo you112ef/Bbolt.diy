@@ -69,9 +69,6 @@ export default function MongoDBConnection() {
   const testConnection = async (connStr: string): Promise<boolean> => {
     setTestingConnection(true);
     try {
-      // Since we can't directly connect to MongoDB from the browser,
-      // we'll validate the connection string format and simulate a connection test
-      
       if (!connStr.startsWith('mongodb://') && !connStr.startsWith('mongodb+srv://')) {
         throw new Error('Invalid MongoDB connection string format');
       }
@@ -83,22 +80,27 @@ export default function MongoDBConnection() {
         throw new Error('Invalid hostname in connection string');
       }
 
-      // Simulate connection test delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real implementation, this would make a server-side API call
-      // to test the actual MongoDB connection
-      
+      // Call server-side API to validate connection
+      const res = await fetch('/api/connections/mongodb/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ connectionString: connStr }),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `Server responded ${res.status}`);
+      }
+
+      const serverStats = (await res.json()) as MongoDBStats;
+      const { isConnected: _ignoreIsConnected, ...rest } = serverStats;
+
       const newStats: MongoDBStats = {
         isConnected: true,
         ...parsedInfo,
+        ...rest,
         connectionType: parsedInfo.connectionType || 'hosted',
         lastConnected: new Date(),
-        connectionInfo: {
-          serverVersion: '6.0.0', // This would come from actual connection
-          platform: 'Unknown', // This would come from actual connection
-          maxWireVersion: 17 // This would come from actual connection
-        }
       };
 
       setStats(newStats);

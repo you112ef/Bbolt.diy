@@ -11,6 +11,8 @@ import { Input } from '~/components/ui/Input';
 import { Dropdown } from '~/components/ui/Dropdown';
 import { useStore } from '@nanostores/react';
 import { themeStore } from '~/lib/stores/theme';
+import { webcontainer } from '~/lib/webcontainer';
+import { newBoltShellProcess } from '~/utils/shell';
 
 // Import CSS for xterm
 import '@xterm/xterm/css/xterm.css';
@@ -128,7 +130,7 @@ class CommandHistory {
   }
 }
 
-// Simple shell emulator
+// Simple shell emulator (deprecated – switched to WebContainer-backed shell)
 class ShellEmulator {
   private currentDirectory: string = '/project/workspace';
   private environmentVariables: Record<string, string> = {
@@ -373,6 +375,10 @@ export const EnhancedTerminal: React.FC<EnhancedTerminalProps> = ({
   const currentTheme = useStore(themeStore);
   const effectiveTheme = theme === 'auto' ? currentTheme : theme;
 
+  // WebContainer Bolt shell
+  const boltShellRef = useRef<ReturnType<typeof newBoltShellProcess> | null>(null);
+  const boltReadyRef = useRef<boolean>(false);
+
   // Initialize terminal
   useEffect(() => {
     if (!terminalRef.current || isInitialized) return;
@@ -436,6 +442,27 @@ export const EnhancedTerminal: React.FC<EnhancedTerminalProps> = ({
 
     terminalInstance.current = terminal;
 
+    // Initialize WebContainer-backed shell
+    (async () => {
+      try {
+        const wc = await webcontainer;
+        const bolt = newBoltShellProcess();
+        boltShellRef.current = bolt;
+        await bolt.init(wc as any, {
+          write: (data: string) => terminal.write(data),
+          onData: (cb: (data: string) => void) => terminal.onData(cb),
+          input: (data: string) => terminal.write(data),
+          reset: () => terminal.reset(),
+          cols: terminal.cols,
+          rows: terminal.rows,
+        } as any);
+        await bolt.ready();
+        boltReadyRef.current = true;
+      } catch (e) {
+        console.warn('WebContainer shell initialization failed, using emulator only:', e);
+      }
+    })();
+
     // Set up terminal behavior
     setupTerminalBehavior(terminal);
 
@@ -493,15 +520,15 @@ export const EnhancedTerminal: React.FC<EnhancedTerminalProps> = ({
         const sequence = data.slice(1);
         if (sequence === '[A') { // Up arrow
           const prev = commandHistory.current?.getPrevious();
-          if (prev !== null) {
-            currentInput = prev;
+          if (prev !== null && typeof prev === 'string') {
+            currentInput = prev ?? '';
             cursorPosition = currentInput.length;
             redrawLine(currentInput, cursorPosition);
           }
         } else if (sequence === '[B') { // Down arrow
           const next = commandHistory.current?.getNext();
-          if (next !== null) {
-            currentInput = next;
+          if (next !== null && typeof next === 'string') {
+            currentInput = next ?? '';
             cursorPosition = currentInput.length;
             redrawLine(currentInput, cursorPosition);
           }
@@ -596,18 +623,31 @@ export const EnhancedTerminal: React.FC<EnhancedTerminalProps> = ({
     terminalInstance.current.write(`\x1b[32m${user}@bolt\x1b[0m:\x1b[34m${shortCwd}\x1b[0m$ `);
   };
 
-  const executeCommand = (command: string) => {
-    if (!shell.current || !terminalInstance.current) return;
+  const executeCommand = useCallback((command: string) => {
+    if (!terminalInstance.current) return;
 
-    const output = shell.current.executeCommand(command);
+    const terminal = terminalInstance.current;
+
+    if (boltReadyRef.current && boltShellRef.current) {
+      // Use real shell
+      const sessionId = `${Date.now()}`;
+      boltShellRef.current.executeCommand(sessionId, command).then((res) => {
+        if (res?.output) {
+          onOutput?.(res.output);
+        }
+      }).catch((e) => {
+        terminal.write(`\r\nError: ${String(e?.message || e)}\r\n`);
+      });
+      return;
+    }
+
+    // Fallback to emulator
+    const output = shell.current?.executeCommand(command) || '';
     if (output) {
-      terminalInstance.current.write(output);
-      if (!output.endsWith('\n')) {
-        terminalInstance.current.write('\r\n');
-      }
+      terminal.write(output);
       onOutput?.(output);
     }
-  };
+  }, [onOutput]);
 
   // Handle window resize
   useEffect(() => {

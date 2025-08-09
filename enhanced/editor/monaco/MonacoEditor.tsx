@@ -4,7 +4,6 @@ import { Editor } from '@monaco-editor/react';
 import { useStore } from '@nanostores/react';
 import { themeStore } from '~/lib/stores/theme';
 import { FilesStore } from '~/lib/stores/files';
-import type { FileMap } from '~/lib/stores/files';
 
 // Import Monaco language support
 import 'monaco-editor/esm/vs/language/typescript/monaco.contribution';
@@ -148,19 +147,12 @@ const getMonacoOptions = (
   acceptSuggestionOnEnter: 'on',
   tabCompletion: 'on',
   wordBasedSuggestions: 'matchingDocuments',
-  semanticHighlighting: {
-    enabled: true,
-  },
   occurrencesHighlight: 'singleFile',
   selectionHighlight: true,
   codeLens: true,
   colorDecorators: true,
   lightbulb: {
-    enabled: true,
-  },
-  codeActionsOnSave: {
-    'source.organizeImports': 'explicit',
-    'source.fixAll': 'explicit',
+    enabled: 'on' as any,
   },
   formatOnPaste: true,
   formatOnType: true,
@@ -297,7 +289,8 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   
   // Get theme from store
   const currentTheme = useStore(themeStore);
-  const files = useStore(FilesStore);
+  // Subscribe to files store
+  const files = useStore(new FilesStore((window as any)?.webcontainer || ({} as any)).files);
   
   // Determine the actual theme to use
   const effectiveTheme = theme || (currentTheme === 'dark' ? 'bolt-dark' : 'bolt-light');
@@ -306,7 +299,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   const effectiveLanguage = language || (filePath ? getLanguageFromFilePath(filePath) : 'plaintext');
   
   // Get file content from store if filePath is provided
-  const fileContent = filePath && files[filePath]?.content || value;
+  const fileContent = filePath && (files as any)[filePath]?.content || value;
 
   // Setup Monaco when it's ready
   const handleEditorDidMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor) => {
@@ -420,22 +413,8 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   const handleChange = useCallback((newValue: string | undefined) => {
     if (newValue !== undefined) {
       onChange?.(newValue);
-      
-      // Update files store if filePath is provided
-      if (filePath) {
-        const currentFiles = FilesStore.get();
-        const updatedFiles: FileMap = {
-          ...currentFiles,
-          [filePath]: {
-            ...currentFiles[filePath],
-            content: newValue,
-            unsaved: true,
-          },
-        };
-        FilesStore.set(updatedFiles);
-      }
     }
-  }, [onChange, filePath]);
+  }, [onChange]);
 
   // Effect to update editor theme when store theme changes
   useEffect(() => {

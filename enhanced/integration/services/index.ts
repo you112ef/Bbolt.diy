@@ -20,27 +20,27 @@ export const enhancedStore = atom({
 // Lazy loading functions for enhanced features
 export const loadEnhancedFeatures = {
   async monaco() {
-    const { MonacoEditor } = await import('../../../editor/monaco/MonacoEditor');
+    const { MonacoEditor } = await import('~/enhanced/editor/monaco/MonacoEditor');
     return MonacoEditor;
   },
   
   async terminal() {
-    const { EnhancedTerminal } = await import('../../../terminal/xterm/EnhancedTerminal');
+    const { EnhancedTerminal } = await import('~/enhanced/terminal/xterm/EnhancedTerminal');
     return EnhancedTerminal;
   },
   
   async preview() {
-    const { LivePreview } = await import('../../../preview/iframe/LivePreview');
+    const { LivePreview } = await import('~/enhanced/preview/iframe/LivePreview');
     return LivePreview;
   },
   
   async aiAgents() {
-    const { AIAgentsChat } = await import('../../../ai-agents/chat/AIAgentsChat');
+    const { AIAgentsChat } = await import('~/enhanced/ai-agents/chat/AIAgentsChat');
     return AIAgentsChat;
   },
   
   async offlineAI() {
-    const { OfflineAI } = await import('../../../models/providers/OfflineAI');
+    const { OfflineAI } = await import('~/enhanced/models/providers/OfflineAI');
     return OfflineAI;
   },
 };

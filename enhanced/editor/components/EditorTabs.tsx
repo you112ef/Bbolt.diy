@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
-import { FilesStore } from '~/lib/stores/files';
+import { workbenchStore } from '~/lib/stores/workbench';
 import { Button } from '~/components/ui/Button';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Tooltip } from '~/components/ui/Tooltip';
@@ -219,14 +219,14 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
   onTabReorder,
   className,
 }) => {
-  const files = useStore(filesStore);
+  const files = useStore(workbenchStore);
   const [draggedTabIndex, setDraggedTabIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Convert file paths to tab objects
   const tabs: EditorTab[] = openTabs.map((filePath) => {
-    const file = files[filePath];
+    const file = workbenchStore.files.get()[filePath];
     const fileName = filePath.split('/').pop() || filePath;
     
     return {
@@ -347,7 +347,7 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
 
   const handleCloseSavedTabs = () => {
     openTabs.forEach(filePath => {
-      const file = files[filePath];
+      const file = workbenchStore.files.get()[filePath];
       if (!file?.unsaved) {
         onTabClose(filePath);
       }

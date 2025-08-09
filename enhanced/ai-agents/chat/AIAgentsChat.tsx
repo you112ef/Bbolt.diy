@@ -15,6 +15,7 @@ import type { AIModel } from '~/types/aiModels';
 
 // Import LLM manager for real AI providers
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 // Dynamic import for local AI providers
 let OllamaProvider: any = null;
@@ -303,7 +304,7 @@ const performAIInference = async (
     // Try Ollama provider if available
     if (OllamaProvider) {
       try {
-        const llmManager = getLLMManager();
+        const llmManager = useMemo(() => new LLMManager(), []);
         const ollama = new OllamaProvider({ baseURL: 'http://127.0.0.1:11434' });
         
         // Check if Ollama is available
@@ -1711,8 +1712,9 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const files = useStore(FilesStore);
+  const files = useStore(workbenchStore.files);
   const availableModels = useAIModels();
+  const llmManager = useMemo(() => new LLMManager(), []);
 
   useEffect(() => {
     // Initialize local AI providers on component mount

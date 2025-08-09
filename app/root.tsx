@@ -22,7 +22,7 @@ export const links: LinksFunction = () => [
     href: '/favicon.svg',
     type: 'image/svg+xml',
   },
-  { rel: 'icon', href: '/favicon.png', type: 'image/png' },
+  { rel: 'icon', href: '/favicon-new.png', type: 'image/png' },
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   { rel: 'manifest', href: '/site.webmanifest' },
   { rel: 'stylesheet', href: reactToastifyStyles },
@@ -65,7 +65,7 @@ export const Head = createHead(() => (
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#7C3AED" />
+    <meta name="theme-color" content="#0EA5E9" />
     <Meta />
     <Links />
 
@@ -92,6 +92,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { I18nProvider } from './lib/i18n';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -106,8 +107,10 @@ export default function App() {
   }, []);
 
   return (
-    <Layout>
-      <Outlet />
-    </Layout>
+    <I18nProvider>
+      <Layout>
+        <Outlet />
+      </Layout>
+    </I18nProvider>
   );
 }

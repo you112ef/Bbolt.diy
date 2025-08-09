@@ -15,6 +15,12 @@ export default async function handleRequest(
 ) {
   // await initializeModelList({});
 
+  // Determine language and direction (default to Arabic/RTL)
+  const cookies = request.headers.get('cookie') || '';
+  const cookieLangMatch = cookies.match(/(?:^|;)\s*lang=([^;]+)/);
+  const selectedLang = (cookieLangMatch && decodeURIComponent(cookieLangMatch[1])) || 'ar';
+  const dir = selectedLang.startsWith('ar') ? 'rtl' : 'ltr';
+
   const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
     signal: request.signal,
     onError(error: unknown) {
@@ -30,7 +36,7 @@ export default async function handleRequest(
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
+            `<!DOCTYPE html><html lang="${selectedLang}" dir="${dir}" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
           ),
         ),
       );

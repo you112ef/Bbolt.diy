@@ -12,11 +12,6 @@ interface I18nContextValue {
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
-function getCookie(name: string): string | undefined {
-  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return match ? decodeURIComponent(match[1]) : undefined;
-}
-
 function setCookie(name: string, value: string, days = 365) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
@@ -33,15 +28,13 @@ async function loadTranslations(lang: LanguageCode): Promise<Translations> {
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const initialLangAttr = (typeof document !== 'undefined' && document.documentElement.lang) || 'ar';
-  const initialLanguage: LanguageCode = initialLangAttr.startsWith('ar') ? 'ar' : 'en';
-  const [language, setLanguageState] = useState<LanguageCode>(initialLanguage);
+  // Force Arabic as official default
+  const [language, setLanguageState] = useState<LanguageCode>('ar');
   const [messages, setMessages] = useState<Translations>({});
 
   useEffect(() => {
     loadTranslations(language).then(setMessages);
     document.documentElement.lang = language;
-    // Keep LTR layout regardless of language
     setCookie('lang', language);
   }, [language]);
 

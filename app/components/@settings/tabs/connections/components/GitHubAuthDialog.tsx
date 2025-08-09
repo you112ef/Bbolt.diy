@@ -93,8 +93,16 @@ export function GitHubAuthDialog({ isOpen, onClose }: GitHubAuthDialogProps) {
                 </p>
 
                 <div className="bg-[#F9F9F9] dark:bg-[#252525] p-4 rounded-lg space-y-3">
-                  <h3 className="text-base font-medium text-[#111111] dark:text-white">Connect with GitHub Token</h3>
+                  <h3 className="text-base font-medium text-[#111111] dark:text-white">Connect with GitHub</h3>
 
+                  <a
+                    href="/auth/github?mode=start"
+                    className="w-full inline-flex justify-center items-center gap-2 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors text-sm"
+                  >
+                    <span className="i-ph:github-logo w-4 h-4" /> Continue with GitHub
+                  </a>
+
+                  <div className="text-xs text-[#666666] dark:text-[#999999]">Or use a personal access token:</div>
                   <form onSubmit={handleSubmit} className="space-y-3">
                     <div>
                       <label className="block text-sm text-[#666666] dark:text-[#999999] mb-1">
@@ -113,7 +121,7 @@ export function GitHubAuthDialog({ isOpen, onClose }: GitHubAuthDialogProps) {
                           href="https://github.com/settings/tokens"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-purple-500 hover:underline"
+                          className="text-sky-600 hover:underline"
                         >
                           github.com/settings/tokens
                         </a>
@@ -128,7 +136,7 @@ export function GitHubAuthDialog({ isOpen, onClose }: GitHubAuthDialogProps) {
                             type="radio"
                             checked={tokenType === 'classic'}
                             onChange={() => setTokenType('classic')}
-                            className="w-3.5 h-3.5 accent-purple-500"
+                            className="w-3.5 h-3.5 accent-sky-600"
                           />
                           <span className="text-sm text-[#111111] dark:text-white">Classic</span>
                         </label>
@@ -137,7 +145,7 @@ export function GitHubAuthDialog({ isOpen, onClose }: GitHubAuthDialogProps) {
                             type="radio"
                             checked={tokenType === 'fine-grained'}
                             onChange={() => setTokenType('fine-grained')}
-                            className="w-3.5 h-3.5 accent-purple-500"
+                            className="w-3.5 h-3.5 accent-sky-600"
                           />
                           <span className="text-sm text-[#111111] dark:text-white">Fine-grained</span>
                         </label>
@@ -147,7 +155,7 @@ export function GitHubAuthDialog({ isOpen, onClose }: GitHubAuthDialogProps) {
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="w-full py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      className="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       {isSubmitting ? 'Connecting...' : 'Connect to GitHub'}
                     </button>

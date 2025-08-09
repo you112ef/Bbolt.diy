@@ -59,10 +59,10 @@ class MobileTouchManager {
 
     // Prevent double-tap zoom
     let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
+    document.addEventListener('touchend', (e: Event) => {
       const now = Date.now();
       if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
+        (e as TouchEvent).preventDefault();
       }
       lastTouchEnd = now;
     }, { passive: false });
@@ -323,24 +323,26 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-    element.addEventListener('touchstart', (e: TouchEvent) => {
-      startY = e.touches[0].clientY;
+    element.addEventListener('touchstart', ((e: Event) => {
+      const te = e as TouchEvent;
+      startY = te.touches[0].clientY;
       isPulling = element.scrollTop === 0;
-    });
+    }) as EventListener);
 
-    element.addEventListener('touchmove', (e: TouchEvent) => {
+    element.addEventListener('touchmove', ((e: Event) => {
+      const te = e as TouchEvent;
       if (!isPulling) return;
 
-      currentY = e.touches[0].clientY;
+      currentY = te.touches[0].clientY;
       const deltaY = currentY - startY;
 
       if (deltaY > 0 && deltaY < 100) {
         element.classList.add('pulling');
-        e.preventDefault();
+        te.preventDefault();
       }
-    });
+    }) as EventListener);
 
-    element.addEventListener('touchend', async () => {
+    element.addEventListener('touchend', (async () => {
       if (!isPulling) return;
 
       const deltaY = currentY - startY;
@@ -355,7 +357,7 @@ class MobileTouchManager {
         element.classList.remove('pulling');
       }
       isPulling = false;
-    });
+    }) as EventListener);
   }
 }
 
@@ -381,8 +383,8 @@ export function optimizeForTouch(): void {
   document.body.style.userSelect = 'none';
 
   // Optimize scrolling
-  document.body.style.webkitOverflowScrolling = 'touch';
-  document.body.style.overflowScrolling = 'touch';
+  (document.body.style as any).webkitOverflowScrolling = 'touch';
+  (document.body.style as any).overflowScrolling = 'touch';
 
   // Add safe area CSS variables
   document.documentElement.style.setProperty('--safe-area-inset-top', 'env(safe-area-inset-top)');

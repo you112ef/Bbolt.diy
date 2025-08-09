@@ -156,7 +156,7 @@ const getMonacoOptions = (
   codeLens: true,
   colorDecorators: true,
   lightbulb: {
-    enabled: 'on',
+    enabled: true,
   },
   codeActionsOnSave: {
     'source.organizeImports': 'explicit',
@@ -297,7 +297,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   
   // Get theme from store
   const currentTheme = useStore(themeStore);
-  const files = useStore(filesStore);
+  const files = useStore(FilesStore);
   
   // Determine the actual theme to use
   const effectiveTheme = theme || (currentTheme === 'dark' ? 'bolt-dark' : 'bolt-light');
@@ -423,7 +423,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
       
       // Update files store if filePath is provided
       if (filePath) {
-        const currentFiles = filesStore.get();
+        const currentFiles = FilesStore.get();
         const updatedFiles: FileMap = {
           ...currentFiles,
           [filePath]: {
@@ -432,7 +432,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
             unsaved: true,
           },
         };
-        filesStore.set(updatedFiles);
+        FilesStore.set(updatedFiles);
       }
     }
   }, [onChange, filePath]);

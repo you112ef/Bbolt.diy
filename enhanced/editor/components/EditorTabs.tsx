@@ -368,7 +368,6 @@ export const EditorTabs: React.FC<EditorTabsProps> = ({
       <ScrollArea
         ref={scrollRef}
         className="flex-1 overflow-x-auto"
-        orientation="horizontal"
       >
         <div className="flex min-w-max">
           {tabs.map((tab, index) => (

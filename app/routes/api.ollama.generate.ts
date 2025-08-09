@@ -13,8 +13,8 @@ export const action = async ({ context, request }: ActionFunctionArgs) => {
       return json({ error: 'Model is required' }, { status: 400 });
     }
 
-    const serverEnv = (context.cloudflare?.env ?? {}) as Record<string, string>;
-    const base = serverEnv.OLLAMA_API_BASE_URL || (import.meta as any).env?.OLLAMA_API_BASE_URL;
+    const cfEnv: any = (context as any)?.cloudflare?.env;
+    const base = cfEnv?.OLLAMA_API_BASE_URL ?? (process as any)?.env?.OLLAMA_API_BASE_URL ?? (import.meta as any)?.env?.OLLAMA_API_BASE_URL;
 
     if (!base) {
       return json({ error: 'OLLAMA_API_BASE_URL not configured' }, { status: 400 });

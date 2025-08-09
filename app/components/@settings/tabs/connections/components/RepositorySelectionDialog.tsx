@@ -492,7 +492,7 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
         toast.error(
           <div className="space-y-2">
             <p>{errorMessage}</p>
-            <button onClick={() => setShowAuthDialog(true)} className="underline font-medium block text-purple-500">
+            <button onClick={() => setShowAuthDialog(true)} className="underline font-medium block text-yellow-600">
               Learn how to access private repositories
             </button>
           </div>,
@@ -548,7 +548,7 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
             {/* Header */}
             <div className="p-5 border-b border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/10 flex items-center justify-center text-purple-500 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-amber-300/10 flex items-center justify-center text-yellow-600 shadow-sm">
                   <span className="i-ph:github-logo w-5 h-5" />
                 </div>
                 <div>
@@ -585,8 +585,8 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
               </div>
               <motion.button
                 onClick={() => setShowAuthDialog(true)}
-                className="px-3 py-1.5 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm transition-colors flex items-center gap-1.5 shadow-sm"
-                whileHover={{ scale: 1.02, boxShadow: '0 4px 8px rgba(124, 58, 237, 0.2)' }}
+                className="px-3 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white text-sm transition-colors flex items-center gap-1.5 shadow-sm"
+                whileHover={{ scale: 1.02, boxShadow: '0 4px 8px rgba(234, 179, 8, 0.25)' }}
                 whileTap={{ scale: 0.98 }}
               >
                 <span className="i-ph:github-logo w-4 h-4" />
@@ -641,12 +641,12 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
                 <div className="space-y-5">
                   <div className="bg-gradient-to-br from-bolt-elements-background-depth-1 to-bolt-elements-background-depth-1 dark:from-bolt-elements-background-depth-2-dark dark:to-bolt-elements-background-depth-2-dark p-5 rounded-xl border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark">
                     <h3 className="text-base font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary-dark mb-3 flex items-center gap-2">
-                      <span className="i-ph:link-simple w-4 h-4 text-purple-500" />
+                      <span className="i-ph:link-simple w-4 h-4 text-yellow-600" />
                       Repository URL
                     </h3>
 
                     <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-600">
                         <span className="i-ph:github-logo w-5 h-5" />
                       </div>
                       <Input
@@ -654,7 +654,7 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
                         placeholder="Enter GitHub repository URL (e.g., https://github.com/user/repo)"
                         value={customUrl}
                         onChange={(e) => setCustomUrl(e.target.value)}
-                        className="w-full pl-10 py-3 border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        className="w-full pl-10 py-3 border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                       />
                     </div>
 
@@ -866,7 +866,7 @@ export function RepositorySelectionDialog({ isOpen, onClose, onSelect }: Reposit
 
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     {selectedRepository ? (
-                      <div className="space-y-5 bg-gradient-to-br from-purple-500/5 to-blue-500/5 p-5 rounded-xl border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark">
+                      <div className="space-y-5 bg-gradient-to-br from-yellow-500/5 to-amber-300/5 p-5 rounded-xl border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor-dark">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <motion.button

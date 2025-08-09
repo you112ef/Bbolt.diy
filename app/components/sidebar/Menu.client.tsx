@@ -14,6 +14,7 @@ import { useSearchFilter } from '~/lib/hooks/useSearchFilter';
 import { classNames } from '~/utils/classNames';
 import { useStore } from '@nanostores/react';
 import { profileStore } from '~/lib/stores/profile';
+import { useI18n } from '~/lib/i18n';
 
 const menuVariants = {
   closed: {
@@ -73,6 +74,7 @@ export const Menu = () => {
   const profile = useStore(profileStore);
   const [selectionMode, setSelectionMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const { t } = useI18n();
 
   const { filteredItems: filteredList, handleSearchChange } = useSearchFilter({
     items: list,
@@ -120,7 +122,7 @@ export const Menu = () => {
 
       deleteChat(item.id)
         .then(() => {
-          toast.success('Chat deleted successfully', {
+          toast.success(t('menu.deletedSuccess') || 'Chat deleted successfully', {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -136,7 +138,7 @@ export const Menu = () => {
         })
         .catch((error) => {
           console.error('Failed to delete chat:', error);
-          toast.error('Failed to delete conversation', {
+          toast.error(t('menu.deleteFailed') || 'Failed to delete conversation', {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -145,7 +147,7 @@ export const Menu = () => {
           loadEntries();
         });
     },
-    [loadEntries, deleteChat],
+    [loadEntries, deleteChat, t],
   );
 
   const deleteSelectedItems = useCallback(
@@ -179,9 +181,9 @@ export const Menu = () => {
 
       // Show appropriate toast message
       if (errors.length === 0) {
-        toast.success(`${deletedCount} chat${deletedCount === 1 ? '' : 's'} deleted successfully`);
+        toast.success(t('menu.bulkDeleted') || 'Selected chats deleted successfully');
       } else {
-        toast.warning(`Deleted ${deletedCount} of ${itemsToDeleteIds.length} chats. ${errors.length} failed.`, {
+        toast.warning(t('menu.bulkDeletePartial') || 'Some chats were not deleted', {
           autoClose: 5000,
         });
       }
@@ -199,7 +201,7 @@ export const Menu = () => {
         window.location.pathname = '/';
       }
     },
-    [deleteChat, loadEntries, db],
+    [deleteChat, loadEntries, db, t],
   );
 
   const closeDialog = () => {
@@ -226,19 +228,19 @@ export const Menu = () => {
 
   const handleBulkDeleteClick = useCallback(() => {
     if (selectedItems.length === 0) {
-      toast.info('Select at least one chat to delete');
+      toast.info(t('menu.selectAtLeastOne') || 'Select at least one chat to delete');
       return;
     }
 
     const selectedChats = list.filter((item) => selectedItems.includes(item.id));
 
     if (selectedChats.length === 0) {
-      toast.error('Could not find selected chats');
+      toast.error(t('menu.selectedChatsNotFound') || 'Could not find selected chats');
       return;
     }
 
     setDialogContent({ type: 'bulkDelete', items: selectedChats });
-  }, [selectedItems, list]); // Keep list dependency
+  }, [selectedItems, list, t]); // Keep list dependency
 
   const selectAll = useCallback(() => {
     const allFilteredIds = filteredList.map((item) => item.id);
@@ -367,17 +369,17 @@ export const Menu = () => {
                 className="flex-1 flex gap-2 items-center bg-transparent text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-2 rounded-lg px-4 py-2 transition-colors border border-bolt-elements-borderColor"
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
-                <span className="text-sm font-medium">Start new chat</span>
+                <span className="text-sm font-medium">{t('menu.newChat')}</span>
               </a>
               <button
                 onClick={toggleSelectionMode}
                 className={classNames(
                   'flex gap-1 items-center rounded-lg px-3 py-2 transition-colors',
                   selectionMode
-                    ? 'bg-purple-600 dark:bg-purple-500 text-white border border-purple-700 dark:border-purple-600'
+                    ? 'bg-sky-600 dark:bg-sky-500 text-white border border-sky-700 dark:border-sky-600'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
                 )}
-                aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
+                aria-label={selectionMode ? t('menu.exitSelect') : t('menu.enterSelect')}
               >
                 <span className={selectionMode ? 'i-ph:x h-4 w-4' : 'i-ph:check-square h-4 w-4'} />
               </button>
@@ -387,20 +389,20 @@ export const Menu = () => {
                 <span className="i-ph:magnifying-glass h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
-                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
+                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-sky-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
                 type="search"
-                placeholder="Search chats..."
+                placeholder={t('menu.searchChats')}
                 onChange={handleSearchChange}
-                aria-label="Search chats"
+                aria-label={t('menu.searchChats')}
               />
             </div>
           </div>
           <div className="flex items-center justify-between text-sm px-4 py-2">
-            <div className="font-medium text-gray-600 dark:text-gray-400">Your Chats</div>
+            <div className="font-medium text-gray-600 dark:text-gray-400">{t('menu.yourChats')}</div>
             {selectionMode && (
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={selectAll}>
-                  {selectedItems.length === filteredList.length ? 'Deselect all' : 'Select all'}
+                  {selectedItems.length === filteredList.length ? t('menu.deselectAll') : t('menu.selectAll')}
                 </Button>
                 <Button
                   variant="destructive"
@@ -408,7 +410,7 @@ export const Menu = () => {
                   onClick={handleBulkDeleteClick}
                   disabled={selectedItems.length === 0}
                 >
-                  Delete selected
+                  {t('menu.deleteSelected')}
                 </Button>
               </div>
             )}
@@ -416,7 +418,7 @@ export const Menu = () => {
           <div className="flex-1 overflow-auto px-3 pb-3">
             {filteredList.length === 0 && (
               <div className="px-4 text-gray-500 dark:text-gray-400 text-sm">
-                {list.length === 0 ? 'No previous conversations' : 'No matches found'}
+                {list.length === 0 ? t('menu.noConversations') : t('menu.noMatches')}
               </div>
             )}
             <DialogRoot open={dialogContent !== null}>
@@ -450,20 +452,20 @@ export const Menu = () => {
                 {dialogContent?.type === 'delete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Chat?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteChatTitle') || 'Delete Chat?'}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
-                          You are about to delete{' '}
+                          {t('dialog.youAreAboutToDelete') || 'You are about to delete'}{' '}
                           <span className="font-medium text-gray-900 dark:text-white">
                             {dialogContent.item.description}
                           </span>
                         </p>
-                        <p className="mt-2">Are you sure you want to delete this chat?</p>
+                        <p className="mt-2">{t('dialog.areYouSureDelete') || 'Are you sure you want to delete this chat?'}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('dialog.cancel') || 'Cancel'}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -473,7 +475,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('dialog.delete') || 'Delete'}
                       </DialogButton>
                     </div>
                   </>
@@ -481,12 +483,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Selected Chats?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteSelectedTitle') || 'Delete Selected Chats?'}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
-                        <p>
-                          You are about to delete {dialogContent.items.length}{' '}
-                          {dialogContent.items.length === 1 ? 'chat' : 'chats'}:
-                        </p>
+                        <p>{t('dialog.youAreAboutToDeleteSelected') || 'You are about to delete selected chats:'}</p>
                         <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
                           <ul className="list-disc pl-5 space-y-1">
                             {dialogContent.items.map((item) => (
@@ -496,12 +495,12 @@ export const Menu = () => {
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">Are you sure you want to delete these chats?</p>
+                        <p className="mt-3">{t('dialog.areYouSureDeleteSelected') || 'Are you sure you want to delete these chats?'}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('dialog.cancel') || 'Cancel'}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -516,7 +515,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('dialog.delete') || 'Delete'}
                       </DialogButton>
                     </div>
                   </>

@@ -9,12 +9,13 @@ import { Card } from '~/components/ui/Card';
 import { Badge } from '~/components/ui/Badge';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { Dropdown } from '~/components/ui/Dropdown';
-// Textarea component not available, will use Input instead
+// Use native textarea
 import { Tabs } from '~/components/ui/Tabs';
 import type { AIModel } from '~/types/aiModels';
 
 // Import LLM manager for real AI providers
 import { LLMManager } from '~/lib/modules/llm/manager';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 // Dynamic import for local AI providers
 let OllamaProvider: any = null;
@@ -22,10 +23,10 @@ let LMStudioProvider: any = null;
 
 const initializeLocalProviders = async () => {
   try {
-    const { OllamaProvider: OllamaP } = await import('~/lib/modules/llm/providers/ollama');
-    const { LMStudioProvider: LMStudioP } = await import('~/lib/modules/llm/providers/lmstudio');
-    OllamaProvider = OllamaP;
-    LMStudioProvider = LMStudioP;
+    const ollamaMod = await import('~/lib/modules/llm/providers/ollama');
+    const lmstudioMod = await import('~/lib/modules/llm/providers/lmstudio');
+    OllamaProvider = ollamaMod.default;
+    LMStudioProvider = lmstudioMod.default;
   } catch (error) {
     console.warn('Failed to load local AI providers:', error);
   }
@@ -303,7 +304,7 @@ const performAIInference = async (
     // Try Ollama provider if available
     if (OllamaProvider) {
       try {
-        const llmManager = getLLMManager();
+        const llmManager = useMemo(() => new LLMManager(), []);
         const ollama = new OllamaProvider({ baseURL: 'http://127.0.0.1:11434' });
         
         // Check if Ollama is available
@@ -1711,8 +1712,9 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>('');
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const files = useStore(filesStore);
+  const files = useStore(workbenchStore.files);
   const availableModels = useAIModels();
+  const llmManager = useMemo(() => new LLMManager(), []);
 
   useEffect(() => {
     // Initialize local AI providers on component mount
@@ -2050,7 +2052,7 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
             )}
 
             <div className="flex space-x-2">
-              <Textarea
+              <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyPress}

@@ -6,7 +6,10 @@ import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 
 export const meta: MetaFunction = () => {
-  return [{ title: 'YOUSEF.SHTIWE AI' }, { name: 'description', content: 'Talk with YOUSEF.SHTIWE AI, an advanced AI development platform' }];
+  return [
+    { title: 'YOUSEF.SHTIWE AI – منصة بناء الذكاء الاصطناعي' },
+    { name: 'description', content: 'تحدث مع YOUSEF.SHTIWE AI – منصة متقدمة لبناء حلول الذكاء الاصطناعي' },
+  ];
 };
 
 export const loader = () => json({});
@@ -22,6 +25,9 @@ export default function Index() {
     <div className="flex flex-col h-full w-full bg-bolt-elements-background-depth-1">
       <BackgroundRays />
       <Header />
+      <div className="px-4 py-2 text-center text-sm text-bolt-elements-textSecondary">
+        مرحباً بك في منصة YOUSEF.SHTIWE – التطبيق البناء للإجابة عن أسئلتك وبناء المشاريع
+      </div>
       <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
     </div>
   );

@@ -27,6 +27,7 @@ import ServiceStatusTab from '~/components/@settings/tabs/providers/status/Servi
 import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab';
 import McpTab from '~/components/@settings/tabs/mcp/McpTab';
 import AIModelsTab from '~/components/@settings/tabs/ai-models/AIModelsTab';
+import CustomAISettingsTab from '~/components/@settings/tabs/ai-models/CustomAISettingsTab';
 
 interface ControlPanelProps {
   open: boolean;
@@ -37,8 +38,8 @@ interface ControlPanelProps {
 const BETA_TABS = new Set<TabType>(['service-status', 'local-providers', 'mcp', 'ai-models']);
 
 const BetaLabel = () => (
-  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20">
-    <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400">BETA</span>
+  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-sky-500/10 dark:bg-sky-500/20">
+    <span className="text-[10px] font-medium text-sky-600 dark:text-sky-400">BETA</span>
   </div>
 );
 
@@ -137,6 +138,8 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
         return <LocalProvidersTab />;
       case 'ai-models':
         return <AIModelsTab />;
+      case 'ai-custom':
+        return <CustomAISettingsTab />;
       case 'connection':
         return <ConnectionsTab />;
       case 'event-logs':
@@ -236,9 +239,9 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     {(activeTab || showTabManagement) && (
                       <button
                         onClick={handleBack}
-                        className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-colors duration-150"
+                        className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-transparent hover:bg-sky-500/10 dark:hover:bg-sky-500/20 group transition-colors duration-150"
                       >
-                        <div className="i-ph:arrow-left w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <div className="i-ph:arrow-left w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400 group-hover:text-sky-500 transition-colors" />
                       </button>
                     )}
                     <DialogTitle className="text-sm sm:text-lg lg:text-xl font-semibold text-gray-900 dark:text-white">
@@ -255,9 +258,9 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     {/* Close Button */}
                     <button
                       onClick={handleClose}
-                      className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-all duration-200"
+                      className="flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-transparent hover:bg-sky-500/10 dark:hover:bg-sky-500/20 group transition-all duration-200"
                     >
-                      <div className="i-ph:x w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
+                      <div className="i-ph:x w-3 h-3 sm:w-4 sm:h-4 text-gray-500 dark:text-gray-400 group-hover:text-sky-500 transition-colors" />
                     </button>
                   </div>
                 </div>

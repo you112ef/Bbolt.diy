@@ -364,3 +364,33 @@ For answers to common questions, issues, and to see a list of recommended models
 **Who needs a commercial WebContainer API license?**
 
 bolt.diy source code is distributed as MIT, but it uses WebContainers API that [requires licensing](https://webcontainers.io/enterprise) for production usage in a commercial, for-profit setting. (Prototypes or POCs do not require a commercial license.) If you're using the API to meet the needs of your customers, prospective customers, and/or employees, you need a license to ensure compliance with our Terms of Service. Usage of the API in violation of these terms may result in your access being revoked.
+
+## الهوية البصرية واللغة (YOUSEF.SHTIWE)
+
+- الهوية: تم اعتماد شعار وأيقونة جديدة باسم "YOUSEF.SHTIWE".
+- الألوان: تم استبدال التدرج البنفسجي بلوحة سماوية (Sky/Cyan) عبر متغيرات اللون و`accent` في `uno.config.ts`.
+- الأيقونات:
+  - favicon (PNG): تم تحديث الرابط إلى `/favicon-new.png`.
+  - favicon (SVG): تم تعديل التدرج في `public/favicon.svg`.
+  - الشعار: تم تعديل التدرج في `public/logo.svg`.
+  - تم تحديث `site.webmanifest` ليلائم الأيقونات الجديدة و`theme_color`.
+- اللون العام للمتصفح: تم تحديث `<meta name="theme-color">` إلى `#0EA5E9`.
+
+### التعريب (i18n)
+- اللغة الافتراضية: العربية `ar` واتجاه `rtl`.
+- مكان الضبط:
+  - يولد الخادم وسم `<html lang="ar" dir="rtl">` افتراضياً ويمكن تغييره عبر الكوكيز `lang`.
+  - مزود الترجمة: `app/lib/i18n.tsx` مع ملفات `app/locales/{ar,en}.json`.
+- لتغيير اللغة برمجياً:
+  - استخدم `const { setLanguage } = useI18n(); setLanguage('en');` سيُحدّث الكوكيز ويعيد ضبط `lang/dir`.
+
+### ملفات تأثرت بالتغيير
+- `app/entry.server.tsx`: ضبط `lang` و`dir` من الكوكيز (افتراضياً ar/rtl).
+- `app/root.tsx`: تحديث `theme-color`، إضافة `I18nProvider`، تحديث روابط favicon.
+- `uno.config.ts`: تحويل لوحة `accent` إلى سماء.
+- `app/styles/variables.scss`: مواءمة ألوان الطرفية.
+- تعديلات بنسجات CSS البنفسجية إلى سماوية في عدة مكونات (لوحات التحكم، القوائم، نتائج البحث...).
+
+### كيفية ضبط هوية بصرية لاحقاً
+- الألوان: عدّل `accent` في `uno.config.ts` ومتغيرات CSS في `app/styles/variables.scss`.
+- الأيقونات: استبدل الملفات في `public/` وعدّل الروابط في `app/root.tsx` و`public/site.webmanifest`.

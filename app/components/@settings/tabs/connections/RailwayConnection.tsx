@@ -112,8 +112,8 @@ export default function RailwayConnection() {
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="currentColor">
+          <div className="w-10 h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center">
+            <svg className="w-6 h-6 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L2 7v10c0 5.55 3.84 9.739 9 11 5.16-1.261 9-5.45 9-11V7l-10-5z"/>
             </svg>
           </div>
@@ -258,8 +258,8 @@ export default function RailwayConnection() {
           <li>Click Connect to Railway</li>
         </ol>
         
-        <div className="mt-3 p-2 bg-purple-50 dark:bg-purple-950/20 rounded border border-purple-200 dark:border-purple-800">
-          <p className="text-xs text-purple-700 dark:text-purple-300">
+        <div className="mt-3 p-2 bg-sky-50 dark:bg-sky-950/20 rounded border border-sky-200 dark:border-sky-800">
+          <p className="text-xs text-sky-700 dark:text-sky-300">
             🚂 <strong>Hobby Plan:</strong> $5 monthly credit, Pay-as-you-go
           </p>
         </div>

@@ -402,7 +402,6 @@ export const EnhancedTerminal: React.FC<EnhancedTerminalProps> = ({
       scrollSensitivity: 1,
       altClickMovesCursor: true,
       rightClickSelectsWord: true,
-      rendererType: enableWebGL ? 'webgl' : 'canvas',
     });
 
     // Add addons

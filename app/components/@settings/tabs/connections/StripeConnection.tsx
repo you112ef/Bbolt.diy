@@ -317,7 +317,7 @@ export default function StripeConnection() {
                 <div className="flex items-center gap-3 mb-3">
                   <div className={classNames(
                     "w-10 h-10 rounded-full flex items-center justify-center text-white font-medium",
-                    stats.testMode ? "bg-orange-500" : "bg-purple-600"
+                    stats.testMode ? "bg-orange-500" : "bg-sky-600"
                   )}>
                     <div className="i-ph:credit-card w-5 h-5" />
                   </div>

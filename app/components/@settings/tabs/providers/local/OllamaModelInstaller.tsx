@@ -145,7 +145,7 @@ export default function OllamaModelInstaller({ onModelInstalled }: OllamaModelIn
   const { providers } = useSettings();
 
   // Get base URL from provider settings
-  const baseUrl = providers?.Ollama?.settings?.baseUrl || 'http://127.0.0.1:11434';
+  const baseUrl = providers?.Ollama?.settings?.baseUrl || (import.meta as any).env?.OLLAMA_API_BASE_URL || '';
 
   // Function to check installed models and their versions
   const checkInstalledModels = async () => {

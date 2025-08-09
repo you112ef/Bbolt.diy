@@ -124,8 +124,7 @@ export const ChatImpl = memo(
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [imageDataList, setImageDataList] = useState<string[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [fakeLoading, setFakeLoading] = useState(false);
-    const files = useStore(workbenchStore.files);
+          const files = useStore(workbenchStore.files);
     const [designScheme, setDesignScheme] = useState<DesignScheme>(defaultDesignScheme);
     const actionAlert = useStore(workbenchStore.alert);
     const deployAlert = useStore(workbenchStore.deployAlert);
@@ -186,7 +185,6 @@ export const ChatImpl = memo(
       },
       sendExtraMessageFields: true,
       onError: (e) => {
-        setFakeLoading(false);
         handleError(e, 'chat');
       },
       onFinish: (message, response) => {
@@ -270,7 +268,6 @@ export const ChatImpl = memo(
         logger.error(`${context} request failed`, error);
 
         stop();
-        setFakeLoading(false);
 
         let errorInfo = {
           message: 'An unexpected error occurred',
@@ -444,7 +441,6 @@ export const ChatImpl = memo(
       runAnimation();
 
       if (!chatStarted) {
-        setFakeLoading(true);
 
         if (autoSelectTemplate) {
           const { template, title } = await selectStarterTemplate({
@@ -503,7 +499,6 @@ export const ChatImpl = memo(
               resetEnhancer();
 
               textareaRef.current?.blur();
-              setFakeLoading(false);
 
               return;
             }
@@ -524,7 +519,6 @@ export const ChatImpl = memo(
           },
         ]);
         reload(attachments ? { experimental_attachments: attachments } : undefined);
-        setFakeLoading(false);
         setInput('');
         Cookies.remove(PROMPT_COOKIE_KEY);
 
@@ -635,7 +629,7 @@ export const ChatImpl = memo(
         input={input}
         showChat={showChat}
         chatStarted={chatStarted}
-        isStreaming={isLoading || fakeLoading}
+        isStreaming={isLoading}
         onStreamingChange={(streaming) => {
           streamingState.set(streaming);
         }}

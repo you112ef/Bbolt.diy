@@ -56,25 +56,27 @@ export default function RedisConnection() {
         throw new Error('Host is required');
       }
 
-      // Simulate connection test delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real implementation, this would make a server-side API call
-      // to test the actual Redis connection using node-redis or ioredis
-      
+      const res = await fetch('/api/connections/redis/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host, port: parseInt(port, 10), password: password || undefined, db: parseInt(database, 10), ssl }),
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `Server responded ${res.status}`);
+      }
+
+      const serverStats = (await res.json()) as RedisStats;
+
       const newStats: RedisStats = {
         isConnected: true,
         host,
         port,
-        database: parseInt(database),
+        database: parseInt(database, 10),
         ssl,
         lastConnected: new Date(),
-        serverInfo: {
-          version: '7.0.0', // This would come from actual connection
-          mode: 'standalone', // This would come from actual connection
-          memory: '1.2GB', // This would come from actual connection
-          clients: 5 // This would come from actual connection
-        }
+        serverInfo: serverStats.serverInfo,
       };
 
       setStats(newStats);
@@ -281,10 +283,6 @@ export default function RedisConnection() {
                   Upstash Redis (Free)
                   <div className="i-ph:arrow-square-out w-4 h-4" />
                 </a>
-              </div>
-              <div className="mt-2 text-xs text-bolt-elements-textSecondary">
-                <p><strong>Note:</strong> Connection testing is simulated in browser environment.</p>
-                <p>For production use, implement server-side Redis connection validation.</p>
               </div>
             </div>
 

@@ -13,9 +13,18 @@ export default function PlanetScaleConnection() {
     setConnecting(true);
 
     try {
-      // TODO: Implement PlanetScale API connection
-      // For now, just simulate a successful connection
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Minimal real connectivity check: list organizations
+      const res = await fetch('https://api.planetscale.com/v1/organizations', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
       setIsConnected(true);
       toast.success('Successfully connected to PlanetScale');
     } catch (error) {

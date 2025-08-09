@@ -11,13 +11,10 @@ const initializeTransformers = async () => {
   if (transformersLib) return transformersLib;
   
   try {
-    // TODO: Implement transformers.js integration
-    // For now, return a mock implementation
-    console.warn('Transformers.js not available - using mock implementation');
-    transformersLib = {
-      pipeline: null,
-      env: { allowLocalModels: true, allowRemoteModels: false }
-    };
+    const t = await import('@xenova/transformers');
+    transformersLib = t;
+    transformersLib.env.allowLocalModels = true;
+    transformersLib.env.allowRemoteModels = true;
     return transformersLib;
   } catch (error) {
     console.error('Failed to initialize transformers.js:', error);
@@ -67,8 +64,12 @@ export class LocalAIManager {
               dtype: 'fp16',
             });
           } else {
-            // Fallback to mock implementation
-            pipeline = await this.loadMockModel(modelConfig);
+            // Try loading a default small local model via transformers.js
+            const { pipeline: createPipeline } = transformersLib;
+            const modelId = modelConfig.modelPath || modelConfig.name || 'Xenova/distilbert-base-uncased';
+            pipeline = await createPipeline('text-generation', modelId, {
+              local_files_only: false,
+            });
           }
           break;
       }
@@ -85,23 +86,64 @@ export class LocalAIManager {
   }
 
   private async loadGGUFModel(modelConfig: AIModel): Promise<any> {
-    // This would integrate with llama.cpp WebAssembly or similar
-    // For now, return a mock implementation
+    // Route GGUF to local Ollama if available
+    const resp = await fetch('/api/ollama/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: modelConfig.name, prompt: '' }),
+    }).catch(() => undefined);
+
+    if (!resp || !resp.ok) {
+      // Minimal fallback that throws to surface lack of support
+      return {
+        generate: async () => {
+          throw new Error('GGUF generation requires Ollama. Please configure Ollama provider.');
+        },
+      };
+    }
+
     return {
       generate: async (prompt: string, options: any) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return `Generated response for: ${prompt.substring(0, 50)}...`;
-      }
+        const r = await fetch('/api/ollama/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: modelConfig.name,
+            prompt,
+            options: {
+              temperature: options?.temperature ?? 0.7,
+              top_p: options?.top_p ?? 0.9,
+              num_predict: options?.max_new_tokens ?? 150,
+            },
+          }),
+        });
+        if (!r.ok) throw new Error(`Ollama error: ${r.status}`);
+        const data: any = await r.json();
+        return (data && typeof data === 'object' && 'response' in data) ? (data as any).response : '';
+      },
     };
   }
 
   private async loadMockModel(modelConfig: AIModel): Promise<any> {
-    // Mock implementation for when transformers.js is not available
+    // Attempt a generic small-cpu-friendly pipeline as a fallback
+    if (transformersLib?.pipeline) {
+      const { pipeline: createPipeline } = transformersLib;
+      const modelId = modelConfig.modelPath || modelConfig.name || 'Xenova/bert-base-uncased';
+      const pipe = await createPipeline('fill-mask', modelId, { local_files_only: false });
+      return {
+        generate: async (prompt: string) => {
+          const out = await pipe(prompt);
+          const text = Array.isArray(out) ? out[0]?.sequence ?? '' : String(out);
+          return text;
+        },
+      };
+    }
+
+    // No fallback available
     return {
-      generate: async (prompt: string, options: any) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return `[Mock AI] Generated response for: ${prompt.substring(0, 50)}...`;
-      }
+      generate: async () => {
+        throw new Error('No local transformers runtime available.');
+      },
     };
   }
 

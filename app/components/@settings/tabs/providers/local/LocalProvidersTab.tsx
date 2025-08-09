@@ -32,8 +32,12 @@ const PROVIDER_DESCRIPTIONS: Record<ProviderName, string> = {
   OpenAILike: 'Connect to OpenAI-compatible API endpoints',
 };
 
-// Add a constant for the Ollama API base URL
-const OLLAMA_API_URL = 'http://127.0.0.1:11434';
+// Base URL is configurable via settings and env; no hardcoded localhost
+const getOllamaBaseUrl = (providers?: any): string => {
+  const envUrl = (import.meta as any).env?.OLLAMA_API_BASE_URL as string | undefined;
+  const settingsUrl = providers?.Ollama?.settings?.baseUrl as string | undefined;
+  return settingsUrl || envUrl || '';
+};
 
 interface OllamaModel {
   name: string;
@@ -153,7 +157,9 @@ export default function LocalProvidersTab() {
     try {
       setIsLoadingModels(true);
 
-      const response = await fetch('http://127.0.0.1:11434/api/tags');
+      const base = getOllamaBaseUrl(providers);
+      if (!base) throw new Error('Ollama base URL not configured');
+      const response = await fetch(`${base.replace(/\/$/, '')}/api/tags`);
       const data = (await response.json()) as { models: OllamaModel[] };
 
       setOllamaModels(
@@ -171,7 +177,9 @@ export default function LocalProvidersTab() {
 
   const updateOllamaModel = async (modelName: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${OLLAMA_API_URL}/api/pull`, {
+      const base = getOllamaBaseUrl(providers);
+      if (!base) throw new Error('Ollama base URL not configured');
+      const response = await fetch(`${base.replace(/\/$/, '')}/api/pull`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: modelName }),
@@ -223,7 +231,7 @@ export default function LocalProvidersTab() {
         }
       }
 
-      const updatedResponse = await fetch('http://127.0.0.1:11434/api/tags');
+      const updatedResponse = await fetch(`${base.replace(/\/$/, '')}/api/tags`);
       const updatedData = (await updatedResponse.json()) as { models: OllamaModel[] };
       const updatedModel = updatedData.models.find((m) => m.name === modelName);
 
@@ -280,7 +288,9 @@ export default function LocalProvidersTab() {
 
   const handleDeleteOllamaModel = async (modelName: string) => {
     try {
-      const response = await fetch(`${OLLAMA_API_URL}/api/delete`, {
+      const base = getOllamaBaseUrl(providers);
+      if (!base) throw new Error('Ollama base URL not configured');
+      const response = await fetch(`${base.replace(/\/$/, '')}/api/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -485,7 +495,7 @@ export default function LocalProvidersTab() {
                       {editingProvider === provider.name ? (
                         <input
                           type="text"
-                          defaultValue={provider.settings.baseUrl || OLLAMA_API_URL}
+                          defaultValue={provider.settings.baseUrl || getOllamaBaseUrl(providers)}
                           placeholder="Enter Ollama base URL"
                           className={classNames(
                             'w-full px-3 py-2 rounded-lg text-sm',
@@ -516,7 +526,7 @@ export default function LocalProvidersTab() {
                         >
                           <div className="flex items-center gap-2 text-bolt-elements-textSecondary">
                             <div className="i-ph:link text-sm" />
-                            <span>{provider.settings.baseUrl || OLLAMA_API_URL}</span>
+                            <span>{provider.settings.baseUrl || getOllamaBaseUrl(providers) || 'Click to set base URL'}</span>
                           </div>
                         </div>
                       )}

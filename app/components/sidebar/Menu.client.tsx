@@ -122,7 +122,7 @@ export const Menu = () => {
 
       deleteChat(item.id)
         .then(() => {
-          toast.success('Chat deleted successfully', {
+          toast.success(t('menu.deletedSuccess') || 'Chat deleted successfully', {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -138,7 +138,7 @@ export const Menu = () => {
         })
         .catch((error) => {
           console.error('Failed to delete chat:', error);
-          toast.error('Failed to delete conversation', {
+          toast.error(t('menu.deleteFailed') || 'Failed to delete conversation', {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -147,7 +147,7 @@ export const Menu = () => {
           loadEntries();
         });
     },
-    [loadEntries, deleteChat],
+    [loadEntries, deleteChat, t],
   );
 
   const deleteSelectedItems = useCallback(
@@ -181,9 +181,9 @@ export const Menu = () => {
 
       // Show appropriate toast message
       if (errors.length === 0) {
-        toast.success(`${deletedCount} chat${deletedCount === 1 ? '' : 's'} deleted successfully`);
+        toast.success(t('menu.bulkDeleted') || 'Selected chats deleted successfully');
       } else {
-        toast.warning(`Deleted ${deletedCount} of ${itemsToDeleteIds.length} chats. ${errors.length} failed.`, {
+        toast.warning(t('menu.bulkDeletePartial') || 'Some chats were not deleted', {
           autoClose: 5000,
         });
       }
@@ -201,7 +201,7 @@ export const Menu = () => {
         window.location.pathname = '/';
       }
     },
-    [deleteChat, loadEntries, db],
+    [deleteChat, loadEntries, db, t],
   );
 
   const closeDialog = () => {
@@ -228,19 +228,19 @@ export const Menu = () => {
 
   const handleBulkDeleteClick = useCallback(() => {
     if (selectedItems.length === 0) {
-      toast.info('Select at least one chat to delete');
+      toast.info(t('menu.selectAtLeastOne') || 'Select at least one chat to delete');
       return;
     }
 
     const selectedChats = list.filter((item) => selectedItems.includes(item.id));
 
     if (selectedChats.length === 0) {
-      toast.error('Could not find selected chats');
+      toast.error(t('menu.selectedChatsNotFound') || 'Could not find selected chats');
       return;
     }
 
     setDialogContent({ type: 'bulkDelete', items: selectedChats });
-  }, [selectedItems, list]); // Keep list dependency
+  }, [selectedItems, list, t]); // Keep list dependency
 
   const selectAll = useCallback(() => {
     const allFilteredIds = filteredList.map((item) => item.id);
@@ -452,20 +452,20 @@ export const Menu = () => {
                 {dialogContent?.type === 'delete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Chat?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteChatTitle') || 'Delete Chat?'}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
-                          You are about to delete{' '}
+                          {t('dialog.youAreAboutToDelete') || 'You are about to delete'}{' '}
                           <span className="font-medium text-gray-900 dark:text-white">
                             {dialogContent.item.description}
                           </span>
                         </p>
-                        <p className="mt-2">Are you sure you want to delete this chat?</p>
+                        <p className="mt-2">{t('dialog.areYouSureDelete') || 'Are you sure you want to delete this chat?'}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('dialog.cancel') || 'Cancel'}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -475,7 +475,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('dialog.delete') || 'Delete'}
                       </DialogButton>
                     </div>
                   </>
@@ -483,12 +483,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">Delete Selected Chats?</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteSelectedTitle') || 'Delete Selected Chats?'}</DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
-                        <p>
-                          You are about to delete {dialogContent.items.length}{' '}
-                          {dialogContent.items.length === 1 ? 'chat' : 'chats'}:
-                        </p>
+                        <p>{t('dialog.youAreAboutToDeleteSelected') || 'You are about to delete selected chats:'}</p>
                         <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
                           <ul className="list-disc pl-5 space-y-1">
                             {dialogContent.items.map((item) => (
@@ -498,12 +495,12 @@ export const Menu = () => {
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">Are you sure you want to delete these chats?</p>
+                        <p className="mt-3">{t('dialog.areYouSureDeleteSelected') || 'Are you sure you want to delete these chats?'}</p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
                       <DialogButton type="secondary" onClick={closeDialog}>
-                        Cancel
+                        {t('dialog.cancel') || 'Cancel'}
                       </DialogButton>
                       <DialogButton
                         type="danger"
@@ -518,7 +515,7 @@ export const Menu = () => {
                           closeDialog();
                         }}
                       >
-                        Delete
+                        {t('dialog.delete') || 'Delete'}
                       </DialogButton>
                     </div>
                   </>

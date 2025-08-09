@@ -31,6 +31,17 @@ interface DiskInfo {
 }
 
 const getDiskInfo = (): DiskInfo[] => {
+  // Lazily set execSync if running under Node
+  if (!execSync) {
+    try {
+      // @ts-ignore Node-only dynamic import guarded by try/catch
+      const cp = require('node:child_process');
+      execSync = cp.execSync;
+    } catch {
+      // ignore
+    }
+  }
+
   // If we're in a Cloudflare environment and not in development, return error
   if (!execSync && !isDevelopment) {
     return [
@@ -47,33 +58,19 @@ const getDiskInfo = (): DiskInfo[] => {
     ];
   }
 
-  // If we're in development but not in Node environment, return mock data
-  if (!execSync && isDevelopment) {
-    // Generate random percentage between 40-60%
-    const percentage = Math.floor(40 + Math.random() * 20);
-    const totalSize = 500 * 1024 * 1024 * 1024; // 500GB
-    const usedSize = Math.floor((totalSize * percentage) / 100);
-    const availableSize = totalSize - usedSize;
-
+  // If no access to system commands, return a clear error instead of mock data
+  if (!execSync) {
     return [
       {
-        filesystem: 'MockDisk',
-        size: totalSize,
-        used: usedSize,
-        available: availableSize,
-        percentage,
-        mountpoint: '/',
+        filesystem: 'N/A',
+        size: 0,
+        used: 0,
+        available: 0,
+        percentage: 0,
+        mountpoint: 'N/A',
         timestamp: new Date().toISOString(),
-      },
-      {
-        filesystem: 'MockDisk2',
-        size: 1024 * 1024 * 1024 * 1024, // 1TB
-        used: 300 * 1024 * 1024 * 1024, // 300GB
-        available: 724 * 1024 * 1024 * 1024, // 724GB
-        percentage: 30,
-        mountpoint: '/data',
-        timestamp: new Date().toISOString(),
-      },
+        error: 'Disk information is unavailable in this runtime (no system command access)'
+      }
     ];
   }
 

@@ -13,16 +13,22 @@ export default function PlanetScaleConnection() {
     setConnecting(true);
 
     try {
-      /*
-       * TODO: Implement PlanetScale API connection
-       * For now, just simulate a successful connection
-       */
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await fetch('/api/connections/planetscale/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(err.message || 'Failed to validate token');
+      }
+
       setIsConnected(true);
       toast.success('Successfully connected to PlanetScale');
     } catch (error) {
       console.error('Connection error:', error);
-      toast.error('Failed to connect to PlanetScale');
+      toast.error(`Failed to connect to PlanetScale: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setConnecting(false);
     }
@@ -75,6 +81,7 @@ export default function PlanetScaleConnection() {
                 )}
               />
             </div>
+            <div className="text-xs text-bolt-elements-textSecondary">Token validity is verified server-side.</div>
             <button
               onClick={handleConnect}
               disabled={!token || connecting}

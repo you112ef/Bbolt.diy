@@ -9,15 +9,19 @@ let transformersLib: any = null;
 // Initialize transformers.js
 const initializeTransformers = async () => {
   if (transformersLib) return transformersLib;
-  
+
   try {
-    // TODO: Implement transformers.js integration
-    // For now, return a mock implementation
-    console.warn('Transformers.js not available - using mock implementation');
-    transformersLib = {
-      pipeline: null,
-      env: { allowLocalModels: true, allowRemoteModels: false }
-    };
+    // Dynamically import transformers.js for browser-compatible inference
+    const mod = await import('@xenova/transformers');
+
+    // Configure environment to allow local models if provided
+    if (mod.env) {
+      mod.env.allowLocalModels = true;
+      // Remote models can be enabled if desired; keep disabled by default for offline usage
+      // mod.env.allowRemoteModels = true;
+    }
+
+    transformersLib = mod;
     return transformersLib;
   } catch (error) {
     console.error('Failed to initialize transformers.js:', error);
@@ -60,15 +64,14 @@ export class LocalAIManager {
           
         default:
           // Use transformers.js for other formats
-          if (transformersLib.pipeline) {
+          if (transformersLib?.pipeline) {
             const { pipeline: createPipeline } = transformersLib;
-            pipeline = await createPipeline('text-generation', modelConfig.modelPath || modelConfig.name, {
-              local_files_only: true,
-              dtype: 'fp16',
+            const modelIdentifier = modelConfig.modelPath || modelConfig.name;
+            pipeline = await createPipeline('text-generation', modelIdentifier, {
+              local_files_only: Boolean(modelConfig.modelPath),
             });
           } else {
-            // Fallback to mock implementation
-            pipeline = await this.loadMockModel(modelConfig);
+            throw new Error('Transformers pipeline unavailable after initialization');
           }
           break;
       }
@@ -85,24 +88,13 @@ export class LocalAIManager {
   }
 
   private async loadGGUFModel(modelConfig: AIModel): Promise<any> {
-    // This would integrate with llama.cpp WebAssembly or similar
-    // For now, return a mock implementation
-    return {
-      generate: async (prompt: string, options: any) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return `Generated response for: ${prompt.substring(0, 50)}...`;
-      }
-    };
+    // For GGUF models, a WebAssembly runtime like llama.cpp is required.
+    // Until that is integrated, fail explicitly instead of returning a mock.
+    throw new Error('GGUF model support requires WASM runtime (llama.cpp) integration');
   }
 
   private async loadMockModel(modelConfig: AIModel): Promise<any> {
-    // Mock implementation for when transformers.js is not available
-    return {
-      generate: async (prompt: string, options: any) => {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return `[Mock AI] Generated response for: ${prompt.substring(0, 50)}...`;
-      }
-    };
+    throw new Error('Mock model loading is disabled. Ensure transformers.js is available.');
   }
 
   async generateText(
@@ -126,11 +118,13 @@ export class LocalAIManager {
       // Update metrics
       aiModelsActions.updateMetrics(modelId, {
         totalInferences: 1,
-        totalTokensGenerated: result.length,
+        totalTokensGenerated: typeof result === 'string' ? result.length : (result?.generated_text?.length ?? 0),
         lastUsed: new Date().toISOString(),
       });
 
-      return typeof result === 'string' ? result : result.generated_text || result[0]?.generated_text || '';
+      return typeof result === 'string'
+        ? result
+        : result.generated_text || result[0]?.generated_text || '';
     } catch (error) {
       console.error('Inference error:', error);
       aiModelsActions.updateMetrics(modelId, { errorCount: 1 });

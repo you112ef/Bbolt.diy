@@ -7,29 +7,34 @@ export interface Feature {
 }
 
 export const getFeatureFlags = async (): Promise<Feature[]> => {
-  /*
-   * TODO: Implement actual feature flags logic
-   * This is a mock implementation
-   */
-  return [
-    {
-      id: 'feature-1',
-      name: 'Dark Mode',
-      description: 'Enable dark mode for better night viewing',
-      viewed: true,
-      releaseDate: '2024-03-15',
-    },
-    {
-      id: 'feature-2',
-      name: 'Tab Management',
-      description: 'Customize your tab layout',
-      viewed: false,
-      releaseDate: '2024-03-20',
-    },
-  ];
+  try {
+    // Try to fetch from a real features manifest if served by the app
+    const res = await fetch('/features.json', { cache: 'no-store' });
+    if (res.ok) {
+      const features = (await res.json()) as Feature[];
+
+      // Merge viewed state from localStorage (client-side only)
+      if (typeof window !== 'undefined') {
+        const viewed = JSON.parse(localStorage.getItem('viewed-features') || '{}');
+        return features.map((f) => ({
+          ...f,
+          viewed: Boolean(viewed[f.id]) || Boolean(f.viewed),
+        }));
+      }
+
+      return features;
+    }
+  } catch {
+    // ignore and fall back
+  }
+
+  // Fallback to empty list if no manifest available
+  return [];
 };
 
 export const markFeatureViewed = async (featureId: string): Promise<void> => {
-  /* TODO: Implement actual feature viewed logic */
-  console.log(`Marking feature ${featureId} as viewed`);
+  if (typeof window === 'undefined') return;
+  const viewed = JSON.parse(localStorage.getItem('viewed-features') || '{}');
+  viewed[featureId] = true;
+  localStorage.setItem('viewed-features', JSON.stringify(viewed));
 };

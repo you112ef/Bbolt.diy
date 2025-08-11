@@ -347,9 +347,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         data-chat-visible={showChat}
       >
         {/* Sidebar and content layout */}
-        <div className="flex h-[calc(100dvh-48px)] stack-sm">
+        <div className="flex h-[calc(100dvh-48px)] stack-sm scroll-x-auto">
           {/* Sidebar (always visible; width scales) */}
-          <div className="min-w-[220px] max-w-[320px] w-[22vw]">
+          <div className="min-w-[200px] w-[18vw] max-w-[300px] shrink-0">
             <Menu />
           </div>
 
@@ -361,7 +361,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 {/* Main content area */}
                 <div className="flex-1 min-h-0 flex h-full gap-3">
                   {/* Messages */}
-                  <div className="flex-[1.2] min-w-0">
+                  <div className="flex-[1] min-w-0">
                     <StickToBottom
                       className={classNames('pt-6 px-2 sm:px-6 relative', {
                         'h-full flex flex-col modern-scrollbar': chatStarted,
@@ -393,7 +393,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   </div>
 
                   {/* Workbench */}
-                  <div className={classNames('min-w-[360px] w-[40vw] max-w-[720px] border-l border-bolt-elements-borderColor')}
+                  <div className={classNames('min-w-[420px] w-[35vw] max-w-[840px] shrink-0 border-l border-bolt-elements-borderColor')}
                   >
                     <ClientOnly>
                       {() => (

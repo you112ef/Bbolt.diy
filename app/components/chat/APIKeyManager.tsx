@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { IconButton } from '~/components/ui/IconButton';
-import type { ProviderInfo } from '~/types/model';
+import type { ProviderInfo } from '~/lib/modules/llm/types';
 import Cookies from 'js-cookie';
 
 interface APIKeyManagerProps {

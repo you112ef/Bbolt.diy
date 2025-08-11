@@ -1,6 +1,7 @@
 import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { streamText } from '~/lib/.server/llm/stream-text';
-import type { IProviderSetting, ProviderInfo } from '~/types/model';
+import type { IProviderSetting } from '~/types/model';
+import type { ProviderInfo } from '~/lib/modules/llm/types';
 import { generateText } from 'ai';
 import { PROVIDER_LIST } from '~/utils/constants';
 import { MAX_TOKENS } from '~/lib/.server/llm/constants';

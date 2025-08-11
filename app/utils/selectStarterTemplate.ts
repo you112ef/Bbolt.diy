@@ -1,5 +1,5 @@
 import ignore from 'ignore';
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import type { Template } from '~/types/template';
 import { STARTER_TEMPLATES } from './constants';
 
@@ -82,7 +82,7 @@ const parseSelectedTemplate = (llmOutput: string): { template: string; title: st
   }
 };
 
-export const selectStarterTemplate = async (options: { message: string; model: string; provider: ProviderInfo }) => {
+export const selectStarterTemplate = async (options: { message: string; model: string; provider: UIProviderInfo }) => {
   const { message, model, provider } = options;
   const requestBody = {
     message,

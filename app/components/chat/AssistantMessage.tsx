@@ -1,12 +1,18 @@
 import { memo, Fragment } from 'react';
-import { Markdown } from './Markdown';
-import type { JSONValue } from 'ai';
-import Popover from '~/components/ui/Popover';
+import { useStore } from '@nanostores/react';
+import { useAnimate } from 'framer-motion';
+import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { WORK_DIR } from '~/utils/constants';
-import WithTooltip from '~/components/ui/Tooltip';
+import { Markdown } from './Markdown';
+import { CodeBlock } from './CodeBlock';
+import { Artifact } from './Artifact';
+import { ToolInvocations } from './ToolInvocations';
+import ThoughtBox from './ThoughtBox';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import type { Message } from 'ai';
-import type { ProviderInfo } from '~/types/model';
+import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
+import type { DesignScheme } from '~/types/design-scheme';
+import type { ElementInfo } from '~/components/workbench/Inspector';
 import type {
   TextUIPart,
   ReasoningUIPart,
@@ -15,7 +21,10 @@ import type {
   FileUIPart,
   StepStartUIPart,
 } from '@ai-sdk/ui-utils';
-import { ToolInvocations } from './ToolInvocations';
+import type { JSONValue } from 'ai';
+import Popover from '~/components/ui/Popover';
+import { WORK_DIR } from '~/utils/constants';
+import WithTooltip from '~/components/ui/Tooltip';
 import type { ToolCallAnnotation } from '~/types/context';
 
 interface AssistantMessageProps {
@@ -28,7 +37,7 @@ interface AssistantMessageProps {
   chatMode?: 'discuss' | 'build';
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
-  provider?: ProviderInfo;
+  provider?: UIProviderInfo;
   parts:
     | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
     | undefined;

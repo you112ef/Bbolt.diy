@@ -26,6 +26,21 @@ export interface ProviderInfo {
   labelForGetApiKey?: string;
   icon?: string;
 }
+
+// UI-friendly interface that doesn't require getModelInstance
+export interface UIProviderInfo {
+  name: string;
+  staticModels: ModelInfo[];
+  getDynamicModels?: (
+    apiKeys?: Record<string, string>,
+    settings?: IProviderSetting,
+    serverEnv?: Record<string, string>,
+  ) => Promise<ModelInfo[]>;
+  getApiKeyLink?: string;
+  labelForGetApiKey?: string;
+  icon?: string;
+}
+
 export interface ProviderConfig {
   baseUrlKey?: string;
   baseUrl?: string;

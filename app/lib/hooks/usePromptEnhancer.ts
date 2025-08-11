@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('usePromptEnhancement');
@@ -17,7 +17,7 @@ export function usePromptEnhancer() {
     input: string,
     setInput: (value: string) => void,
     model: string,
-    provider: ProviderInfo,
+    provider: UIProviderInfo,
     apiKeys?: Record<string, string>,
   ) => {
     setEnhancingPrompt(true);

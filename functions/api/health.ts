@@ -1,3 +1,4 @@
+// Minimal context typing to stay compatible with Pages runtime
 type PagesFn = (context: any) => Response | Promise<Response>;
 
 export const onRequest: PagesFn = async () => {

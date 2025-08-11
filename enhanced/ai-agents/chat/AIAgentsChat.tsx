@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useStore } from '@nanostores/react';
 import { FilesStore } from '~/lib/stores/files';
 import { aiModelsStore, useAIModels } from '~/lib/stores/aiModels';
-import { LocalAIManager } from '../../models/providers/OfflineAI';
+import { localAIManager } from '../../models/providers/OfflineAI';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Card } from '~/components/ui/Card';
@@ -14,24 +14,7 @@ import { Tabs } from '~/components/ui/Tabs';
 import type { AIModel } from '~/types/aiModels';
 
 // Import LLM manager for real AI providers
-import { LLMManager } from '~/lib/modules/llm/manager';
 import { workbenchStore } from '~/lib/stores/workbench';
-
-// Dynamic import for local AI providers
-let OllamaProvider: any = null;
-let LMStudioProvider: any = null;
-const localAIManager = new LocalAIManager();
-
-const initializeLocalProviders = async () => {
-  try {
-    const ollamaMod = await import('~/lib/modules/llm/providers/ollama');
-    const lmstudioMod = await import('~/lib/modules/llm/providers/lmstudio');
-    OllamaProvider = ollamaMod.default;
-    LMStudioProvider = lmstudioMod.default;
-  } catch (error) {
-    console.warn('Failed to load local AI providers:', error);
-  }
-};
 
 // AI Agent types and definitions
 export type AIAgentType = 
@@ -299,48 +282,6 @@ const performAIInference = async (
       
       if (response && response.trim()) {
         return `${response}\n\n*Analysis performed using local model: ${selectedModel.name}*`;
-      }
-    }
-
-    // Try Ollama provider if available
-    if (OllamaProvider) {
-      try {
-        const llmManager = useMemo(() => LLMManager.getInstance(import.meta.env), []);
-        const ollama = new OllamaProvider({ baseURL: 'http://127.0.0.1:11434' });
-        
-        // Check if Ollama is available
-        const ollamaModels = await ollama.getModels?.();
-        if (ollamaModels && ollamaModels.length > 0) {
-          const ollamaModel = ollamaModels[0]; // Use first available model
-          const response = await ollama.chat?.([{
-            role: 'user',
-            content: fullPrompt
-          }], ollamaModel.id, {});
-          
-          if (response?.content) {
-            return `${response.content}\n\n*Analysis performed using Ollama model: ${ollamaModel.name}*`;
-          }
-        }
-      } catch (ollamaError) {
-        console.warn('Ollama provider failed:', ollamaError);
-      }
-    }
-
-    // Try LM Studio provider if available
-    if (LMStudioProvider) {
-      try {
-        const lmstudio = new LMStudioProvider({ baseURL: 'http://127.0.0.1:1234' });
-        
-        const response = await lmstudio.chat?.([{
-          role: 'user',
-          content: fullPrompt
-        }], 'local-model', {});
-        
-        if (response?.content) {
-          return `${response.content}\n\n*Analysis performed using LM Studio*`;
-        }
-      } catch (lmstudioError) {
-        console.warn('LM Studio provider failed:', lmstudioError);
       }
     }
 
@@ -1715,19 +1656,6 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const files = useStore(workbenchStore.files);
   const availableModels = useAIModels();
-  const llmManager = useMemo(() => LLMManager.getInstance(import.meta.env), []);
-
-  useEffect(() => {
-    // Initialize local AI providers on component mount
-    initializeLocalProviders();
-  }, []);
-
-  const currentAgent = AI_AGENTS[selectedAgent];
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   // Set default model when models are available
   useEffect(() => {
@@ -1736,6 +1664,13 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
       setSelectedModel(localModel?.id || availableModels[0]?.id || '');
     }
   }, [availableModels, selectedModel]);
+
+  const currentAgent = AI_AGENTS[selectedAgent];
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const handleSendMessage = useCallback(async () => {
     if (!inputValue.trim() || isLoading) return;

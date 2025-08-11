@@ -1,4 +1,4 @@
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import { useEffect, useState, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { ModelInfo } from '~/lib/modules/llm/types';
@@ -7,10 +7,10 @@ import { classNames } from '~/utils/classNames';
 interface ModelSelectorProps {
   model?: string;
   setModel?: (model: string) => void;
-  provider?: ProviderInfo;
-  setProvider?: (provider: ProviderInfo) => void;
+  provider?: UIProviderInfo;
+  setProvider?: (provider: UIProviderInfo) => void;
   modelList: ModelInfo[];
-  providerList: ProviderInfo[];
+  providerList: UIProviderInfo[];
   apiKeys: Record<string, string>;
   modelLoading?: string;
 }

@@ -15,7 +15,7 @@ import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
-import type { ProviderInfo } from '~/types/model';
+import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
 import { useSearchParams } from '@remix-run/react';
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
@@ -139,9 +139,18 @@ export const ChatImpl = memo(
       const savedModel = Cookies.get('selectedModel');
       return savedModel || DEFAULT_MODEL;
     });
-    const [provider, setProvider] = useState(() => {
+    const [provider, setProvider] = useState<UIProviderInfo>(() => {
+      const toUIProvider = (p: ProviderInfo): UIProviderInfo => ({
+        name: p.name,
+        staticModels: p.staticModels,
+        getDynamicModels: p.getDynamicModels,
+        getApiKeyLink: p.getApiKeyLink,
+        labelForGetApiKey: p.labelForGetApiKey,
+        icon: p.icon,
+      });
       const savedProvider = Cookies.get('selectedProvider');
-      return (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+      const found = (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+      return toUIProvider(found);
     });
     const { showChat } = useStore(chatStore);
     const [animationScope, animate] = useAnimate();
@@ -622,7 +631,7 @@ export const ChatImpl = memo(
       Cookies.set('selectedModel', newModel, { expires: 30 });
     };
 
-    const handleProviderChange = (newProvider: ProviderInfo) => {
+    const handleProviderChange = (newProvider: UIProviderInfo) => {
       setProvider(newProvider);
       Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
     };

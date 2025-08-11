@@ -14,7 +14,7 @@ import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { SupabaseConnection } from './SupabaseConnection';
 import { ExpoQrModal } from '~/components/workbench/ExpoQrModal';
 import styles from './BaseChat.module.scss';
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import { ColorSchemeDialog } from '~/components/ui/ColorSchemeDialog';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
@@ -46,7 +46,7 @@ interface ChatBoxProps {
   qrModalOpen: boolean;
   setQrModalOpen: (open: boolean) => void;
   handleFileUpload: () => void;
-  setProvider?: ((provider: ProviderInfo) => void) | undefined;
+  setProvider?: ((provider: UIProviderInfo) => void) | undefined;
   model?: string | undefined;
   setModel?: ((model: string) => void) | undefined;
   setUploadedFiles?: ((files: File[]) => void) | undefined;
@@ -113,7 +113,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 modelList={props.modelList}
                 provider={props.provider}
                 setProvider={props.setProvider}
-                providerList={props.providerList || (PROVIDER_LIST as ProviderInfo[])}
+                providerList={props.providerList || (PROVIDER_LIST as UIProviderInfo[])}
                 apiKeys={props.apiKeys}
                 modelLoading={props.isModelLoading}
               />

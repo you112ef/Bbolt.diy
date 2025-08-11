@@ -1,15 +1,27 @@
+import React, { useEffect, useRef } from 'react';
+import { useStore } from '@nanostores/react';
+import { useAnimate } from 'framer-motion';
+import { chatStore } from '~/lib/stores/chat';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { UserMessage } from './UserMessage';
+import { AssistantMessage } from './AssistantMessage';
+import { Artifact } from './Artifact';
+import { ToolInvocations } from './ToolInvocations';
+import ThoughtBox from './ThoughtBox';
+import ChatAlert from './ChatAlert';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import type { Message } from 'ai';
+import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
+import type { DesignScheme } from '~/types/design-scheme';
+import type { ElementInfo } from '~/components/workbench/Inspector';
 import { Fragment } from 'react';
 import { classNames } from '~/utils/classNames';
-import { AssistantMessage } from './AssistantMessage';
-import { UserMessage } from './UserMessage';
 import { useLocation } from '@remix-run/react';
 import { db, chatId } from '~/lib/persistence/useChatHistory';
 import { forkChat } from '~/lib/persistence/db';
 import { toast } from 'react-toastify';
 import { forwardRef } from 'react';
 import type { ForwardedRef } from 'react';
-import type { ProviderInfo } from '~/types/model';
 
 interface MessagesProps {
   id?: string;
@@ -20,7 +32,7 @@ interface MessagesProps {
   chatMode?: 'discuss' | 'build';
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
-  provider?: ProviderInfo;
+  provider?: UIProviderInfo;
   addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
 }
 

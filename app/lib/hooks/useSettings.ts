@@ -18,7 +18,8 @@ import {
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import type { IProviderSetting, ProviderInfo, IProviderConfig } from '~/types/model';
+import type { IProviderSetting, IProviderConfig } from '~/types/model';
+import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
 import type { TabWindowConfig } from '~/components/@settings/core/types';
 import { logStore } from '~/lib/stores/logs';
 import { getLocalStorage, setLocalStorage } from '~/lib/persistence';
@@ -43,7 +44,7 @@ export interface UseSettingsReturn {
 
   // Provider settings
   providers: Record<string, IProviderConfig>;
-  activeProviders: ProviderInfo[];
+  activeProviders: UIProviderInfo[];
   updateProviderSettings: (provider: string, config: IProviderSetting) => void;
 
   // Debug and development settings
@@ -76,7 +77,7 @@ export function useSettings(): UseSettingsReturn {
   const promptId = useStore(promptStore);
   const isLatestBranch = useStore(latestBranchStore);
   const autoSelectTemplate = useStore(autoSelectStarterTemplate);
-  const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
+  const [activeProviders, setActiveProviders] = useState<UIProviderInfo[]>([]);
   const contextOptimizationEnabled = useStore(enableContextOptimizationStore);
   const tabConfiguration = useStore(tabConfigurationStore);
   const [settings, setSettings] = useState<Settings>(() => {
@@ -92,11 +93,26 @@ export function useSettings(): UseSettingsReturn {
   });
 
   useEffect(() => {
-    const active = Object.entries(providers)
+    const enabledProviders = Object.entries(providers)
       .filter(([_key, provider]) => provider.settings.enabled)
-      .map(([_k, p]) => p);
+      .map(([_name, providerConfig]) => {
+        const { name, staticModels, getDynamicModels, getApiKeyLink, labelForGetApiKey, icon } = providerConfig;
+        const uiProvider: UIProviderInfo = {
+          name,
+          staticModels,
+          getDynamicModels: getDynamicModels
+            ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
+                // Adapt legacy signature that expected providerName as first arg
+                getDynamicModels(name, apiKeys, settings, serverEnv)
+            : undefined,
+          getApiKeyLink,
+          labelForGetApiKey,
+          icon,
+        };
+        return uiProvider;
+      });
 
-    setActiveProviders(active);
+    setActiveProviders(enabledProviders);
   }, [providers]);
 
   const saveSettings = useCallback((newSettings: Partial<Settings>) => {

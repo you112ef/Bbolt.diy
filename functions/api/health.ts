@@ -1,6 +1,7 @@
-import type { PagesFunction } from '@remix-run/cloudflare';
+// Minimal context typing to stay compatible with Pages runtime
+type PagesFn = (context: any) => Response | Promise<Response>;
 
-export const onRequest: PagesFunction = async () => {
+export const onRequest: PagesFn = async () => {
   const body = JSON.stringify({ status: 'ok', service: 'yousef-shtiwe-ai', timestamp: new Date().toISOString() });
   return new Response(body, {
     status: 200,

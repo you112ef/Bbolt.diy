@@ -22,7 +22,7 @@ export function Header() {
           <img src="/logo-dark-styled.png" alt="logo" className="h-20 w-auto inline-block hidden dark:block" />
         </a>
       </div>
-      {chat.started && (
+      {chat.started ? (
         <>
           <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
@@ -35,6 +35,15 @@ export function Header() {
             )}
           </ClientOnly>
         </>
+      ) : (
+        <div className="ml-auto flex items-center gap-2">
+          <a
+            href="/replicate"
+            className="px-3 py-1.5 rounded border border-bolt-elements-borderColor text-sm hover:bg-bolt-elements-background-depth-2"
+          >
+            أداة نسخ الواجهة
+          </a>
+        </div>
       )}
     </header>
   );

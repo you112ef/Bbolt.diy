@@ -8,10 +8,10 @@ import { useI18n } from '~/lib/i18n';
 interface ModelSelectorProps {
   model?: string;
   setModel?: (model: string) => void;
-  provider?: ProviderInfo;
-  setProvider?: (provider: ProviderInfo) => void;
+  provider?: UIProviderInfo;
+  setProvider?: (provider: UIProviderInfo) => void;
   modelList: ModelInfo[];
-  providerList: ProviderInfo[];
+  providerList: UIProviderInfo[];
   apiKeys: Record<string, string>;
   modelLoading?: string;
 }

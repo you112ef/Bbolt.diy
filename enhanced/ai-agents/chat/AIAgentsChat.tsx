@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useStore } from '@nanostores/react';
 import { FilesStore } from '~/lib/stores/files';
 import { aiModelsStore, useAIModels } from '~/lib/stores/aiModels';
-import { localAIManager } from '~/enhanced/models/providers/OfflineAI';
+import { LocalAIManager } from '../../models/providers/OfflineAI';
 import { Button } from '~/components/ui/Button';
 import { Input } from '~/components/ui/Input';
 import { Card } from '~/components/ui/Card';
@@ -20,6 +20,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 // Dynamic import for local AI providers
 let OllamaProvider: any = null;
 let LMStudioProvider: any = null;
+const localAIManager = new LocalAIManager();
 
 const initializeLocalProviders = async () => {
   try {

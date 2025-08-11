@@ -20,7 +20,7 @@ interface MessagesProps {
   chatMode?: 'discuss' | 'build';
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
-  provider?: ProviderInfo;
+  provider?: UIProviderInfo;
   addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
 }
 

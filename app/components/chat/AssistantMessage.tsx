@@ -28,7 +28,7 @@ interface AssistantMessageProps {
   chatMode?: 'discuss' | 'build';
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
-  provider?: ProviderInfo;
+  provider?: UIProviderInfo;
   parts:
     | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
     | undefined;

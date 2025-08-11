@@ -13,6 +13,8 @@ import { createSummary } from '~/lib/.server/llm/create-summary';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
 import { MCPService } from '~/lib/services/mcpService';
+import { searchDocuments } from '~/lib/persistence/knowledgeStore';
+import { addUsage } from '~/lib/persistence/usageStore';
 
 export async function action(args: ActionFunctionArgs) {
   return chatAction(args);
@@ -89,6 +91,14 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         let messageSliceId = 0;
 
         const processedMessages = await mcpService.processToolInvocations(messages, dataStream);
+        // Simple RAG: detect [kb: query] in last user message and inject snippets as system context
+        const last = processedMessages[processedMessages.length - 1];
+        if (last && last.role === 'user' && typeof last.content === 'string' && last.content.trim().startsWith('[kb:')) {
+          const q = last.content.trim().slice(4).replace(/^\s*|\]\s*$/g, '');
+          const results = await searchDocuments(q, 5);
+          const contextText = results.map((r, i) => `# Doc ${i + 1}: ${r.name}\n${r.snippet}`).join('\n\n');
+          processedMessages.unshift({ id: generateId(), role: 'system', content: `Use the following knowledge snippets when answering:\n\n${contextText}` } as any);
+        }
 
         if (processedMessages.length > 3) {
           messageSliceId = processedMessages.length - 3;
@@ -214,6 +224,12 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
               cumulativeUsage.completionTokens += usage.completionTokens || 0;
               cumulativeUsage.promptTokens += usage.promptTokens || 0;
               cumulativeUsage.totalTokens += usage.totalTokens || 0;
+              addUsage({
+                timestamp: new Date().toISOString(),
+                promptTokens: usage.promptTokens || 0,
+                completionTokens: usage.completionTokens || 0,
+                totalTokens: usage.totalTokens || 0,
+              });
             }
 
             if (finishReason !== 'length') {

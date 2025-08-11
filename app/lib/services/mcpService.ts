@@ -23,7 +23,7 @@ const logger = createScopedLogger('mcp-service');
 const isEdgeRuntime = !!(typeof WebSocket !== 'undefined' && typeof window === 'undefined');
 const isBrowser = typeof window !== 'undefined';
 const isCloudflarePages =
-  typeof globalThis !== 'undefined' && // @ts-ignore
+  typeof globalThis !== 'undefined' && // @ts-ignore: Cloudflare Workers/Pages adds WebSocketPair to globalThis at runtime
   typeof (globalThis as any).WebSocketPair !== 'undefined';
 
 function stdioUnsupported(): boolean {

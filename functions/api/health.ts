@@ -1,6 +1,4 @@
-import type { PagesFunction } from '@remix-run/cloudflare';
-
-export const onRequest: PagesFunction = async () => {
+export const onRequest = async () => {
   const body = JSON.stringify({ status: 'ok', service: 'yousef-shtiwe-ai', timestamp: new Date().toISOString() });
   return new Response(body, {
     status: 200,

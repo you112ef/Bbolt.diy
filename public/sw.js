@@ -4,7 +4,7 @@ const API_CACHE = 'yousef-ai-api-v2';
 
 // Essential files to cache on install
 const ESSENTIAL_FILES = [
-  '/',
+  // Do not cache HTML shell to avoid stale app versions
   '/yousef-logo-enhanced.png',
   '/favicon-enhanced.png',
   '/site.webmanifest'
@@ -38,18 +38,7 @@ self.addEventListener('fetch', (event) => {
   // Handle navigation requests (HTML pages)
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => 
-          caches.match(request)
-            .then(response => response || caches.match('/'))
-        ),
+      fetch(request).catch(() => new Response('Offline', { status: 503 }))
     );
     return;
   }

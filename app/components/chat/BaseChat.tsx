@@ -393,7 +393,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   </div>
 
                   {/* Workbench */}
-                  <div className={classNames('min-w-[420px] w-[35vw] max-w-[840px] shrink-0 border-l border-bolt-elements-borderColor')}
+                  <div
+                    className={classNames(
+                      'min-w-[420px] w-[35vw] max-w-[840px] shrink-0 border-l border-bolt-elements-borderColor',
+                    )}
                   >
                     <ClientOnly>
                       {() => (

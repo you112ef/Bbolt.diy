@@ -19,7 +19,7 @@ export default function BillingRoute() {
 
   useEffect(() => {
     fetch('/api/usage')
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<{ totals: UsageTotals; events: UsageEvent[] }>)
       .then((d) => {
         setTotals(d.totals);
         setEvents(d.events);

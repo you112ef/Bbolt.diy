@@ -8,7 +8,7 @@ import { CodeBlock } from './CodeBlock';
 import type { Message } from 'ai';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
-import type { UIProviderInfo } from '~/lib/modules/llm/types';
+// UIProviderInfo is defined globally via app/types/global.d.ts
 
 const logger = createScopedLogger('MarkdownComponent');
 

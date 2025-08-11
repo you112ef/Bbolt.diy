@@ -104,7 +104,6 @@ export default function LocalProvidersTab() {
             baseUrl: provider.settings.baseUrl || envUrl,
           },
           staticModels: provider.staticModels || [],
-          getDynamicModels: provider.getDynamicModels,
           getApiKeyLink: provider.getApiKeyLink,
           labelForGetApiKey: provider.labelForGetApiKey,
           icon: provider.icon,

@@ -19,7 +19,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import type { IProviderSetting, IProviderConfig } from '~/types/model';
-import type { UIProviderInfo } from '~/lib/modules/llm/types';
+import type { UIProviderInfoLite as UIProviderInfo } from '~/types/model';
 import type { TabWindowConfig } from '~/components/@settings/core/types';
 import { logStore } from '~/lib/stores/logs';
 import { getLocalStorage, setLocalStorage } from '~/lib/persistence';
@@ -95,7 +95,7 @@ export function useSettings(): UseSettingsReturn {
   useEffect(() => {
     const active = Object.entries(providers)
       .filter(([_key, provider]) => provider.settings.enabled)
-      .map(([_k, p]) => p);
+      .map(([_k, p]) => p as UIProviderInfo);
 
     setActiveProviders(active);
   }, [providers]);

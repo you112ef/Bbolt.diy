@@ -305,7 +305,7 @@ const performAIInference = async (
     // Try Ollama provider if available
     if (OllamaProvider) {
       try {
-        const llmManager = useMemo(() => new LLMManager(), []);
+        const llmManager = useMemo(() => LLMManager.getInstance(import.meta.env), []);
         const ollama = new OllamaProvider({ baseURL: 'http://127.0.0.1:11434' });
         
         // Check if Ollama is available
@@ -1715,7 +1715,7 @@ export const AIAgentsChat: React.FC<AIAgentsChatProps> = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const files = useStore(workbenchStore.files);
   const availableModels = useAIModels();
-  const llmManager = useMemo(() => new LLMManager(), []);
+  const llmManager = useMemo(() => LLMManager.getInstance(import.meta.env), []);
 
   useEffect(() => {
     // Initialize local AI providers on component mount

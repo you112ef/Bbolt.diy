@@ -12,12 +12,17 @@ export async function action({ request, params }: { request: Request; params: { 
     deleteAgent(params.id);
     return json({ ok: true });
   }
-  const body = await request.json();
+  const body = (await request.json()) as {
+    name?: string;
+    description?: string;
+    systemPrompt?: string;
+    tools?: string[];
+  };
   const agent = upsertAgent({
     id: params.id,
-    name: body.name,
-    description: body.description,
-    systemPrompt: body.systemPrompt,
+    name: body.name || '',
+    description: body.description || '',
+    systemPrompt: body.systemPrompt || '',
     tools: body.tools || [],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

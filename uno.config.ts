@@ -241,6 +241,14 @@ export default defineConfig({
       warn: true,
       collections: {
         ...customIconCollection,
+        si: () => import('@iconify-json/simple-icons/icons.json').then((i) => i.default),
+        ph: async () => {
+          const iconsJson = (await import('@iconify-json/ph/icons.json')).default as any;
+          if (iconsJson?.icons && iconsJson.icons['funnel-duotone'] && !iconsJson.icons['filter-duotone']) {
+            iconsJson.icons['filter-duotone'] = iconsJson.icons['funnel-duotone'];
+          }
+          return iconsJson;
+        },
       },
       unit: 'em',
     }),

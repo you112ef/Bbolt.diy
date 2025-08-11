@@ -20,7 +20,7 @@ export default function KnowledgeRoute() {
 
   const refresh = async (q?: string) => {
     const res = await fetch(`/api/kb/search${q ? `?q=${encodeURIComponent(q)}` : ''}`);
-    const data = await res.json();
+    const data = (await res.json()) as { docs?: DocItem[]; results?: SearchResult[] };
     setDocs(data.docs || []);
     setResults(data.results || []);
   };

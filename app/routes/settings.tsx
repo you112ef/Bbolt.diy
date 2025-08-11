@@ -17,7 +17,7 @@ export default function SettingsRoute() {
       <Header />
       <div className="px-4 py-2 text-center text-sm text-bolt-elements-textSecondary">إعدادات المنصة والمزوّدات</div>
       <div className="flex-1">
-        <ClientOnly fallback={<BaseChat />}>{() => <ControlPanel open={true} onClose={() => {}} />}</ClientOnly>
+        <ClientOnly fallback={<BaseChat />}>{() => <ControlPanel open={true} onClose={() => undefined} />}</ClientOnly>
       </div>
     </div>
   );

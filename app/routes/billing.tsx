@@ -21,7 +21,7 @@ export default function BillingRoute() {
         setTotals(d.totals);
         setEvents(d.events);
       })
-      .catch(() => {});
+      .catch(() => undefined);
   }, []);
 
   return (

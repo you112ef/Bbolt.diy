@@ -7,10 +7,12 @@ export const onRequest: PagesFunction = async (context) => {
 
     // Prefer build colocated with functions (Cloudflare Pages bundle)
     try {
-      serverBuild = (await import('./build/server')) as unknown as ServerBuild;
+      const localPath = `./build/server`;
+      serverBuild = (await import(localPath)) as unknown as ServerBuild;
     } catch {
       // Fallback to repo-root build (local/dev)
-      serverBuild = (await import('../build/server')) as unknown as ServerBuild;
+      const repoRootPath = `../build/server`;
+      serverBuild = (await import(repoRootPath)) as unknown as ServerBuild;
     }
 
     const handler = createPagesFunctionHandler({ build: serverBuild });

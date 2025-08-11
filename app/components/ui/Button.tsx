@@ -59,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    const [isPressed, setIsPressed] = React.useState<boolean>(() => false);
+    /* no pressed state */
     const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
     const [isMobile, setIsMobile] = React.useState(false);
 
@@ -92,7 +92,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handleTouchStart = React.useCallback(
       (e: React.TouchEvent<HTMLButtonElement>) => {
-        setIsPressed(true);
+        /* noop */
         triggerHaptic();
 
         if (onLongPress) {
@@ -108,7 +108,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handleTouchEnd = React.useCallback(
       (e: React.TouchEvent<HTMLButtonElement>) => {
-        setIsPressed(false);
+        /* noop */
 
         if (longPressTimerRef.current) {
           clearTimeout(longPressTimerRef.current);

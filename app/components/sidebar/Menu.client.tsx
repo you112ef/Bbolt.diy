@@ -168,7 +168,7 @@ export const Menu = () => {
       for (const id of itemsToDeleteIds) {
         try {
           await deleteChat(id);
-          deletedCount++;
+          _deletedCount++;
 
           if (id === currentChatId) {
             shouldNavigate = true;
@@ -190,6 +190,7 @@ export const Menu = () => {
 
       // Reload the list after all deletions
       await loadEntries();
+      console.debug(`Bulk deleted ${_deletedCount} chats`);
 
       // Clear selection state
       setSelectedItems([]);

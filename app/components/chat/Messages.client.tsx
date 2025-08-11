@@ -10,7 +10,6 @@ import { toast } from 'react-toastify';
 import { forwardRef } from 'react';
 import type { ForwardedRef } from 'react';
 
-
 interface MessagesProps {
   id?: string;
   className?: string;

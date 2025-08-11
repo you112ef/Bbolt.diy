@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react';
 import { workbenchStore } from '~/lib/stores/workbench';
-import { useState } from 'react';
 import { streamingState } from '~/lib/stores/streaming';
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
 import { useChatHistory } from '~/lib/persistence';
@@ -12,9 +11,7 @@ interface HeaderActionButtonsProps {
 }
 
 export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
-  const [activePreviewIndex] = useState(0);
-  const previews = useStore(workbenchStore.previews);
-  // const activePreview = previews[activePreviewIndex];
+  // const activePreview = useStore(workbenchStore.previews)[0];
   const isStreaming = useStore(streamingState);
   const { exportChat } = useChatHistory();
   const { showChat } = useStore(chatStore);

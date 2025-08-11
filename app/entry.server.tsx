@@ -25,7 +25,7 @@ export default async function handleRequest(
     selectedLang = prefersArabic ? 'ar' : 'en';
   }
 
-  const dir = 'ltr';
+  /* dir removed */
 
   // Dynamically import server renderer to avoid CJS named export issue in Vite
   const reactDomServer: any = await import('react-dom/server');

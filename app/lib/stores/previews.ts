@@ -179,42 +179,48 @@ export class PreviewsStore {
     const webcontainer = await this.#webcontainer;
 
     // Listen for server ready events (browser only)
-    (webcontainer as unknown as { on?: Function }).on?.('server-ready', (port: number, url: string) => {
-      console.log('[Preview] Server ready on port:', port, url);
-      this.broadcastUpdate(url);
+    (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
+      'server-ready',
+      (port: number, url: string) => {
+        console.log('[Preview] Server ready on port:', port, url);
+        this.broadcastUpdate(url);
 
-      // Initial storage sync when preview is ready
-      this._broadcastStorageSync();
-    });
+        // Initial storage sync when preview is ready
+        this._broadcastStorageSync();
+      },
+    );
 
     // Listen for port events (browser only)
-    (webcontainer as unknown as { on?: Function }).on?.('port', (port: number, type: 'open' | 'close', url: string) => {
-      let previewInfo = this.#availablePreviews.get(port);
+    (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
+      'port',
+      (port: number, type: 'open' | 'close', url: string) => {
+        let previewInfo = this.#availablePreviews.get(port);
 
-      if (type === 'close' && previewInfo) {
-        this.#availablePreviews.delete(port);
-        this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
+        if (type === 'close' && previewInfo) {
+          this.#availablePreviews.delete(port);
+          this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
 
-        return;
-      }
+          return;
+        }
 
-      const previews = this.previews.get();
+        const previews = this.previews.get();
 
-      if (!previewInfo) {
-        previewInfo = { port, ready: type === 'open', baseUrl: url };
-        this.#availablePreviews.set(port, previewInfo);
-        previews.push(previewInfo);
-      }
+        if (!previewInfo) {
+          previewInfo = { port, ready: type === 'open', baseUrl: url };
+          this.#availablePreviews.set(port, previewInfo);
+          previews.push(previewInfo);
+        }
 
-      previewInfo.ready = type === 'open';
-      previewInfo.baseUrl = url;
+        previewInfo.ready = type === 'open';
+        previewInfo.baseUrl = url;
 
-      this.previews.set([...previews]);
+        this.previews.set([...previews]);
 
-      if (type === 'open') {
-        this.broadcastUpdate(url);
-      }
-    });
+        if (type === 'open') {
+          this.broadcastUpdate(url);
+        }
+      },
+    );
   }
 
   // Helper to extract preview ID from URL

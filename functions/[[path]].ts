@@ -1,21 +1,13 @@
 import type { ServerBuild } from '@remix-run/cloudflare';
 import { createPagesFunctionHandler } from '@remix-run/cloudflare-pages';
+import * as build from 'virtual:remix/server-build';
 
 export const onRequest: PagesFunction = async (context) => {
   try {
-    let serverBuild: ServerBuild | undefined;
-
-    // Prefer build colocated with functions (Cloudflare Pages bundle)
-    try {
-      const localPath = `./build/server`;
-      serverBuild = (await import(localPath)) as unknown as ServerBuild;
-    } catch {
-      // Fallback to repo-root build (local/dev)
-      const repoRootPath = `../build/server`;
-      serverBuild = (await import(repoRootPath)) as unknown as ServerBuild;
-    }
-
-    const handler = createPagesFunctionHandler({ build: serverBuild });
+    const handler = createPagesFunctionHandler({
+      build: build as unknown as ServerBuild,
+      mode: (import.meta as any).env?.MODE || 'production',
+    });
 
     try {
       return await handler(context);
@@ -25,7 +17,7 @@ export const onRequest: PagesFunction = async (context) => {
     }
   } catch (err) {
     console.error(
-      '[Worker] Failed to load server build. Did the Pages build run remix vite:build?',
+      '[Worker] Failed to load server build via virtual:remix/server-build',
       (err as any)?.stack || err,
     );
     return new Response('Internal Error (server build missing)', { status: 500 });

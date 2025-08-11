@@ -72,6 +72,7 @@ export default function WebContainerPreview() {
     broadcastChannelRef.current = createChannel(PREVIEW_CHANNEL);
 
     // Listen for preview updates
+<<<<<<< HEAD
     if (broadcastChannelRef.current) {
       broadcastChannelRef.current.onmessage = (event) => {
         const data = (event as MessageEvent & { data: any }).data;
@@ -82,6 +83,14 @@ export default function WebContainerPreview() {
           if (type === 'refresh-preview' || type === 'file-change') {
             handleRefresh();
           }
+=======
+    broadcastChannelRef.current.onmessage = (event) => {
+      const data = (event as MessageEvent & { data: any }).data;
+
+      if (data.previewId === previewId) {
+        if (data.type === 'refresh-preview' || data.type === 'file-change') {
+          handleRefresh();
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         }
       };
     }

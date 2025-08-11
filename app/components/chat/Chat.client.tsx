@@ -15,7 +15,11 @@ import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
 import { debounce } from '~/utils/debounce';
 import { useSettings } from '~/lib/hooks/useSettings';
+<<<<<<< HEAD
 import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
+=======
+import type { ProviderInfo } from '~/lib/modules/llm/types';
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 import { useSearchParams } from '@remix-run/react';
 import { createSampler } from '~/utils/sampler';
 import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';

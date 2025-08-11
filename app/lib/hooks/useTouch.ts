@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Touch gesture types
-type GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';
+/*
+ *Touch gesture types
+ *type GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';
+ */
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 type HapticType = 'light' | 'medium' | 'heavy';
 
@@ -75,13 +77,21 @@ export const useTouch = (
       }
 
       if ('Haptics' in window && (window as any).Haptics) {
+<<<<<<< HEAD
         const Haptics = (window as any).Haptics;
+=======
+        const haptics = (window as any).Haptics;
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         const styles = {
           light: 'LIGHT',
           medium: 'MEDIUM',
           heavy: 'HEAVY',
         };
+<<<<<<< HEAD
         Haptics.impact({ style: styles[type] });
+=======
+        haptics.impact({ style: styles[type] });
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
       } else if ('vibrate' in navigator) {
         const patterns = {
           light: [10],

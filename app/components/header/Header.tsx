@@ -19,6 +19,7 @@ export function Header() {
         },
       )}
     >
+<<<<<<< HEAD
       <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer enhanced-header">
         <div className="i-ph:sidebar-simple-duotone text-xl opacity-80 hover:opacity-100 transition-opacity" />
         <a href="/" className="header-title text-accent flex items-center hover:opacity-90 transition-opacity">
@@ -29,6 +30,13 @@ export function Header() {
             fetchPriority="high"
             decoding="async"
           />
+=======
+      <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer">
+        <div className="i-ph:sidebar-simple-duotone text-2xl" />
+        <a href="/" className="text-2xl font-semibold text-accent flex items-center">
+          <img src="/logo-light-styled.png" alt="logo" className="h-20 w-auto inline-block dark:hidden" />
+          <img src="/logo-dark-styled.png" alt="logo" className="h-20 w-auto inline-block hidden dark:block" />
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         </a>
       </div>
       {chat.started && (

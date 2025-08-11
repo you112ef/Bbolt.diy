@@ -38,9 +38,13 @@
     "**/.client/**/*.tsx"
   ],
   "exclude": [
+<<<<<<< HEAD
     "node_modules",
     "enhanced/**",
     "electron/**",
     "android/**"
+=======
+    "enhanced/**"
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
   ]
 }

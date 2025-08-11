@@ -17,7 +17,11 @@ import styles from './BaseChat.module.scss';
 import { ImportButtons } from '~/components/chat/chatExportAndImport/ImportButtons';
 import { ExamplePrompts } from '~/components/chat/ExamplePrompts';
 import GitCloneButton from './GitCloneButton';
+<<<<<<< HEAD
 import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
+=======
+import type { ProviderInfo } from '~/lib/modules/llm/types';
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
@@ -54,7 +58,11 @@ interface BaseChatProps {
   setModel?: (model: string) => void;
   provider?: UIProviderInfo;
   setProvider?: (provider: UIProviderInfo) => void;
+<<<<<<< HEAD
   providerList?: UIProviderInfo[];
+=======
+  providerList?: (UIProviderInfo | import('~/types/model').UIProviderInfoLite)[];
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;

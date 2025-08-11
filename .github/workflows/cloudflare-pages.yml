@@ -2,6 +2,7 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
+<<<<<<< HEAD
     branches:
       - main
   pull_request:
@@ -10,10 +11,20 @@ permissions:
   contents: read
   deployments: write
   pull-requests: write
+=======
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+<<<<<<< HEAD
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -48,11 +59,36 @@ jobs:
       - name: Build
         env:
           NODE_ENV: production
+=======
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Build
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         run: pnpm run build
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
+<<<<<<< HEAD
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
@@ -61,3 +97,11 @@ jobs:
           wranglerVersion: '4'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+=======
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          projectName: ${{ secrets.CF_PAGES_PROJECT }}
+          directory: build/client
+          branch: ${{ github.ref_name }}
+          wranglerVersion: '3'
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe

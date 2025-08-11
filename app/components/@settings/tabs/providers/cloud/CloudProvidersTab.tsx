@@ -70,7 +70,6 @@ const CloudProvidersTab = () => {
         name: key,
         settings: value.settings,
         staticModels: value.staticModels || [],
-        getDynamicModels: value.getDynamicModels,
         getApiKeyLink: value.getApiKeyLink,
         labelForGetApiKey: value.labelForGetApiKey,
         icon: value.icon,

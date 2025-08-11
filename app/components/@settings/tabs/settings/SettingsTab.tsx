@@ -5,6 +5,7 @@ import { classNames } from '~/utils/classNames';
 import { Switch } from '~/components/ui/Switch';
 import type { UserProfile } from '~/components/@settings/core/types';
 import { isMac } from '~/utils/os';
+import { useI18n } from '~/lib/i18n';
 
 // Helper to get modifier key symbols/text
 const getModifierSymbol = (modifier: string): string => {
@@ -21,6 +22,7 @@ const getModifierSymbol = (modifier: string): string => {
 };
 
 export default function SettingsTab() {
+  const { language, setLanguage, t } = useI18n();
   const [currentTimezone, setCurrentTimezone] = useState('');
   const [settings, setSettings] = useState<UserProfile>(() => {
     const saved = localStorage.getItem('bolt_user_profile');
@@ -28,7 +30,7 @@ export default function SettingsTab() {
       ? JSON.parse(saved)
       : {
           notifications: true,
-          language: 'en',
+          language: language || 'ar',
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         };
   });
@@ -52,10 +54,10 @@ export default function SettingsTab() {
       };
 
       localStorage.setItem('bolt_user_profile', JSON.stringify(updatedProfile));
-      toast.success('Settings updated');
+      toast.success(t('settings.updated') || 'Settings updated');
     } catch (error) {
       console.error('Error saving settings:', error);
-      toast.error('Failed to update settings');
+      toast.error(t('settings.updateFailed') || 'Failed to update settings');
     }
   }, [settings]);
 
@@ -69,18 +71,29 @@ export default function SettingsTab() {
         transition={{ delay: 0.1 }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:palette-fill w-4 h-4 text-purple-500" />
-          <span className="text-sm font-medium text-bolt-elements-textPrimary">Preferences</span>
+          <div className="i-ph:palette-fill w-4 h-4 text-yellow-500" />
+          <span className="text-sm font-medium text-bolt-elements-textPrimary">
+            {t('settings.preferences') || 'Preferences'}
+          </span>
         </div>
 
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="i-ph:translate-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Language</label>
+            <label className="block text-sm text-bolt-elements-textSecondary">
+              {t('settings.language') || 'Language'}
+            </label>
           </div>
           <select
             value={settings.language}
-            onChange={(e) => setSettings((prev) => ({ ...prev, language: e.target.value }))}
+            onChange={(e) => {
+              const newLang = e.target.value;
+              setSettings((prev) => ({ ...prev, language: newLang }));
+
+              if (newLang === 'ar' || newLang === 'en') {
+                setLanguage(newLang as 'ar' | 'en');
+              }
+            }}
             className={classNames(
               'w-full px-3 py-2 rounded-lg text-sm',
               'bg-[#FAFAFA] dark:bg-[#0A0A0A]',
@@ -91,6 +104,7 @@ export default function SettingsTab() {
             )}
           >
             <option value="en">English</option>
+            <option value="ar">العربية</option>
             <option value="es">Español</option>
             <option value="fr">Français</option>
             <option value="de">Deutsch</option>
@@ -106,11 +120,15 @@ export default function SettingsTab() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="i-ph:bell-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Notifications</label>
+            <label className="block text-sm text-bolt-elements-textSecondary">
+              {t('settings.notifications') || 'Notifications'}
+            </label>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-bolt-elements-textSecondary">
-              {settings.notifications ? 'Notifications are enabled' : 'Notifications are disabled'}
+              {settings.notifications
+                ? t('settings.notificationsEnabled') || 'Notifications are enabled'
+                : t('settings.notificationsDisabled') || 'Notifications are disabled'}
             </span>
             <Switch
               checked={settings.notifications}
@@ -134,7 +152,11 @@ export default function SettingsTab() {
                   }),
                 );
 
-                toast.success(`Notifications ${checked ? 'enabled' : 'disabled'}`);
+                toast.success(
+                  checked
+                    ? t('settings.notificationsEnabled') || 'Notifications are enabled'
+                    : t('settings.notificationsDisabled') || 'Notifications are disabled',
+                );
               }}
             />
           </div>
@@ -149,14 +171,18 @@ export default function SettingsTab() {
         transition={{ delay: 0.2 }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:clock-fill w-4 h-4 text-purple-500" />
-          <span className="text-sm font-medium text-bolt-elements-textPrimary">Time Settings</span>
+          <div className="i-ph:clock-fill w-4 h-4 text-yellow-500" />
+          <span className="text-sm font-medium text-bolt-elements-textPrimary">
+            {t('settings.time') || 'Time Settings'}
+          </span>
         </div>
 
         <div>
           <div className="flex items-center gap-2 mb-2">
             <div className="i-ph:globe-fill w-4 h-4 text-bolt-elements-textSecondary" />
-            <label className="block text-sm text-bolt-elements-textSecondary">Timezone</label>
+            <label className="block text-sm text-bolt-elements-textSecondary">
+              {t('settings.timezone') || 'Timezone'}
+            </label>
           </div>
           <select
             value={settings.timezone}
@@ -183,15 +209,21 @@ export default function SettingsTab() {
         transition={{ delay: 0.3 }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <div className="i-ph:keyboard-fill w-4 h-4 text-purple-500" />
-          <span className="text-sm font-medium text-bolt-elements-textPrimary">Keyboard Shortcuts</span>
+          <div className="i-ph:keyboard-fill w-4 h-4 text-yellow-500" />
+          <span className="text-sm font-medium text-bolt-elements-textPrimary">
+            {t('settings.shortcuts') || 'Keyboard Shortcuts'}
+          </span>
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between p-2 rounded-lg bg-[#FAFAFA] dark:bg-[#1A1A1A]">
             <div className="flex flex-col">
-              <span className="text-sm text-bolt-elements-textPrimary">Toggle Theme</span>
-              <span className="text-xs text-bolt-elements-textSecondary">Switch between light and dark mode</span>
+              <span className="text-sm text-bolt-elements-textPrimary">
+                {t('settings.toggleTheme') || 'Toggle Theme'}
+              </span>
+              <span className="text-xs text-bolt-elements-textSecondary">
+                {t('settings.toggleThemeHint') || 'Switch between light and dark mode'}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <kbd className="px-2 py-1 text-xs font-semibold text-bolt-elements-textSecondary bg-white dark:bg-[#0A0A0A] border border-[#E5E5E5] dark:border-[#1A1A1A] rounded shadow-sm">

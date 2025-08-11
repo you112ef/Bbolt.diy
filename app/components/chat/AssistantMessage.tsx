@@ -10,9 +10,13 @@ import { ToolInvocations } from './ToolInvocations';
 import ThoughtBox from './ThoughtBox';
 import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import type { Message } from 'ai';
+<<<<<<< HEAD
 import type { ActionAlert, SupabaseAlert, DeployAlert, LlmErrorAlertType } from '~/types/actions';
 import type { DesignScheme } from '~/types/design-scheme';
 import type { ElementInfo } from '~/components/workbench/Inspector';
+=======
+
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 import type {
   TextUIPart,
   ReasoningUIPart,

@@ -12,7 +12,7 @@ declare global {
 interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   close(): void;
-  onmessage: ((event: MessageEvent & { data: any }) => void) | null;
+  onmessage: ((event: MessageEvent & { data: unknown }) => void) | null;
 }
 
 function createBroadcastChannel(name: string): BroadcastChannelLike {
@@ -68,7 +68,7 @@ export class PreviewsStore {
     this.#storageChannel = createBroadcastChannel('storage-sync-channel');
 
     // Listen for preview updates from other tabs
-    this.#broadcastChannel.onmessage = (event) => {
+    this.#broadcastChannel.onmessage = (event: MessageEvent & { data: unknown }) => {
       const { type, previewId } = (event as MessageEvent & { data: any }).data;
 
       if (type === 'file-change') {
@@ -83,7 +83,7 @@ export class PreviewsStore {
     };
 
     // Listen for storage sync messages
-    this.#storageChannel.onmessage = (event) => {
+    this.#storageChannel.onmessage = (event: MessageEvent & { data: unknown }) => {
       const { storage, source } = (event as MessageEvent & { data: any }).data as {
         storage: Record<string, string>;
         source?: string;
@@ -179,42 +179,50 @@ export class PreviewsStore {
     const webcontainer = await this.#webcontainer;
 
     // Listen for server ready events (browser only)
-    (webcontainer as unknown as { on?: Function }).on?.('server-ready', (port: number, url: string) => {
-      console.log('[Preview] Server ready on port:', port, url);
-      this.broadcastUpdate(url);
+    (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
+      'server-ready',
+      (...args: unknown[]) => {
+        const [port, url] = args as [number, string];
+        console.log('[Preview] Server ready on port:', port, url);
+        this.broadcastUpdate(url);
 
-      // Initial storage sync when preview is ready
-      this._broadcastStorageSync();
-    });
+        // Initial storage sync when preview is ready
+        this._broadcastStorageSync();
+      },
+    );
 
     // Listen for port events (browser only)
-    (webcontainer as unknown as { on?: Function }).on?.('port', (port: number, type: 'open' | 'close', url: string) => {
-      let previewInfo = this.#availablePreviews.get(port);
+    (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
+      'port',
+      (...args: unknown[]) => {
+        const [port, type, url] = args as [number, 'open' | 'close', string];
+        let previewInfo = this.#availablePreviews.get(port);
 
-      if (type === 'close' && previewInfo) {
-        this.#availablePreviews.delete(port);
-        this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
+        if (type === 'close' && previewInfo) {
+          this.#availablePreviews.delete(port);
+          this.previews.set(this.previews.get().filter((preview) => preview.port !== port));
 
-        return;
-      }
+          return;
+        }
 
-      const previews = this.previews.get();
+        const previews = this.previews.get();
 
-      if (!previewInfo) {
-        previewInfo = { port, ready: type === 'open', baseUrl: url };
-        this.#availablePreviews.set(port, previewInfo);
-        previews.push(previewInfo);
-      }
+        if (!previewInfo) {
+          previewInfo = { port, ready: type === 'open', baseUrl: url };
+          this.#availablePreviews.set(port, previewInfo);
+          previews.push(previewInfo);
+        }
 
-      previewInfo.ready = type === 'open';
-      previewInfo.baseUrl = url;
+        previewInfo.ready = type === 'open';
+        previewInfo.baseUrl = url;
 
-      this.previews.set([...previews]);
+        this.previews.set([...previews]);
 
-      if (type === 'open') {
-        this.broadcastUpdate(url);
-      }
-    });
+        if (type === 'open') {
+          this.broadcastUpdate(url);
+        }
+      },
+    );
   }
 
   // Helper to extract preview ID from URL

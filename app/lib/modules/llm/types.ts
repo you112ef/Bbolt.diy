@@ -27,6 +27,7 @@ export interface ProviderInfo {
   icon?: string;
 }
 
+<<<<<<< HEAD
 // UI-friendly interface that doesn't require getModelInstance
 export interface UIProviderInfo {
   name: string;
@@ -41,6 +42,9 @@ export interface UIProviderInfo {
   icon?: string;
 }
 
+=======
+export type UIProviderInfo = ProviderInfo;
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 export interface ProviderConfig {
   baseUrlKey?: string;
   baseUrl?: string;

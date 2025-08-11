@@ -1,7 +1,6 @@
 import type { AppLoadContext } from '@remix-run/cloudflare';
 import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';
-import { renderToReadableStream } from 'react-dom/server';
 import { renderHeadToString } from 'remix-island';
 import { Head } from './root';
 
@@ -16,16 +15,46 @@ export default async function handleRequest(
 ) {
   // await initializeModelList({});
 
-  const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
-    signal: request.signal,
-    onError(error: unknown) {
-      console.error(error);
-      responseStatusCode = 500;
-    },
-  });
+  // Determine language and direction (default to Arabic/RTL)
+  const cookies = request.headers.get('cookie') || '';
+  const cookieLangMatch = cookies.match(/(?:^|;)\s*lang=([^;]+)/);
+  let selectedLang = (cookieLangMatch && decodeURIComponent(cookieLangMatch[1])) || '';
+
+  if (!selectedLang) {
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const prefersArabic = /\bar\b|\bar[-_]/i.test(acceptLanguage);
+    selectedLang = prefersArabic ? 'ar' : 'en';
+  }
+
+  /* dir removed */
+
+  // Dynamically import server renderer to avoid CJS named export issue in Vite
+  const reactDomServer: any = await import('react-dom/server');
+
+  const app = <RemixServer context={remixContext} url={request.url} />;
+
+  let appHtml = '';
+
+  try {
+    if (typeof reactDomServer.renderToString === 'function') {
+      appHtml = reactDomServer.renderToString(app);
+    } else if (reactDomServer.default && typeof reactDomServer.default.renderToString === 'function') {
+      appHtml = reactDomServer.default.renderToString(app);
+    } else {
+      throw new Error('renderToString is not available from react-dom/server');
+    }
+  } catch (error) {
+    console.error(error);
+    responseStatusCode = 500;
+  }
+
+  const head = renderHeadToString({ request, remixContext, Head });
+
+  const fullHtml = `<!DOCTYPE html><html lang="${selectedLang}" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">${appHtml}</div></body></html>`;
 
   const body = new ReadableStream({
     start(controller) {
+<<<<<<< HEAD
       const head = renderHeadToString({ request, remixContext, Head });
 
       controller.enqueue(
@@ -62,11 +91,15 @@ export default async function handleRequest(
 
     cancel() {
       readable.cancel();
+=======
+      controller.enqueue(new Uint8Array(new TextEncoder().encode(fullHtml)));
+      controller.close();
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
     },
   });
 
   if (isbot(request.headers.get('user-agent') || '')) {
-    await readable.allReady;
+    // Nothing special when using renderToString
   }
 
   responseHeaders.set('Content-Type', 'text/html');

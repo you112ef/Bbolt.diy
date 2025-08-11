@@ -8,7 +8,12 @@ import { CodeBlock } from './CodeBlock';
 import type { Message } from 'ai';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
+<<<<<<< HEAD
 import type { UIProviderInfo } from '~/lib/modules/llm/types';
+=======
+
+// UIProviderInfo is defined globally via app/types/global.d.ts
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
 const logger = createScopedLogger('MarkdownComponent');
 

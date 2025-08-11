@@ -322,7 +322,11 @@ export default function StripeConnection() {
                   <div
                     className={classNames(
                       'w-10 h-10 rounded-full flex items-center justify-center text-white font-medium',
+<<<<<<< HEAD
                       stats.testMode ? 'bg-orange-500' : 'bg-purple-600',
+=======
+                      stats.testMode ? 'bg-orange-500' : 'bg-sky-600',
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
                     )}
                   >
                     <div className="i-ph:credit-card w-5 h-5" />

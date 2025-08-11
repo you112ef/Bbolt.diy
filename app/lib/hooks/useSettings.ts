@@ -19,7 +19,11 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import type { IProviderSetting, IProviderConfig } from '~/types/model';
+<<<<<<< HEAD
 import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
+=======
+import type { UIProviderInfoLite as UIProviderInfo } from '~/types/model';
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 import type { TabWindowConfig } from '~/components/@settings/core/types';
 import { logStore } from '~/lib/stores/logs';
 import { getLocalStorage, setLocalStorage } from '~/lib/persistence';
@@ -95,6 +99,7 @@ export function useSettings(): UseSettingsReturn {
   useEffect(() => {
     const enabledProviders = Object.entries(providers)
       .filter(([_key, provider]) => provider.settings.enabled)
+<<<<<<< HEAD
       .map(([_name, providerConfig]) => {
         const { name, staticModels, getDynamicModels, getApiKeyLink, labelForGetApiKey, icon } = providerConfig;
         const uiProvider: UIProviderInfo = {
@@ -102,6 +107,9 @@ export function useSettings(): UseSettingsReturn {
           staticModels,
           getDynamicModels: getDynamicModels
             ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
+=======
+      .map(([_k, p]) => p as UIProviderInfo);
+>>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
                 // Adapt legacy signature that expected providerName as first arg
                 getDynamicModels(name, apiKeys, settings, serverEnv)

@@ -35,17 +35,17 @@ const BASE_COLORS = {
     950: '#0A0A0A',
   },
   accent: {
-    50: '#F8F5FF',
-    100: '#F0EBFF',
-    200: '#E1D6FF',
-    300: '#CEBEFF',
-    400: '#B69EFF',
-    500: '#9C7DFF',
-    600: '#8A5FFF',
-    700: '#7645E8',
-    800: '#6234BB',
-    900: '#502D93',
-    950: '#2D1959',
+    50: '#F0F9FF',
+    100: '#E0F2FE',
+    200: '#BAE6FD',
+    300: '#7DD3FC',
+    400: '#38BDF8',
+    500: '#0EA5E9',
+    600: '#0284C7',
+    700: '#0369A1',
+    800: '#075985',
+    900: '#0C4A6E',
+    950: '#082F49',
   },
   green: {
     50: '#F0FDF4',
@@ -241,6 +241,14 @@ export default defineConfig({
       warn: true,
       collections: {
         ...customIconCollection,
+        si: () => import('@iconify-json/simple-icons/icons.json').then((i) => i.default),
+        ph: async () => {
+          const iconsJson = (await import('@iconify-json/ph/icons.json')).default as any;
+          if (iconsJson?.icons && iconsJson.icons['funnel-duotone'] && !iconsJson.icons['filter-duotone']) {
+            iconsJson.icons['filter-duotone'] = iconsJson.icons['funnel-duotone'];
+          }
+          return iconsJson;
+        },
       },
       unit: 'em',
     }),

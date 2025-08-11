@@ -9,7 +9,7 @@ import { forkChat } from '~/lib/persistence/db';
 import { toast } from 'react-toastify';
 import { forwardRef } from 'react';
 import type { ForwardedRef } from 'react';
-import type { ProviderInfo } from '~/types/model';
+
 
 interface MessagesProps {
   id?: string;

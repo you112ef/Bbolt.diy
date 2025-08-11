@@ -21,7 +21,7 @@ const PREVIEW_CHANNEL = 'preview-updates';
 interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   close(): void;
-  onmessage: ((event: MessageEvent & { data: any }) => void) | null;
+  onmessage: ((event: MessageEvent & { data: unknown }) => void) | null;
 }
 
 function createBroadcastChannel(name: string): BroadcastChannelLike {
@@ -68,7 +68,7 @@ export class PreviewsStore {
     this.#storageChannel = createBroadcastChannel('storage-sync-channel');
 
     // Listen for preview updates from other tabs
-    this.#broadcastChannel.onmessage = (event) => {
+    this.#broadcastChannel.onmessage = (event: MessageEvent & { data: unknown }) => {
       const { type, previewId } = (event as MessageEvent & { data: any }).data;
 
       if (type === 'file-change') {
@@ -83,7 +83,7 @@ export class PreviewsStore {
     };
 
     // Listen for storage sync messages
-    this.#storageChannel.onmessage = (event) => {
+    this.#storageChannel.onmessage = (event: MessageEvent & { data: unknown }) => {
       const { storage, source } = (event as MessageEvent & { data: any }).data as {
         storage: Record<string, string>;
         source?: string;

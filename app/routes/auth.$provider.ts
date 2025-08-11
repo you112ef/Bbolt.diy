@@ -1,4 +1,4 @@
-import { redirect, type LoaderFunctionArgs, json } from '@remix-run/cloudflare';
+import { type LoaderFunctionArgs, json } from '@remix-run/cloudflare';
 import {
   buildAuthorizeUrl,
   buildRedirectUri,

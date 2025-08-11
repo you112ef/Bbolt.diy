@@ -14,7 +14,7 @@ interface HeaderActionButtonsProps {
 export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
   const [activePreviewIndex] = useState(0);
   const previews = useStore(workbenchStore.previews);
-  const activePreview = previews[activePreviewIndex];
+  // const activePreview = previews[activePreviewIndex];
   const isStreaming = useStore(streamingState);
   const { exportChat } = useChatHistory();
   const { showChat } = useStore(chatStore);

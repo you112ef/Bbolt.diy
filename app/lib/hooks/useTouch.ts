@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 // Touch gesture types
-type GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';
+// type GestureType = 'tap' | 'longPress' | 'swipe' | 'pinch' | 'pan';
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 type HapticType = 'light' | 'medium' | 'heavy';
 

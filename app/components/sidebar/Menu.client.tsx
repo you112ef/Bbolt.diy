@@ -159,7 +159,7 @@ export const Menu = () => {
 
       console.log(`Starting bulk delete for ${itemsToDeleteIds.length} chats`, itemsToDeleteIds);
 
-      let deletedCount = 0;
+      let _deletedCount = 0;
       const errors: string[] = [];
       const currentChatId = chatId.get();
       let shouldNavigate = false;

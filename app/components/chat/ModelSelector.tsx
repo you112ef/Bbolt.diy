@@ -1,4 +1,4 @@
-import type { ProviderInfo } from '~/types/model';
+
 import { useEffect, useState, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { ModelInfo } from '~/lib/modules/llm/types';

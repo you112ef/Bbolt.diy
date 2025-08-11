@@ -59,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    const [isPressed, setIsPressed] = React.useState(false);
+    const [isPressed, setIsPressed] = React.useState<boolean>(() => false);
     const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
     const [isMobile, setIsMobile] = React.useState(false);
 

@@ -2,8 +2,8 @@
 
 # API routes handled by Cloudflare Pages Functions (no redirects required)
 
-# Handle all other routes with SPA routing (fallback to index.html)
-/* /index.html 200
+# Handle all other routes with SSR via Cloudflare Pages Functions (no SPA fallback)
+# /* /index.html 200
 
 # Legacy redirects if needed
 /bolt/* /:splat 301

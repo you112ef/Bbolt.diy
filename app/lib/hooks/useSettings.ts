@@ -18,7 +18,8 @@ import {
 } from '~/lib/stores/settings';
 import { useCallback, useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
-import type { IProviderSetting, ProviderInfo, IProviderConfig } from '~/types/model';
+import type { IProviderSetting, IProviderConfig } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import type { TabWindowConfig } from '~/components/@settings/core/types';
 import { logStore } from '~/lib/stores/logs';
 import { getLocalStorage, setLocalStorage } from '~/lib/persistence';
@@ -43,7 +44,7 @@ export interface UseSettingsReturn {
 
   // Provider settings
   providers: Record<string, IProviderConfig>;
-  activeProviders: ProviderInfo[];
+  activeProviders: UIProviderInfo[];
   updateProviderSettings: (provider: string, config: IProviderSetting) => void;
 
   // Debug and development settings
@@ -76,7 +77,7 @@ export function useSettings(): UseSettingsReturn {
   const promptId = useStore(promptStore);
   const isLatestBranch = useStore(latestBranchStore);
   const autoSelectTemplate = useStore(autoSelectStarterTemplate);
-  const [activeProviders, setActiveProviders] = useState<ProviderInfo[]>([]);
+  const [activeProviders, setActiveProviders] = useState<UIProviderInfo[]>([]);
   const contextOptimizationEnabled = useStore(enableContextOptimizationStore);
   const tabConfiguration = useStore(tabConfigurationStore);
   const [settings, setSettings] = useState<Settings>(() => {

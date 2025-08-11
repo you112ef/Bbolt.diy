@@ -25,8 +25,13 @@ export default function CustomAISettingsTab() {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+
+    if (!file) {
+      return;
+    }
+
     setIsSaving(true);
+
     try {
       await saveLocalModel(file);
       await refreshLocalModels();
@@ -78,8 +83,15 @@ export default function CustomAISettingsTab() {
 
         <div className="space-y-4">
           <h3 className="text-sm font-medium text-bolt-elements-textPrimary">Local Offline Model</h3>
-          <p className="text-xs text-bolt-elements-textTertiary">Upload a local model file (e.g. GGUF/ONNX) to run offline.</p>
-          <input type="file" onChange={handleUpload} accept=".gguf,.onnx,.bin,.pt,.safetensors,.zip,.tar,.gz" disabled={isSaving} />
+          <p className="text-xs text-bolt-elements-textTertiary">
+            Upload a local model file (e.g. GGUF/ONNX) to run offline.
+          </p>
+          <input
+            type="file"
+            onChange={handleUpload}
+            accept=".gguf,.onnx,.bin,.pt,.safetensors,.zip,.tar,.gz"
+            disabled={isSaving}
+          />
 
           <div className="space-y-2">
             <h4 className="text-xs font-medium text-bolt-elements-textSecondary">Saved Models</h4>
@@ -88,12 +100,20 @@ export default function CustomAISettingsTab() {
             ) : (
               <ul className="space-y-2">
                 {localModels.map((m) => (
-                  <li key={m.id} className="flex items-center justify-between p-2 rounded border border-bolt-elements-borderColor">
+                  <li
+                    key={m.id}
+                    className="flex items-center justify-between p-2 rounded border border-bolt-elements-borderColor"
+                  >
                     <div className="text-xs">
                       <div className="font-medium text-bolt-elements-textPrimary">{m.name}</div>
                       <div className="text-bolt-elements-textTertiary">{(m.size / (1024 * 1024)).toFixed(1)} MB</div>
                     </div>
-                    <button onClick={() => handleRemove(m.id)} className="px-2 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-xs">Remove</button>
+                    <button
+                      onClick={() => handleRemove(m.id)}
+                      className="px-2 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-xs"
+                    >
+                      Remove
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -105,13 +125,22 @@ export default function CustomAISettingsTab() {
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-bolt-elements-textPrimary">Free Provider Integrations</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <a href="/auth/vercel?mode=start" className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2">
+          <a
+            href="/auth/vercel?mode=start"
+            className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2"
+          >
             <span className="i-ph:rocket w-4 h-4 text-yellow-500" /> Connect Vercel (Hobby)
           </a>
-          <a href="/auth/netlify?mode=start" className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2">
+          <a
+            href="/auth/netlify?mode=start"
+            className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2"
+          >
             <span className="i-ph:cloud w-4 h-4 text-yellow-500" /> Connect Netlify (Free tier)
           </a>
-          <a href="/auth/github?mode=start" className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2">
+          <a
+            href="/auth/github?mode=start"
+            className="p-3 rounded-lg border border-bolt-elements-borderColor hover:bg-bolt-elements-background-depth-2 flex items-center gap-2"
+          >
             <span className="i-ph:github-logo w-4 h-4 text-yellow-500" /> Connect GitHub
           </a>
         </div>

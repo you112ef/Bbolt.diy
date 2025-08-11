@@ -50,9 +50,11 @@ export default function WebContainerPreview() {
       // SSR/Workers: skip BroadcastChannel usage
       const url = `https://${previewId}.local-credentialless.webcontainer-api.io`;
       setPreviewUrl(url);
+
       if (iframeRef.current) {
         iframeRef.current.src = url;
       }
+
       return;
     }
 
@@ -62,6 +64,7 @@ export default function WebContainerPreview() {
     // Listen for preview updates
     broadcastChannelRef.current.onmessage = (event) => {
       const data = (event as MessageEvent & { data: any }).data;
+
       if (data.previewId === previewId) {
         if (data.type === 'refresh-preview' || data.type === 'file-change') {
           handleRefresh();

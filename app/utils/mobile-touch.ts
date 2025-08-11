@@ -59,19 +59,25 @@ class MobileTouchManager {
 
     // Prevent double-tap zoom
     let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e: Event) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        (e as TouchEvent).preventDefault();
-      }
-      lastTouchEnd = now;
-    }, { passive: false });
+    document.addEventListener(
+      'touchend',
+      (e: Event) => {
+        const now = Date.now();
+
+        if (now - lastTouchEnd <= 300) {
+          (e as TouchEvent).preventDefault();
+        }
+
+        lastTouchEnd = now;
+      },
+      { passive: false },
+    );
   }
 
   private handleTouchStart(e: TouchEvent): void {
     const touch = e.touches[0];
     const target = e.target as Element;
-    
+
     const touchData: TouchEventData = {
       startX: touch.clientX,
       startY: touch.clientY,
@@ -100,11 +106,13 @@ class MobileTouchManager {
   private handleTouchMove(e: TouchEvent): void {
     const touch = e.touches[0];
     const touchData = this.touchData.get(touch.identifier);
-    
-    if (!touchData) return;
+
+    if (!touchData) {
+      return;
+    }
 
     const target = e.target as Element;
-    
+
     touchData.currentX = touch.clientX;
     touchData.currentY = touch.clientY;
     touchData.deltaX = touchData.currentX - touchData.startX;
@@ -135,8 +143,10 @@ class MobileTouchManager {
   private handleTouchEnd(e: TouchEvent): void {
     const touch = e.changedTouches[0];
     const touchData = this.touchData.get(touch.identifier);
-    
-    if (!touchData) return;
+
+    if (!touchData) {
+      return;
+    }
 
     const target = e.target as Element;
     const endTime = Date.now();
@@ -146,9 +156,10 @@ class MobileTouchManager {
     touchData.velocity = touchData.distance / touchData.duration;
 
     // Determine if it's a swipe
-    touchData.isSwipe = touchData.distance > this.config.threshold && 
-                       touchData.velocity > this.config.velocity &&
-                       touchData.duration < this.config.timeLimit;
+    touchData.isSwipe =
+      touchData.distance > this.config.threshold &&
+      touchData.velocity > this.config.velocity &&
+      touchData.duration < this.config.timeLimit;
 
     // Handle swipe end
     if (target.classList.contains('swipeable') && touchData.isSwipe) {
@@ -173,7 +184,7 @@ class MobileTouchManager {
   private handleTouchCancel(e: TouchEvent): void {
     const touch = e.changedTouches[0];
     const target = e.target as Element;
-    
+
     this.cancelLongPress(target);
     this.touchData.delete(touch.identifier);
   }
@@ -190,16 +201,18 @@ class MobileTouchManager {
 
   private cancelLongPress(element: Element): void {
     const timer = this.longPressTimers.get(element);
+
     if (timer) {
       clearTimeout(timer);
       this.longPressTimers.delete(element);
     }
+
     element.classList.remove('long-pressing');
   }
 
   private handleSwipeMove(element: Element, touchData: TouchEventData): void {
     const { deltaX, deltaY } = touchData;
-    
+
     // Add visual feedback during swipe
     if (Math.abs(deltaX) > 20) {
       if (deltaX > 0) {
@@ -214,16 +227,16 @@ class MobileTouchManager {
 
   private handleSwipeEnd(element: Element, touchData: TouchEventData): void {
     const { direction, velocity, distance } = touchData;
-    
+
     // Trigger haptic feedback
     this.triggerHaptic('medium', element);
-    
+
     // Dispatch swipe event
-    this.dispatchCustomEvent(element, 'swipe', { 
-      direction, 
-      velocity, 
+    this.dispatchCustomEvent(element, 'swipe', {
+      direction,
+      velocity,
       distance,
-      touchData 
+      touchData,
     });
 
     // Reset visual state
@@ -235,11 +248,14 @@ class MobileTouchManager {
   }
 
   private triggerHaptic(type: 'light' | 'medium' | 'heavy', element?: Element): void {
-    if (!this.hapticSupported) return;
+    if (!this.hapticSupported) {
+      return;
+    }
 
     // Use Capacitor Haptics if available
     if ('Haptics' in window && (window as any).Haptics) {
       const Haptics = (window as any).Haptics;
+
       switch (type) {
         case 'light':
           Haptics.impact({ style: 'LIGHT' });
@@ -251,7 +267,7 @@ class MobileTouchManager {
           Haptics.impact({ style: 'HEAVY' });
           break;
       }
-    } 
+    }
     // Fallback to vibration API
     else if ('vibrate' in navigator) {
       const patterns = {
@@ -279,12 +295,15 @@ class MobileTouchManager {
   }
 
   // Public methods
-  public enableSwipe(element: Element, options?: { 
-    onSwipe?: (direction: string, velocity: number) => void;
-    threshold?: number;
-  }): void {
+  enableSwipe(
+    element: Element,
+    options?: {
+      onSwipe?: (direction: string, velocity: number) => void;
+      threshold?: number;
+    },
+  ): void {
     element.classList.add('swipeable');
-    
+
     if (options?.onSwipe) {
       element.addEventListener('swipe', (e: any) => {
         options.onSwipe!(e.detail.direction, e.detail.velocity);
@@ -292,17 +311,17 @@ class MobileTouchManager {
     }
   }
 
-  public enableLongPress(element: Element, callback?: () => void): void {
+  enableLongPress(element: Element, callback?: () => void): void {
     element.classList.add('long-pressable');
-    
+
     if (callback) {
       element.addEventListener('long-press', callback);
     }
   }
 
-  public addTouchFeedback(element: Element): void {
+  addTouchFeedback(element: Element): void {
     element.classList.add('touch-target');
-    
+
     // Add active state handling
     element.addEventListener('touchstart', (e) => {
       element.classList.add('touch-active');
@@ -318,7 +337,7 @@ class MobileTouchManager {
     });
   }
 
-  public enablePullToRefresh(element: Element, callback: () => Promise<void>): void {
+  enablePullToRefresh(element: Element, callback: () => Promise<void>): void {
     let startY = 0;
     let currentY = 0;
     let isPulling = false;
@@ -331,9 +350,13 @@ class MobileTouchManager {
 
     element.addEventListener('touchmove', ((e: Event) => {
       const te = e as TouchEvent;
-      if (!isPulling) return;
+
+      if (!isPulling) {
+        return;
+      }
 
       currentY = te.touches[0].clientY;
+
       const deltaY = currentY - startY;
 
       if (deltaY > 0 && deltaY < 100) {
@@ -343,11 +366,15 @@ class MobileTouchManager {
     }) as EventListener);
 
     element.addEventListener('touchend', (async () => {
-      if (!isPulling) return;
+      if (!isPulling) {
+        return;
+      }
 
       const deltaY = currentY - startY;
+
       if (deltaY > 60) {
         this.triggerHaptic('medium', element);
+
         try {
           await callback();
         } finally {
@@ -356,6 +383,7 @@ class MobileTouchManager {
       } else {
         element.classList.remove('pulling');
       }
+
       isPulling = false;
     }) as EventListener);
   }
@@ -369,13 +397,16 @@ export function initializeMobileTouch(config?: Partial<GestureConfig>): MobileTo
 export function optimizeForTouch(): void {
   // Add mobile-optimized viewport
   let viewport = document.querySelector('meta[name="viewport"]');
+
   if (!viewport) {
     viewport = document.createElement('meta');
     viewport.setAttribute('name', 'viewport');
     document.head.appendChild(viewport);
   }
-  viewport.setAttribute('content', 
-    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+
+  viewport.setAttribute(
+    'content',
+    'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
   );
 
   // Prevent selection on touch
@@ -394,9 +425,11 @@ export function optimizeForTouch(): void {
 }
 
 export function isMobileDevice(): boolean {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-         ('ontouchstart' in window) ||
-         (navigator.maxTouchPoints > 0);
+  return (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0
+  );
 }
 
 export function isLandscape(): boolean {
@@ -405,8 +438,15 @@ export function isLandscape(): boolean {
 
 export function getScreenSize(): 'small' | 'medium' | 'large' {
   const width = window.innerWidth;
-  if (width < 640) return 'small';
-  if (width < 1024) return 'medium';
+
+  if (width < 640) {
+    return 'small';
+  }
+
+  if (width < 1024) {
+    return 'medium';
+  }
+
   return 'large';
 }
 

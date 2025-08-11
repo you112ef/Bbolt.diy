@@ -9,8 +9,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-interface DocItem { id: string; name: string; size: number; type: string; createdAt: string }
-interface SearchResult { id: string; score: number; snippet: string; name: string }
+interface DocItem {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  createdAt: string;
+}
+interface SearchResult {
+  id: string;
+  score: number;
+  snippet: string;
+  name: string;
+}
 
 export default function KnowledgeRoute() {
   const [docs, setDocs] = useState<DocItem[]>([]);
@@ -25,10 +36,13 @@ export default function KnowledgeRoute() {
     setResults(data.results || []);
   };
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, []);
 
   const onUpload = async (file: File) => {
     setUploading(true);
+
     try {
       const form = new FormData();
       form.append('file', file);
@@ -63,7 +77,9 @@ export default function KnowledgeRoute() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && refresh(query)}
           />
-          <button className="px-3 py-2 bg-blue-600 rounded" onClick={() => refresh(query)}>بحث</button>
+          <button className="px-3 py-2 bg-blue-600 rounded" onClick={() => refresh(query)}>
+            بحث
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -72,8 +88,12 @@ export default function KnowledgeRoute() {
             <ul className="space-y-2">
               {docs.map((d) => (
                 <li key={d.id} className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate">{d.name} <span className="opacity-60">({d.size}B)</span></span>
-                  <button className="text-red-400" onClick={() => onDelete(d.id)}>حذف</button>
+                  <span className="truncate">
+                    {d.name} <span className="opacity-60">({d.size}B)</span>
+                  </span>
+                  <button className="text-red-400" onClick={() => onDelete(d.id)}>
+                    حذف
+                  </button>
                 </li>
               ))}
               {docs.length === 0 && <li className="opacity-60">لا توجد وثائق بعد</li>}
@@ -85,7 +105,9 @@ export default function KnowledgeRoute() {
             <ul className="space-y-2">
               {results.map((r) => (
                 <li key={r.id} className="text-sm">
-                  <div className="font-medium">{r.name} <span className="opacity-60">— {r.score.toFixed(2)}</span></div>
+                  <div className="font-medium">
+                    {r.name} <span className="opacity-60">— {r.score.toFixed(2)}</span>
+                  </div>
                   <div className="opacity-70 whitespace-pre-wrap">{r.snippet}</div>
                 </li>
               ))}

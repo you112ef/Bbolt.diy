@@ -3,7 +3,11 @@ import { getAgent, upsertAgent, deleteAgent } from '~/lib/persistence/agentsStor
 
 export async function loader({ params }: { params: { id: string } }) {
   const agent = getAgent(params.id);
-  if (!agent) return json({ error: 'not found' }, { status: 404 });
+
+  if (!agent) {
+    return json({ error: 'not found' }, { status: 404 });
+  }
+
   return json({ agent });
 }
 
@@ -12,6 +16,7 @@ export async function action({ request, params }: { request: Request; params: { 
     deleteAgent(params.id);
     return json({ ok: true });
   }
+
   const body = (await request.json()) as {
     name?: string;
     description?: string;
@@ -27,5 +32,6 @@ export async function action({ request, params }: { request: Request; params: { 
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+
   return json({ agent });
 }

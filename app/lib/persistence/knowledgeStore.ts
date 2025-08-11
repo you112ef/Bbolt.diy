@@ -12,9 +12,11 @@ export type KnowledgeStore = {
 };
 
 const g = globalThis as any;
+
 if (!g.__knowledgeStoreV2) {
   g.__knowledgeStoreV2 = { docs: new Map<string, KnowledgeDocument>() } as KnowledgeStore;
 }
+
 const store: KnowledgeStore = g.__knowledgeStoreV2 as KnowledgeStore;
 
 export async function addDocument(doc: KnowledgeDocument) {
@@ -44,6 +46,7 @@ export async function searchDocuments(query: string, limit = 10) {
       const start = Math.max(0, snippetIndex - 60);
       const end = Math.min((d.text || '').length, start + 160);
       const snippet = snippetIndex >= 0 ? (d.text || '').slice(start, end) : '';
+
       return { doc: d, score, snippet };
     })
     .filter((x) => x.score > 0)

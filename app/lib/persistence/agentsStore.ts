@@ -9,6 +9,7 @@ export type AgentRecord = {
 };
 
 const g = globalThis as any;
+
 if (!g.__agentsStore) {
   const now = new Date().toISOString();
   g.__agentsStore = {
@@ -19,8 +20,7 @@ if (!g.__agentsStore) {
           id: 'explainer',
           name: 'Explainer',
           description: 'Explains code and concepts',
-          systemPrompt:
-            'You are a helpful code explainer. Be concise and clear. Use Arabic where possible.',
+          systemPrompt: 'You are a helpful code explainer. Be concise and clear. Use Arabic where possible.',
           tools: [],
           createdAt: now,
           updatedAt: now,
@@ -32,8 +32,7 @@ if (!g.__agentsStore) {
           id: 'reviewer',
           name: 'Reviewer',
           description: 'Reviews code for quality and issues',
-          systemPrompt:
-            'You are a strict code reviewer. Follow best practices. Provide actionable feedback.',
+          systemPrompt: 'You are a strict code reviewer. Follow best practices. Provide actionable feedback.',
           tools: [],
           createdAt: now,
           updatedAt: now,
@@ -66,6 +65,7 @@ export function upsertAgent(agent: AgentRecord): AgentRecord {
     updatedAt: now,
   };
   store.agents.set(rec.id, rec);
+
   return rec;
 }
 

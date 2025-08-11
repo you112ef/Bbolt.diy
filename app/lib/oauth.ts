@@ -98,18 +98,24 @@ export async function exchangeCodeForToken(
     code,
     redirect_uri: redirectUri,
   });
+
   if (codeVerifier) {
     params.set('code_verifier', codeVerifier);
   }
 
   const headers: Record<string, string> = { 'Content-Type': 'application/x-www-form-urlencoded' };
-  if (provider === 'github') headers['Accept'] = 'application/json';
+
+  if (provider === 'github') {
+    headers.Accept = 'application/json';
+  }
 
   const res = await fetch(tokenUrl, { method: 'POST', body: params, headers });
+
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`Token exchange failed: ${res.status} ${res.statusText} - ${txt}`);
   }
+
   return res.json();
 }
 

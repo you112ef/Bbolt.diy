@@ -14,7 +14,11 @@ export async function action({ request }: { request: Request }) {
     tools?: string[];
   };
   const id = body.id || body.name?.toLowerCase().replace(/\s+/g, '-');
-  if (!id || !body.name) return json({ error: 'id and name required' }, { status: 400 });
+
+  if (!id || !body.name) {
+    return json({ error: 'id and name required' }, { status: 400 });
+  }
+
   const agent = upsertAgent({
     id,
     name: body.name,
@@ -24,5 +28,6 @@ export async function action({ request }: { request: Request }) {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
+
   return json({ agent });
 }

@@ -89,8 +89,8 @@ export const ModelSelector = ({
     });
 
   const filteredProviders = providerList
-  .filter((p) => !['Ollama', 'LMStudio', 'OpenAILike', 'OfflineAI', 'Local'].includes(p.name))
-  .filter((p) => p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()));
+    .filter((p) => !['Ollama', 'LMStudio', 'OpenAILike', 'OfflineAI', 'Local'].includes(p.name))
+    .filter((p) => p.name.toLowerCase().includes(providerSearchQuery.toLowerCase()));
 
   // Reset free models filter when provider changes
   useEffect(() => {
@@ -487,7 +487,9 @@ export const ModelSelector = ({
               {modelLoading === 'all' || modelLoading === provider?.name ? (
                 <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">{t('common.loading')}</div>
               ) : filteredModels.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">{showFreeModelsOnly ? t('model.noneFree') : t('model.none')}</div>
+                <div className="px-3 py-2 text-sm text-bolt-elements-textTertiary">
+                  {showFreeModelsOnly ? t('model.noneFree') : t('model.none')}
+                </div>
               ) : (
                 filteredModels.map((modelOption, index) => (
                   <div

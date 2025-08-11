@@ -12,6 +12,7 @@ export type UsageTotals = {
 };
 
 const g = globalThis as any;
+
 if (!g.__usageStore) {
   g.__usageStore = {
     events: [] as UsageEvent[],

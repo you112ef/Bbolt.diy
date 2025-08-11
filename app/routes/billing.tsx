@@ -3,10 +3,7 @@ import { Header } from '~/components/header/Header';
 import React, { useEffect, useState } from 'react';
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: 'Billing | YOUSEF.SHTIWE AI' },
-    { name: 'description', content: 'إدارة الخطط والاستهلاك والفوترة' },
-  ];
+  return [{ title: 'Billing | YOUSEF.SHTIWE AI' }, { name: 'description', content: 'إدارة الخطط والاستهلاك والفوترة' }];
 };
 
 type UsageTotals = { promptTokens: number; completionTokens: number; totalTokens: number };

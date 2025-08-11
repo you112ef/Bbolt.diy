@@ -8,7 +8,7 @@ import { CodeBlock } from './CodeBlock';
 import type { Message } from 'ai';
 import styles from './Markdown.module.scss';
 import ThoughtBox from './ThoughtBox';
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 
 const logger = createScopedLogger('MarkdownComponent');
 
@@ -20,7 +20,7 @@ interface MarkdownProps {
   chatMode?: 'discuss' | 'build';
   setChatMode?: (mode: 'discuss' | 'build') => void;
   model?: string;
-  provider?: ProviderInfo;
+  provider?: UIProviderInfo;
 }
 
 export const Markdown = memo(

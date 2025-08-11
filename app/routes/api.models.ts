@@ -1,17 +1,17 @@
 import { json } from '@remix-run/cloudflare';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import type { ProviderInfo } from '~/types/model';
+import type { UIProviderInfo } from '~/lib/modules/llm/types';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 
 interface ModelsResponse {
   modelList: ModelInfo[];
-  providers: ProviderInfo[];
-  defaultProvider: ProviderInfo;
+  providers: UIProviderInfo[];
+  defaultProvider: UIProviderInfo;
 }
 
-let cachedProviders: ProviderInfo[] | null = null;
-let cachedDefaultProvider: ProviderInfo | null = null;
+let cachedProviders: UIProviderInfo[] | null = null;
+let cachedDefaultProvider: UIProviderInfo | null = null;
 
 function getProviderInfo(llmManager: LLMManager) {
   if (!cachedProviders) {

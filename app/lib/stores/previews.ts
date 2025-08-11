@@ -181,7 +181,8 @@ export class PreviewsStore {
     // Listen for server ready events (browser only)
     (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
       'server-ready',
-      (port: number, url: string) => {
+      (...args: unknown[]) => {
+        const [port, url] = args as [number, string];
         console.log('[Preview] Server ready on port:', port, url);
         this.broadcastUpdate(url);
 
@@ -193,7 +194,8 @@ export class PreviewsStore {
     // Listen for port events (browser only)
     (webcontainer as unknown as { on?: (event: string, listener: (...args: unknown[]) => void) => void }).on?.(
       'port',
-      (port: number, type: 'open' | 'close', url: string) => {
+      (...args: unknown[]) => {
+        const [port, type, url] = args as [number, 'open' | 'close', string];
         let previewInfo = this.#availablePreviews.get(port);
 
         if (type === 'close' && previewInfo) {

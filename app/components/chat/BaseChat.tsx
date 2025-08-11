@@ -348,8 +348,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       >
         {/* Sidebar and content layout */}
         <div className="flex h-[calc(100dvh-48px)] stack-sm">
-          {/* Sidebar */}
-          <div className="hide-on-mobile">
+          {/* Sidebar (always visible; width scales) */}
+          <div className="min-w-[220px] max-w-[320px] w-[22vw]">
             <Menu />
           </div>
 
@@ -359,9 +359,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             <div className="py-2 px-2 h-full">
               <ChatWorkbenchTabs chatStarted={chatStarted} className="h-full">
                 {/* Main content area */}
-                <div className="flex-1 min-h-0 flex stack-sm h-full">
+                <div className="flex-1 min-h-0 flex h-full gap-3">
                   {/* Messages */}
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-[1.2] min-w-0">
                     <StickToBottom
                       className={classNames('pt-6 px-2 sm:px-6 relative', {
                         'h-full flex flex-col modern-scrollbar': chatStarted,
@@ -393,7 +393,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   </div>
 
                   {/* Workbench */}
-                  <div className={classNames('min-w-0 md:min-w-[480px] md:max-w-[50%] border-l border-bolt-elements-borderColor')}
+                  <div className={classNames('min-w-[360px] w-[40vw] max-w-[720px] border-l border-bolt-elements-borderColor')}
                   >
                     <ClientOnly>
                       {() => (

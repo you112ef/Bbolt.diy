@@ -19,7 +19,7 @@ export function Header() {
         },
       )}
     >
-      <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer enhanced-header min-w-0">
+      <div className="flex items-center gap-3 z-logo text-bolt-elements-textPrimary cursor-pointer enhanced-header min-w-0 flex-shrink">
         <div className="i-ph:sidebar-simple-duotone text-xl opacity-80 hover:opacity-100 transition-opacity" />
         <a href="/" className="header-title text-accent flex items-center hover:opacity-90 transition-opacity">
           <img
@@ -33,12 +33,12 @@ export function Header() {
       </div>
       {chat.started && (
         <>
-          <span className="flex-1 px-2 sm:px-4 truncate text-center text-bolt-elements-textPrimary bolt-text-sm opacity-90 hidden xs:block">
+          <span className="flex-1 px-2 sm:px-4 truncate text-center text-bolt-elements-textPrimary bolt-text-sm opacity-90">
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
           </span>
           <ClientOnly>
             {() => (
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 min-w-[120px]">
                 <HeaderActionButtons chatStarted={chat.started} />
               </div>
             )}

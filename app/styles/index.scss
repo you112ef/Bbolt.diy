@@ -152,13 +152,11 @@ img, video, canvas, svg {
   grid-template-columns: repeat(auto-fit, minmax(var(--min-col), 1fr));
 }
 
-/* Flex stack on small screens */
+/* Horizontal stack helper (no vertical stacking) */
 .stack-sm {
   display: flex;
+  flex-direction: row;
   gap: clamp(8px, 2vw, 16px);
-}
-@media (max-width: 1023.98px) {
-  .stack-sm { flex-direction: column; }
 }
 
 /* Visibility helpers */

@@ -102,6 +102,7 @@ export function useSettings(): UseSettingsReturn {
           staticModels,
           getDynamicModels: getDynamicModels
             ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
+
                 // Adapt legacy signature that expected providerName as first arg
                 getDynamicModels(name, apiKeys, settings, serverEnv)
             : undefined,
@@ -109,6 +110,7 @@ export function useSettings(): UseSettingsReturn {
           labelForGetApiKey,
           icon,
         };
+
         return uiProvider;
       });
 

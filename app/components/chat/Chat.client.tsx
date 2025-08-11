@@ -150,6 +150,7 @@ export const ChatImpl = memo(
       });
       const savedProvider = Cookies.get('selectedProvider');
       const found = (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+
       return toUIProvider(found);
     });
     const { showChat } = useStore(chatStore);

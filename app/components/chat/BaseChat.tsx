@@ -343,94 +343,72 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
     const baseChat = (
       <div
         ref={ref}
-        className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
+        className={classNames('flex-1 flex flex-col overflow-hidden container stack-sm safe-area', styles.root)}
         data-chat-visible={showChat}
       >
-        <ClientOnly>{() => <Menu />}</ClientOnly>
-        <ChatWorkbenchTabs chatStarted={chatStarted} className="overflow-y-auto w-full h-full">
-          <div className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
-            <div
-              className={classNames(
-                styles.Chat,
-                'chat-container flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full',
-              )}
-            >
-              {!chatStarted && (
-                <div id="intro" className="mt-[12vh] max-w-xl mx-auto text-center px-4 lg:px-0">
-                  <h1 className="text-2xl lg:text-4xl font-bold text-bolt-elements-textPrimary mb-3 animate-fade-in">
-                    يوسف شتيوي AI
-                  </h1>
-                  <p className="text-sm lg:text-base mb-6 text-bolt-elements-textSecondary animate-fade-in animation-delay-200 opacity-80">
-                    حوّل أفكارك إلى واقع في ثوان أو احصل على المساعدة في مشاريعك الحالية
-                  </p>
-                </div>
-              )}
-              <StickToBottom
-                className={classNames('pt-6 px-2 sm:px-6 relative', {
-                  'h-full flex flex-col modern-scrollbar': chatStarted,
-                })}
-                resize="smooth"
-                initial="smooth"
-              >
-                <StickToBottom.Content className="flex flex-col gap-4 relative ">
-                  <ClientOnly>
-                    {() => {
-                      return chatStarted ? (
-                        <Messages
-                          className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
-                          messages={messages}
-                          isStreaming={isStreaming}
-                          append={append}
-                          chatMode={chatMode}
-                          setChatMode={setChatMode}
-                          provider={provider}
-                          model={model}
-                          addToolResult={addToolResult}
-                        />
-                      ) : null;
-                    }}
-                  </ClientOnly>
-                  <ScrollToBottom />
-                </StickToBottom.Content>
-                <div
-                  className={classNames('my-auto flex flex-col gap-2 w-full max-w-chat mx-auto z-prompt mb-6', {
-                    'sticky bottom-2': chatStarted,
-                  })}
-                >
-                  <div className="flex flex-col gap-2">
-                    {deployAlert && (
-                      <DeployChatAlert
-                        alert={deployAlert}
-                        clearAlert={() => clearDeployAlert?.()}
-                        postMessage={(message: string | undefined) => {
-                          sendMessage?.({} as any, message);
-                          clearSupabaseAlert?.();
-                        }}
-                      />
-                    )}
-                    {supabaseAlert && (
-                      <SupabaseChatAlert
-                        alert={supabaseAlert}
-                        clearAlert={() => clearSupabaseAlert?.()}
-                        postMessage={(message) => {
-                          sendMessage?.({} as any, message);
-                          clearSupabaseAlert?.();
-                        }}
-                      />
-                    )}
-                    {actionAlert && (
-                      <ChatAlert
-                        alert={actionAlert}
-                        clearAlert={() => clearAlert?.()}
-                        postMessage={(message) => {
-                          sendMessage?.({} as any, message);
-                          clearAlert?.();
-                        }}
-                      />
-                    )}
-                    {llmErrorAlert && <LlmErrorAlert alert={llmErrorAlert} clearAlert={() => clearLlmErrorAlert?.()} />}
+        {/* Sidebar and content layout */}
+        <div className="flex h-[calc(100dvh-48px)] stack-sm">
+          {/* Sidebar */}
+          <div className="hide-on-mobile">
+            <Menu />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            {/* Tabs */}
+            <div className="py-2 px-2 h-full">
+              <ChatWorkbenchTabs chatStarted={chatStarted} className="h-full">
+                {/* Main content area */}
+                <div className="flex-1 min-h-0 flex stack-sm h-full">
+                  {/* Messages */}
+                  <div className="flex-1 min-w-0">
+                    <StickToBottom
+                      className={classNames('pt-6 px-2 sm:px-6 relative', {
+                        'h-full flex flex-col modern-scrollbar': chatStarted,
+                      })}
+                      resize="smooth"
+                      initial="smooth"
+                    >
+                      <StickToBottom.Content className="flex flex-col gap-4 relative ">
+                        <ClientOnly>
+                          {() => {
+                            return chatStarted ? (
+                              <Messages
+                                className="flex flex-col w-full flex-1 max-w-chat pb-4 mx-auto z-1"
+                                messages={messages}
+                                isStreaming={isStreaming}
+                                append={append}
+                                chatMode={chatMode}
+                                setChatMode={setChatMode}
+                                provider={provider}
+                                model={model}
+                                addToolResult={addToolResult}
+                              />
+                            ) : null;
+                          }}
+                        </ClientOnly>
+                        <ScrollToBottom />
+                      </StickToBottom.Content>
+                    </StickToBottom>
                   </div>
-                  {progressAnnotations && <ProgressCompilation data={progressAnnotations} />}
+
+                  {/* Workbench */}
+                  <div className={classNames('min-w-0 md:min-w-[480px] md:max-w-[50%] border-l border-bolt-elements-borderColor')}
+                  >
+                    <ClientOnly>
+                      {() => (
+                        <Workbench
+                          chatStarted={chatStarted}
+                          isStreaming={isStreaming}
+                          setSelectedElement={setSelectedElement}
+                        />
+                      )}
+                    </ClientOnly>
+                  </div>
+                </div>
+
+                {/* Chat input */}
+                <div className="border-t border-bolt-elements-borderColor">
                   <ChatBox
                     isModelSettingsCollapsed={isModelSettingsCollapsed}
                     setIsModelSettingsCollapsed={setIsModelSettingsCollapsed}
@@ -474,41 +452,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     setSelectedElement={setSelectedElement}
                   />
                 </div>
-              </StickToBottom>
-            </div>
-            <div className="flex flex-col justify-center">
-              {!chatStarted && (
-                <div className="flex justify-center gap-2 mb-4">
-                  {ImportButtons(importChat)}
-                  <GitCloneButton importChat={importChat} />
-                </div>
-              )}
-              <div className="flex flex-col gap-5">
-                {!chatStarted &&
-                  ExamplePrompts((event, messageInput) => {
-                    if (isStreaming) {
-                      handleStop?.();
-                      return;
-                    }
-
-                    handleSendMessage?.(event, messageInput);
-                  })}
-                {!chatStarted && <StarterTemplates />}
-              </div>
-            </div>
-            <div className="workbench-container">
-              <ClientOnly>
-                {() => (
-                  <Workbench
-                    chatStarted={chatStarted}
-                    isStreaming={isStreaming}
-                    setSelectedElement={setSelectedElement}
-                  />
-                )}
-              </ClientOnly>
+              </ChatWorkbenchTabs>
             </div>
           </div>
-        </ChatWorkbenchTabs>
+        </div>
       </div>
     );
 

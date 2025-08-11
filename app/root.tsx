@@ -22,14 +22,8 @@ export const links: LinksFunction = () => [
     type: 'image/png',
     sizes: '32x32',
   },
-<<<<<<< HEAD
-  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '16x16' },
-  { rel: 'icon', href: '/favicon-enhanced.png', type: 'image/png', sizes: '192x192' },
-  { rel: 'apple-touch-icon', href: '/favicon-enhanced.png', sizes: '180x180' },
-=======
   { rel: 'icon', href: '/favicon-new.png', type: 'image/png' },
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
   { rel: 'manifest', href: '/site.webmanifest' },
   { rel: 'preload', as: 'image', href: '/yousef-logo-enhanced.png', fetchPriority: 'high' as any },
   { rel: 'stylesheet', href: reactToastifyStyles },
@@ -86,11 +80,7 @@ export const Head = createHead(() => (
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<<<<<<< HEAD
-    <meta name="theme-color" content="#38bdf8" />
-=======
     <meta name="theme-color" content="#0EA5E9" />
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
     <Meta />
     <Links />
 

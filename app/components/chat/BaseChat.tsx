@@ -51,9 +51,9 @@ interface BaseChatProps {
   input?: string;
   model?: string;
   setModel?: (model: string) => void;
-  provider?: ProviderInfo;
-  setProvider?: (provider: ProviderInfo) => void;
-  providerList?: ProviderInfo[];
+  provider?: UIProviderInfo;
+  setProvider?: (provider: UIProviderInfo) => void;
+  providerList?: UIProviderInfo[];
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;

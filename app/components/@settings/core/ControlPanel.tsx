@@ -233,8 +233,8 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                 <BackgroundRays />
               </div>
               <div className="relative z-10 flex flex-col h-full">
-                                 {/* Header */}
-                 <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2 sm:py-2 border-b border-gray-200 dark:border-gray-700">
+                {/* Header */}
+                <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-2 sm:py-2 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center space-x-2 sm:space-x-3">
                     {(activeTab || showTabManagement) && (
                       <button

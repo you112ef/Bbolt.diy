@@ -18,11 +18,13 @@ export default async function handleRequest(
   const cookies = request.headers.get('cookie') || '';
   const cookieLangMatch = cookies.match(/(?:^|;)\s*lang=([^;]+)/);
   let selectedLang = (cookieLangMatch && decodeURIComponent(cookieLangMatch[1])) || '';
+
   if (!selectedLang) {
     const acceptLanguage = request.headers.get('accept-language') || '';
     const prefersArabic = /\bar\b|\bar[-_]/i.test(acceptLanguage);
     selectedLang = prefersArabic ? 'ar' : 'en';
   }
+
   const dir = 'ltr';
 
   // Dynamically import server renderer to avoid CJS named export issue in Vite
@@ -31,6 +33,7 @@ export default async function handleRequest(
   const app = <RemixServer context={remixContext} url={request.url} />;
 
   let appHtml = '';
+
   try {
     if (typeof reactDomServer.renderToString === 'function') {
       appHtml = reactDomServer.renderToString(app);

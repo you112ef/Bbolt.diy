@@ -19,7 +19,7 @@ export default function RailwayConnection() {
   const [apiToken, setApiToken] = useState('');
   const [status, setStatus] = useState<RailwayConnectionStatus>({
     isConnected: false,
-    isLoading: false
+    isLoading: false,
   });
 
   useEffect(() => {
@@ -40,27 +40,28 @@ export default function RailwayConnection() {
       setStatus({
         isConnected: false,
         isLoading: false,
-        error: 'API token is required'
+        error: 'API token is required',
       });
       return;
     }
 
-    setStatus(prev => ({ ...prev, isLoading: true, error: undefined }));
+    setStatus((prev) => ({ ...prev, isLoading: true, error: undefined }));
 
     try {
       const response = await fetch('https://backboard.railway.app/graphql', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: `query { me { id name } }`
-        })
+          query: `query { me { id name } }`,
+        }),
       });
 
       if (response.ok) {
-        const data = await response.json() as any;
+        const data = (await response.json()) as any;
+
         if (data.data?.me) {
           setStatus({
             isConnected: true,
@@ -69,8 +70,8 @@ export default function RailwayConnection() {
             projectInfo: {
               name: data.data.me.name || 'Railway User',
               plan: 'Hobby Plan ($5/month)',
-              usage: 'Active'
-            }
+              usage: 'Active',
+            },
           });
         } else {
           throw new Error('Invalid token or unauthorized');
@@ -83,13 +84,14 @@ export default function RailwayConnection() {
         isConnected: false,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Connection failed',
-        lastChecked: new Date()
+        lastChecked: new Date(),
       });
     }
   };
 
   const handleConnect = async () => {
     await testConnection(apiToken);
+
     if (apiToken) {
       localStorage.setItem('railway-token', apiToken);
     }
@@ -114,7 +116,7 @@ export default function RailwayConnection() {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sky-100 dark:bg-sky-900/30 rounded-lg flex items-center justify-center">
             <svg className="w-6 h-6 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7v10c0 5.55 3.84 9.739 9 11 5.16-1.261 9-5.45 9-11V7l-10-5z"/>
+              <path d="M12 2L2 7v10c0 5.55 3.84 9.739 9 11 5.16-1.261 9-5.45 9-11V7l-10-5z" />
             </svg>
           </div>
           <div>
@@ -126,7 +128,7 @@ export default function RailwayConnection() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {status.isConnected && (
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
@@ -154,9 +156,7 @@ export default function RailwayConnection() {
           <div className="text-xs text-green-700 dark:text-green-300 space-y-1">
             <p>Plan: {status.projectInfo.plan}</p>
             <p>Status: {status.projectInfo.usage}</p>
-            {status.lastChecked && (
-              <p>Last checked: {status.lastChecked.toLocaleTimeString()}</p>
-            )}
+            {status.lastChecked && <p>Last checked: {status.lastChecked.toLocaleTimeString()}</p>}
           </div>
         </div>
       )}
@@ -165,9 +165,7 @@ export default function RailwayConnection() {
         <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2 mb-1">
             <div className="i-ph:warning-circle w-4 h-4 text-red-600 dark:text-red-400" />
-            <span className="text-sm font-medium text-red-800 dark:text-red-200">
-              Connection Failed
-            </span>
+            <span className="text-sm font-medium text-red-800 dark:text-red-200">Connection Failed</span>
           </div>
           <p className="text-xs text-red-700 dark:text-red-300">{status.error}</p>
         </div>
@@ -177,9 +175,7 @@ export default function RailwayConnection() {
         <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2">
             <div className="i-ph:info w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-              Using environment variables
-            </span>
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Using environment variables</span>
           </div>
           <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
             Railway token is configured via environment variables
@@ -232,11 +228,7 @@ export default function RailwayConnection() {
             )}
           </>
         ) : (
-          <Button
-            onClick={handleConnect}
-            disabled={status.isLoading || !apiToken}
-            className="flex items-center gap-2"
-          >
+          <Button onClick={handleConnect} disabled={status.isLoading || !apiToken} className="flex items-center gap-2">
             {status.isLoading ? (
               <div className="i-ph:spinner-gap w-4 h-4 animate-spin" />
             ) : (
@@ -252,12 +244,22 @@ export default function RailwayConnection() {
           Quick Setup Guide
         </h4>
         <ol className="text-xs text-bolt-elements-textSecondary space-y-1 list-decimal list-inside">
-          <li>Go to <a href="https://railway.app/account/tokens" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Railway Dashboard</a></li>
+          <li>
+            Go to{' '}
+            <a
+              href="https://railway.app/account/tokens"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Railway Dashboard
+            </a>
+          </li>
           <li>Create a new API token</li>
           <li>Copy the token and paste it above</li>
           <li>Click Connect to Railway</li>
         </ol>
-        
+
         <div className="mt-3 p-2 bg-sky-50 dark:bg-sky-950/20 rounded border border-sky-200 dark:border-sky-800">
           <p className="text-xs text-sky-700 dark:text-sky-300">
             🚂 <strong>Hobby Plan:</strong> $5 monthly credit, Pay-as-you-go

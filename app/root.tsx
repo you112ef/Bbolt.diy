@@ -86,9 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>
-        {children}
-      </DndProvider>
+      <DndProvider backend={HTML5Backend}>{children}</DndProvider>
       <ScrollRestoration />
       <Scripts />
     </>
@@ -133,12 +131,16 @@ export function ErrorBoundary({ error }: { error: Error }) {
         {error?.stack && (
           <details open style={{ marginTop: 12 }}>
             <summary>Stack trace</summary>
-            <pre style={{ whiteSpace: 'pre-wrap', background: '#111827', color: '#f9fafb', padding: 12, borderRadius: 8 }}>
+            <pre
+              style={{ whiteSpace: 'pre-wrap', background: '#111827', color: '#f9fafb', padding: 12, borderRadius: 8 }}
+            >
               {error.stack}
             </pre>
           </details>
         )}
-        <script dangerouslySetInnerHTML={{ __html: 'console.error(' + JSON.stringify(String(error?.stack || error)) + ');' }} />
+        <script
+          dangerouslySetInnerHTML={{ __html: 'console.error(' + JSON.stringify(String(error?.stack || error)) + ');' }}
+        />
       </body>
     </html>
   );

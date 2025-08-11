@@ -1,7 +1,7 @@
 import { json } from '@remix-run/cloudflare';
 import { LLMManager } from '~/lib/modules/llm/manager';
 import type { ModelInfo } from '~/lib/modules/llm/types';
-import type { UIProviderInfo } from '~/lib/modules/llm/types';
+import type { UIProviderInfoLite as UIProviderInfo } from '~/types/model';
 import { getApiKeysFromCookie, getProviderSettingsFromCookie } from '~/lib/api/cookies';
 
 interface ModelsResponse {

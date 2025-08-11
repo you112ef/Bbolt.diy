@@ -346,10 +346,30 @@ export const Menu = () => {
               {profile?.username || 'Guest User'}
             </span>
             <div className="hidden md:flex items-center gap-2 text-xs">
-              <a href="/agents" className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700">Agents</a>
-              <a href="/knowledge" className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700">Knowledge</a>
-              <a href="/settings" className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700">Settings</a>
-              <a href="/billing" className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700">Billing</a>
+              <a
+                href="/agents"
+                className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+              >
+                Agents
+              </a>
+              <a
+                href="/knowledge"
+                className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+              >
+                Knowledge
+              </a>
+              <a
+                href="/settings"
+                className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+              >
+                Settings
+              </a>
+              <a
+                href="/billing"
+                className="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700"
+              >
+                Billing
+              </a>
             </div>
             <div className="flex items-center justify-center w-[32px] h-[32px] overflow-hidden bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-500 rounded-full shrink-0">
               {profile?.avatar ? (
@@ -458,7 +478,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'delete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteChatTitle') || 'Delete Chat?'}</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">
+                        {t('dialog.deleteChatTitle') || 'Delete Chat?'}
+                      </DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>
                           {t('dialog.youAreAboutToDelete') || 'You are about to delete'}{' '}
@@ -466,7 +488,9 @@ export const Menu = () => {
                             {dialogContent.item.description}
                           </span>
                         </p>
-                        <p className="mt-2">{t('dialog.areYouSureDelete') || 'Are you sure you want to delete this chat?'}</p>
+                        <p className="mt-2">
+                          {t('dialog.areYouSureDelete') || 'Are you sure you want to delete this chat?'}
+                        </p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
@@ -489,7 +513,9 @@ export const Menu = () => {
                 {dialogContent?.type === 'bulkDelete' && (
                   <>
                     <div className="p-6 bg-white dark:bg-gray-950">
-                      <DialogTitle className="text-gray-900 dark:text-white">{t('dialog.deleteSelectedTitle') || 'Delete Selected Chats?'}</DialogTitle>
+                      <DialogTitle className="text-gray-900 dark:text-white">
+                        {t('dialog.deleteSelectedTitle') || 'Delete Selected Chats?'}
+                      </DialogTitle>
                       <DialogDescription className="mt-2 text-gray-600 dark:text-gray-400">
                         <p>{t('dialog.youAreAboutToDeleteSelected') || 'You are about to delete selected chats:'}</p>
                         <div className="mt-2 max-h-32 overflow-auto border border-gray-100 dark:border-gray-800 rounded-md bg-gray-50 dark:bg-gray-900 p-2">
@@ -501,7 +527,9 @@ export const Menu = () => {
                             ))}
                           </ul>
                         </div>
-                        <p className="mt-3">{t('dialog.areYouSureDeleteSelected') || 'Are you sure you want to delete these chats?'}</p>
+                        <p className="mt-3">
+                          {t('dialog.areYouSureDeleteSelected') || 'Are you sure you want to delete these chats?'}
+                        </p>
                       </DialogDescription>
                     </div>
                     <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">

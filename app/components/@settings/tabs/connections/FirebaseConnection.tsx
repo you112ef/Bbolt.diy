@@ -35,11 +35,11 @@ export default function FirebaseConnection() {
     storageBucket: '',
     messagingSenderId: '',
     appId: '',
-    measurementId: ''
+    measurementId: '',
   });
   const [status, setStatus] = useState<FirebaseConnectionStatus>({
     isConnected: false,
-    isLoading: false
+    isLoading: false,
   });
   const [configMethod, setConfigMethod] = useState<'manual' | 'json'>('manual');
   const [jsonConfig, setJsonConfig] = useState('');
@@ -47,7 +47,7 @@ export default function FirebaseConnection() {
   // Load saved configuration from localStorage
   useEffect(() => {
     const savedConfig = localStorage.getItem('firebase-config');
-    
+
     // Check for environment variables first
     const envConfig = {
       apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -56,7 +56,7 @@ export default function FirebaseConnection() {
       storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
       appId: import.meta.env.VITE_FIREBASE_APP_ID,
-      measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+      measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
     };
 
     if (envConfig.apiKey && envConfig.projectId) {
@@ -78,22 +78,22 @@ export default function FirebaseConnection() {
       setStatus({
         isConnected: false,
         isLoading: false,
-        error: 'API Key and Project ID are required'
+        error: 'API Key and Project ID are required',
       });
       return;
     }
 
-    setStatus(prev => ({ ...prev, isLoading: true, error: undefined }));
+    setStatus((prev) => ({ ...prev, isLoading: true, error: undefined }));
 
     try {
       // Test Firebase configuration by checking if the project exists
       const projectUrl = `https://firebase.googleapis.com/v1beta1/projects/${firebaseConfig.projectId}?key=${firebaseConfig.apiKey}`;
-      
+
       const response = await fetch(projectUrl);
-      
+
       if (response.ok) {
-        const projectData = await response.json() as any;
-        
+        const projectData = (await response.json()) as any;
+
         setStatus({
           isConnected: true,
           isLoading: false,
@@ -102,8 +102,8 @@ export default function FirebaseConnection() {
             name: projectData.projectId,
             displayName: projectData.displayName || projectData.projectId,
             plan: 'Spark Plan (Free)', // Default assumption
-            region: projectData.defaultCloudLocation || 'us-central1'
-          }
+            region: projectData.defaultCloudLocation || 'us-central1',
+          },
         });
       } else if (response.status === 403) {
         throw new Error('Invalid API key or insufficient permissions');
@@ -118,7 +118,7 @@ export default function FirebaseConnection() {
         isConnected: false,
         isLoading: false,
         error: error instanceof Error ? error.message : 'Connection failed',
-        lastChecked: new Date()
+        lastChecked: new Date(),
       });
     }
   };
@@ -135,14 +135,14 @@ export default function FirebaseConnection() {
         setStatus({
           isConnected: false,
           isLoading: false,
-          error: 'Invalid JSON configuration'
+          error: 'Invalid JSON configuration',
         });
         return;
       }
     }
 
     await testConnection(configToTest);
-    
+
     if (configToTest.apiKey && configToTest.projectId) {
       localStorage.setItem('firebase-config', JSON.stringify(configToTest));
     }
@@ -156,7 +156,7 @@ export default function FirebaseConnection() {
       storageBucket: '',
       messagingSenderId: '',
       appId: '',
-      measurementId: ''
+      measurementId: '',
     });
     setJsonConfig('');
     setStatus({ isConnected: false, isLoading: false });
@@ -164,16 +164,18 @@ export default function FirebaseConnection() {
   };
 
   const handleInputChange = (field: keyof FirebaseConfig, value: string) => {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleJsonConfigChange = (value: string) => {
     setJsonConfig(value);
+
     try {
       const parsed = JSON.parse(value);
+
       if (parsed.apiKey && parsed.projectId) {
         setConfig(parsed);
       }
@@ -182,19 +184,16 @@ export default function FirebaseConnection() {
     }
   };
 
-  const isEnvConfigured = Boolean(
-    import.meta.env.VITE_FIREBASE_API_KEY && 
-    import.meta.env.VITE_FIREBASE_PROJECT_ID
-  );
+  const isEnvConfigured = Boolean(import.meta.env.VITE_FIREBASE_API_KEY && import.meta.env.VITE_FIREBASE_PROJECT_ID);
 
   const sampleConfig = {
-    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef123456",
-    measurementId: "G-XXXXXXXXXX"
+    apiKey: 'AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    authDomain: 'your-project.firebaseapp.com',
+    projectId: 'your-project-id',
+    storageBucket: 'your-project.appspot.com',
+    messagingSenderId: '123456789012',
+    appId: '1:123456789012:web:abcdef123456',
+    measurementId: 'G-XXXXXXXXXX',
   };
 
   return (
@@ -209,7 +208,7 @@ export default function FirebaseConnection() {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
             <svg className="w-6 h-6 text-orange-600 dark:text-orange-400" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5.016 3.984l3.984 6.984h-3.984v9.047h9.984v-3.984l3.984 3.984 1.031-1.031-13.968-13.968zM12 21.984c-5.484 0-9.984-4.5-9.984-9.984s4.5-9.984 9.984-9.984 9.984 4.5 9.984 9.984-4.5 9.984-9.984 9.984z"/>
+              <path d="M5.016 3.984l3.984 6.984h-3.984v9.047h9.984v-3.984l3.984 3.984 1.031-1.031-13.968-13.968zM12 21.984c-5.484 0-9.984-4.5-9.984-9.984s4.5-9.984 9.984-9.984 9.984 4.5 9.984 9.984-4.5 9.984-9.984 9.984z" />
             </svg>
           </div>
           <div>
@@ -221,7 +220,7 @@ export default function FirebaseConnection() {
             </p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {status.isConnected && (
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
@@ -251,9 +250,7 @@ export default function FirebaseConnection() {
             <p>Project ID: {status.projectInfo.name}</p>
             <p>Region: {status.projectInfo.region}</p>
             <p>Plan: {status.projectInfo.plan}</p>
-            {status.lastChecked && (
-              <p>Last checked: {status.lastChecked.toLocaleTimeString()}</p>
-            )}
+            {status.lastChecked && <p>Last checked: {status.lastChecked.toLocaleTimeString()}</p>}
           </div>
         </div>
       )}
@@ -263,9 +260,7 @@ export default function FirebaseConnection() {
         <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2 mb-1">
             <div className="i-ph:warning-circle w-4 h-4 text-red-600 dark:text-red-400" />
-            <span className="text-sm font-medium text-red-800 dark:text-red-200">
-              Connection Failed
-            </span>
+            <span className="text-sm font-medium text-red-800 dark:text-red-200">Connection Failed</span>
           </div>
           <p className="text-xs text-red-700 dark:text-red-300">{status.error}</p>
         </div>
@@ -276,9 +271,7 @@ export default function FirebaseConnection() {
         <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2">
             <div className="i-ph:info w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-              Using environment variables
-            </span>
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Using environment variables</span>
           </div>
           <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
             Firebase configuration is loaded from environment variables
@@ -296,7 +289,7 @@ export default function FirebaseConnection() {
                 'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 configMethod === 'manual'
                   ? 'bg-bolt-elements-item-backgroundActive text-bolt-elements-textPrimary'
-                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
               )}
             >
               Manual Input
@@ -307,7 +300,7 @@ export default function FirebaseConnection() {
                 'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                 configMethod === 'json'
                   ? 'bg-bolt-elements-item-backgroundActive text-bolt-elements-textPrimary'
-                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary'
+                  : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary',
               )}
             >
               JSON Config
@@ -460,9 +453,7 @@ export default function FirebaseConnection() {
           <Button
             onClick={handleConnect}
             disabled={
-              status.isLoading || 
-              (!config.apiKey || !config.projectId) && 
-              (!jsonConfig || configMethod !== 'json')
+              status.isLoading || ((!config.apiKey || !config.projectId) && (!jsonConfig || configMethod !== 'json'))
             }
             className="flex items-center gap-2"
           >
@@ -482,14 +473,24 @@ export default function FirebaseConnection() {
           Quick Setup Guide
         </h4>
         <ol className="text-xs text-bolt-elements-textSecondary space-y-1 list-decimal list-inside">
-          <li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Firebase Console</a></li>
+          <li>
+            Go to{' '}
+            <a
+              href="https://console.firebase.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline"
+            >
+              Firebase Console
+            </a>
+          </li>
           <li>Create a new project or select existing one</li>
           <li>Go to Project Settings (gear icon)</li>
           <li>In "Your apps" section, create or select a web app</li>
           <li>Copy the configuration object</li>
           <li>Paste it above using JSON Config method</li>
         </ol>
-        
+
         <div className="mt-3 p-2 bg-orange-50 dark:bg-orange-950/20 rounded border border-orange-200 dark:border-orange-800">
           <p className="text-xs text-orange-700 dark:text-orange-300">
             🔥 <strong>Spark Plan (Free):</strong> 1GB storage, 125K reads/day, 20K writes/day

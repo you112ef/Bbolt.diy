@@ -12,8 +12,10 @@ const STORE_NAME = 'models';
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1);
+
     req.onupgradeneeded = () => {
       const db = req.result;
+
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
         store.createIndex('createdAt', 'createdAt');
@@ -42,6 +44,7 @@ export async function saveLocalModel(file: File): Promise<LocalModelEntry> {
     tx.onerror = () => reject(tx.error);
   });
   db.close();
+
   return entry;
 }
 
@@ -52,8 +55,10 @@ export async function listLocalModels(): Promise<LocalModelEntry[]> {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const store = tx.objectStore(STORE_NAME);
     const req = store.openCursor();
+
     req.onsuccess = () => {
       const cursor = req.result as IDBCursorWithValue | null;
+
       if (cursor) {
         const value = cursor.value as any;
         items.push({ id: value.id, name: value.name, size: value.size, type: value.type, createdAt: value.createdAt });
@@ -65,6 +70,7 @@ export async function listLocalModels(): Promise<LocalModelEntry[]> {
     req.onerror = () => reject(req.error);
   });
   db.close();
+
   return items.sort((a, b) => b.createdAt - a.createdAt);
 }
 
@@ -74,6 +80,7 @@ export async function getLocalModelBlob(id: string): Promise<Blob | null> {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const store = tx.objectStore(STORE_NAME);
     const req = store.get(id);
+
     req.onsuccess = () => {
       const val = req.result as any;
       resolve(val?.blob || null);
@@ -81,6 +88,7 @@ export async function getLocalModelBlob(id: string): Promise<Blob | null> {
     req.onerror = () => reject(req.error);
   });
   db.close();
+
   return blob;
 }
 

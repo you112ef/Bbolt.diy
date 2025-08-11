@@ -1,5 +1,16 @@
 import { redirect, type LoaderFunctionArgs, json } from '@remix-run/cloudflare';
-import { buildAuthorizeUrl, buildRedirectUri, exchangeCodeForToken, generateCodeChallenge, generateCodeVerifier, generateState, getEnv, providerConfigs, type OAuthProvider, setCookie } from '~/lib/oauth';
+import {
+  buildAuthorizeUrl,
+  buildRedirectUri,
+  exchangeCodeForToken,
+  generateCodeChallenge,
+  generateCodeVerifier,
+  generateState,
+  getEnv,
+  providerConfigs,
+  type OAuthProvider,
+  setCookie,
+} from '~/lib/oauth';
 
 export async function loader({ request, params, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -9,6 +20,7 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
   // Resolve env
   const clientId = getEnv(context, providerConfigs[provider].clientIdEnv);
   const clientSecret = getEnv(context, providerConfigs[provider].clientSecretEnv);
+
   if (!clientId || !clientSecret) {
     return json({ error: `Missing env vars for ${provider}` }, { status: 500 });
   }
@@ -26,8 +38,16 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
     setCookie(headers, `${provider}_oauth_state`, state, 600);
     setCookie(headers, `${provider}_oauth_cv`, codeVerifier, 600);
 
-    const authUrl = buildAuthorizeUrl(provider, clientId, redirectUri, providerConfigs[provider].scope, state, codeChallenge);
+    const authUrl = buildAuthorizeUrl(
+      provider,
+      clientId,
+      redirectUri,
+      providerConfigs[provider].scope,
+      state,
+      codeChallenge,
+    );
     headers.set('Location', authUrl);
+
     return new Response(null, { status: 302, headers });
   }
 
@@ -49,11 +69,20 @@ export async function loader({ request, params, context }: LoaderFunctionArgs) {
     }
 
     const redirectUri = buildRedirectUri(baseUrl, provider);
-    const token = await exchangeCodeForToken(provider, request, clientId, clientSecret, redirectUri, code, cvCookie && decodeURIComponent(cvCookie));
+    const token = await exchangeCodeForToken(
+      provider,
+      request,
+      clientId,
+      clientSecret,
+      redirectUri,
+      code,
+      cvCookie && decodeURIComponent(cvCookie),
+    );
 
     const headers = new Headers();
     setCookie(headers, `${provider}_access_token`, JSON.stringify(token));
     headers.set('Location', '/');
+
     return new Response(null, { status: 302, headers });
   }
 

@@ -1,24 +1,17 @@
 import type { ModelInfo } from '~/lib/modules/llm/types';
 
-export type ProviderInfo = {
-  staticModels: ModelInfo[];
-  name: string;
-  getDynamicModels?: (
-    providerName: string,
-    apiKeys?: Record<string, string>,
-    providerSettings?: IProviderSetting,
-    serverEnv?: Record<string, string>,
-  ) => Promise<ModelInfo[]>;
-  getApiKeyLink?: string;
-  labelForGetApiKey?: string;
-  icon?: string;
-};
+export type ProviderInfo = import('~/lib/modules/llm/types').ProviderInfo;
+
+export type UIProviderInfoLite = Pick<
+  ProviderInfo,
+  'name' | 'staticModels' | 'getApiKeyLink' | 'labelForGetApiKey' | 'icon'
+>;
 
 export interface IProviderSetting {
   enabled?: boolean;
   baseUrl?: string;
 }
 
-export type IProviderConfig = ProviderInfo & {
+export type IProviderConfig = UIProviderInfoLite & {
   settings: IProviderSetting;
 };

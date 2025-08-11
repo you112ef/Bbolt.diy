@@ -53,7 +53,7 @@ interface BaseChatProps {
   setModel?: (model: string) => void;
   provider?: UIProviderInfo;
   setProvider?: (provider: UIProviderInfo) => void;
-  providerList?: UIProviderInfo[];
+  providerList?: (UIProviderInfo | import('~/types/model').UIProviderInfoLite)[];
   handleStop?: () => void;
   sendMessage?: (event: React.UIEvent, messageInput?: string) => void;
   handleInputChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;

@@ -3,10 +3,7 @@ import { Header } from '~/components/header/Header';
 import React, { useEffect, useState } from 'react';
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: 'Billing | YOUSEF.SHTIWE AI' },
-    { name: 'description', content: 'إدارة الخطط والاستهلاك والفوترة' },
-  ];
+  return [{ title: 'Billing | YOUSEF.SHTIWE AI' }, { name: 'description', content: 'إدارة الخطط والاستهلاك والفوترة' }];
 };
 
 type UsageTotals = { promptTokens: number; completionTokens: number; totalTokens: number };
@@ -19,7 +16,7 @@ export default function BillingRoute() {
 
   useEffect(() => {
     fetch('/api/usage')
-      .then((r) => r.json())
+      .then((r) => r.json() as Promise<{ totals: UsageTotals; events: UsageEvent[] }>)
       .then((d) => {
         setTotals(d.totals);
         setEvents(d.events);

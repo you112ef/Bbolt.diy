@@ -40,13 +40,14 @@ export default function SendGridConnection() {
   // Load saved connection from localStorage
   useEffect(() => {
     const savedConnection = localStorage.getItem('sendgrid_connection');
+
     if (savedConnection) {
       try {
         const parsed = JSON.parse(savedConnection);
         setApiKey(parsed.apiKey || '');
         setIsConnected(parsed.isConnected || false);
         setStats(parsed.stats || null);
-        
+
         // Verify connection is still valid
         if (parsed.isConnected && parsed.apiKey) {
           verifyConnection(parsed.apiKey);
@@ -68,13 +69,13 @@ export default function SendGridConnection() {
       // Test the key by fetching user information
       const response = await fetch('https://api.sendgrid.com/v3/user/profile', {
         headers: {
-          'Authorization': `Bearer ${key}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${key}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        const errorData = await response.json() as any;
+        const errorData = (await response.json()) as any;
         throw new Error(errorData.errors?.[0]?.message || 'Invalid API key');
       }
 
@@ -84,38 +85,42 @@ export default function SendGridConnection() {
       setIsConnected(false);
       setStats(null);
       localStorage.removeItem('sendgrid_connection');
+
       return false;
     }
   };
 
   const fetchSendGridStats = async (key: string) => {
     setFetchingStats(true);
+
     try {
       const headers = {
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
       };
 
       // Fetch user profile
       const userResponse = await fetch('https://api.sendgrid.com/v3/user/profile', {
-        headers
+        headers,
       });
 
       if (!userResponse.ok) {
-        const errorData = await userResponse.json() as any;
+        const errorData = (await userResponse.json()) as any;
         throw new Error(errorData.errors?.[0]?.message || 'Failed to fetch user data');
       }
 
-      const userData = await userResponse.json() as SendGridUser;
+      const userData = (await userResponse.json()) as SendGridUser;
 
       // Fetch reputation (if available)
       let reputation;
+
       try {
         const reputationResponse = await fetch('https://api.sendgrid.com/v3/user/reputation', {
-          headers
+          headers,
         });
+
         if (reputationResponse.ok) {
-          const reputationData = await reputationResponse.json() as any;
+          const reputationData = (await reputationResponse.json()) as any;
           reputation = reputationData.reputation;
         }
       } catch (error) {
@@ -125,10 +130,12 @@ export default function SendGridConnection() {
 
       // Fetch credits (if available)
       let credits;
+
       try {
         const creditsResponse = await fetch('https://api.sendgrid.com/v3/user/credits', {
-          headers
+          headers,
         });
+
         if (creditsResponse.ok) {
           credits = await creditsResponse.json();
         }
@@ -141,17 +148,20 @@ export default function SendGridConnection() {
         user: userData,
         reputation,
         credits: credits as any,
-        lastConnected: new Date()
+        lastConnected: new Date(),
       };
 
       setStats(newStats);
-      
+
       // Save to localStorage (key is stored for validation purposes only)
-      localStorage.setItem('sendgrid_connection', JSON.stringify({
-        apiKey: key,
-        isConnected: true,
-        stats: newStats
-      }));
+      localStorage.setItem(
+        'sendgrid_connection',
+        JSON.stringify({
+          apiKey: key,
+          isConnected: true,
+          stats: newStats,
+        }),
+      );
 
       return newStats;
     } catch (error) {
@@ -170,13 +180,14 @@ export default function SendGridConnection() {
     try {
       // Verify the key first
       const isValid = await verifyConnection(apiKey);
+
       if (!isValid) {
         throw new Error('Invalid API key');
       }
 
       // Fetch user data and stats
       await fetchSendGridStats(apiKey);
-      
+
       setIsConnected(true);
       toast.success('Successfully connected to SendGrid');
     } catch (error) {
@@ -209,9 +220,18 @@ export default function SendGridConnection() {
   };
 
   const getReputationColor = (reputation?: number) => {
-    if (!reputation) return 'text-bolt-elements-textSecondary';
-    if (reputation >= 80) return 'text-green-600 dark:text-green-400';
-    if (reputation >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    if (!reputation) {
+      return 'text-bolt-elements-textSecondary';
+    }
+
+    if (reputation >= 80) {
+      return 'text-green-600 dark:text-green-400';
+    }
+
+    if (reputation >= 60) {
+      return 'text-yellow-600 dark:text-yellow-400';
+    }
+
     return 'text-red-600 dark:text-red-400';
   };
 
@@ -247,12 +267,12 @@ export default function SendGridConnection() {
                 disabled={connecting}
                 placeholder="SG...."
                 className={classNames(
-                  "w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md",
-                  "bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1",
-                  "text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary",
-                  "placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary",
-                  "focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent",
-                  "disabled:opacity-50 disabled:cursor-not-allowed"
+                  'w-full px-3 py-2 border border-bolt-elements-borderColor dark:border-bolt-elements-borderColor rounded-md',
+                  'bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1',
+                  'text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary',
+                  'placeholder-bolt-elements-textSecondary dark:placeholder-bolt-elements-textSecondary',
+                  'focus:outline-none focus:ring-2 focus:ring-bolt-elements-item-contentAccent dark:focus:ring-bolt-elements-item-contentAccent',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
                 )}
               />
               <div className="mt-2 text-sm text-bolt-elements-textSecondary">
@@ -269,19 +289,15 @@ export default function SendGridConnection() {
                 <span>Required permissions: Mail Send, User Profile</span>
               </div>
             </div>
-            
+
             <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <div className="i-ph:info w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                  Free SendGrid Account
-                </span>
+                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Free SendGrid Account</span>
               </div>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                • Send 100 emails/day forever free
-                • No credit card required for signup
-                • Full email delivery and analytics
-                • SMTP and Web API support
+                • Send 100 emails/day forever free • No credit card required for signup • Full email delivery and
+                analytics • SMTP and Web API support
               </p>
             </div>
 
@@ -289,11 +305,11 @@ export default function SendGridConnection() {
               onClick={handleConnect}
               disabled={!apiKey || connecting}
               className={classNames(
-                "w-full px-4 py-2 rounded-md font-medium transition-colors",
-                "bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent",
-                "text-white dark:text-white",
-                "hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
+                'w-full px-4 py-2 rounded-md font-medium transition-colors',
+                'bg-bolt-elements-item-contentAccent dark:bg-bolt-elements-item-contentAccent',
+                'text-white dark:text-white',
+                'hover:bg-bolt-elements-item-contentAccent/90 dark:hover:bg-bolt-elements-item-contentAccent/90',
+                'disabled:opacity-50 disabled:cursor-not-allowed',
               )}
             >
               {connecting ? 'Connecting...' : 'Connect to SendGrid'}
@@ -319,7 +335,7 @@ export default function SendGridConnection() {
                 Refresh
               </button>
             </div>
-            
+
             {stats?.user && (
               <div className="bg-bolt-elements-backgroundDepth-1 dark:bg-bolt-elements-backgroundDepth-1 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -328,10 +344,9 @@ export default function SendGridConnection() {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-bolt-elements-textPrimary">
-                      {stats.user.first_name && stats.user.last_name 
+                      {stats.user.first_name && stats.user.last_name
                         ? `${stats.user.first_name} ${stats.user.last_name}`
-                        : stats.user.username
-                      }
+                        : stats.user.username}
                     </h4>
                     <p className="text-xs text-bolt-elements-textSecondary">{stats.user.email}</p>
                     {stats.user.company && (
@@ -339,17 +354,17 @@ export default function SendGridConnection() {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   {stats.reputation !== undefined && (
                     <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
-                      <div className={classNames("text-lg font-bold", getReputationColor(stats.reputation))}>
+                      <div className={classNames('text-lg font-bold', getReputationColor(stats.reputation))}>
                         {stats.reputation}%
                       </div>
                       <div className="text-xs text-bolt-elements-textSecondary">Reputation</div>
                     </div>
                   )}
-                  
+
                   {stats.credits && (
                     <div className="text-center p-3 bg-bolt-elements-background dark:bg-bolt-elements-background rounded-lg">
                       <div className="text-lg font-bold text-bolt-elements-textPrimary">
@@ -363,7 +378,7 @@ export default function SendGridConnection() {
                 {stats.credits && (
                   <div className="space-y-2">
                     <h5 className="text-sm font-medium text-bolt-elements-textPrimary">Credit Usage</h5>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-bolt-elements-textSecondary">Total Credits</span>
@@ -371,14 +386,14 @@ export default function SendGridConnection() {
                           {stats.credits.total.toLocaleString()}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-bolt-elements-textSecondary">Used Credits</span>
                         <span className="text-bolt-elements-textPrimary font-medium">
                           {stats.credits.used.toLocaleString()}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-bolt-elements-textSecondary">Remaining</span>
                         <span className="text-bolt-elements-textPrimary font-medium">
@@ -399,10 +414,10 @@ export default function SendGridConnection() {
                     {/* Usage Progress Bar */}
                     <div className="mt-3">
                       <div className="w-full bg-bolt-elements-background dark:bg-bolt-elements-background rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-bolt-elements-item-contentAccent h-2 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${Math.min((stats.credits.used / stats.credits.total) * 100, 100)}%` 
+                          style={{
+                            width: `${Math.min((stats.credits.used / stats.credits.total) * 100, 100)}%`,
                           }}
                         />
                       </div>
@@ -419,10 +434,9 @@ export default function SendGridConnection() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-bolt-elements-textSecondary">Location</span>
                       <span className="text-bolt-elements-textPrimary font-medium">
-                        {stats.user.city && stats.user.state 
+                        {stats.user.city && stats.user.state
                           ? `${stats.user.city}, ${stats.user.state}, ${stats.user.country}`
-                          : stats.user.country
-                        }
+                          : stats.user.country}
                       </span>
                     </div>
                   </div>
@@ -437,14 +451,14 @@ export default function SendGridConnection() {
                 )}
               </div>
             )}
-            
+
             <button
               onClick={handleDisconnect}
               className={classNames(
-                "w-full px-4 py-2 rounded-md font-medium transition-colors",
-                "bg-red-600 dark:bg-red-600",
-                "text-white dark:text-white",
-                "hover:bg-red-700 dark:hover:bg-red-700"
+                'w-full px-4 py-2 rounded-md font-medium transition-colors',
+                'bg-red-600 dark:bg-red-600',
+                'text-white dark:text-white',
+                'hover:bg-red-700 dark:hover:bg-red-700',
               )}
             >
               Disconnect

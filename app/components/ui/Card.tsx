@@ -18,7 +18,13 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
 Card.displayName = 'Card';
 
 const CardHeader = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
-  return <div ref={ref} className={classNames('flex flex-col space-y-1 sm:space-y-1.5 p-3 sm:p-4 lg:p-6', className)} {...props} />;
+  return (
+    <div
+      ref={ref}
+      className={classNames('flex flex-col space-y-1 sm:space-y-1.5 p-3 sm:p-4 lg:p-6', className)}
+      {...props}
+    />
+  );
 });
 CardHeader.displayName = 'CardHeader';
 
@@ -37,7 +43,13 @@ CardTitle.displayName = 'CardTitle';
 
 const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => {
-    return <p ref={ref} className={classNames('text-xs sm:text-sm text-bolt-elements-textSecondary', className)} {...props} />;
+    return (
+      <p
+        ref={ref}
+        className={classNames('text-xs sm:text-sm text-bolt-elements-textSecondary', className)}
+        {...props}
+      />
+    );
   },
 );
 CardDescription.displayName = 'CardDescription';

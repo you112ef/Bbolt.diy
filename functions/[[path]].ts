@@ -134,7 +134,8 @@ export const onRequest: PagesFunction = async (context) => {
     let serverBuild: ServerBuild;
     try {
       // Add timeout to prevent hanging imports
-      const importPromise = import('../build/server');
+      // In Cloudflare Pages, build files are deployed to the root
+      const importPromise = import('/build/server');
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Import timeout after 10 seconds')), 10000)
       );

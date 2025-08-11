@@ -12,16 +12,16 @@ export const onRequest: PagesFunction = async (context) => {
       method: context.request.method,
     };
 
-    // Try to import server build to verify it's accessible
-    try {
-      const serverBuild = await import('../../build/server');
-      healthData.status = 'fully_operational';
-      healthData.serverBuild = 'loaded';
-    } catch (importError) {
-      healthData.status = 'degraded';
-      healthData.serverBuild = 'failed';
-      healthData.importError = importError.message;
-    }
+                // Try to import server build to verify it's accessible
+            try {
+              const serverBuild = await import('/build/server');
+              healthData.status = 'fully_operational';
+              healthData.serverBuild = 'loaded';
+            } catch (importError) {
+              healthData.status = 'degraded';
+              healthData.serverBuild = 'failed';
+              healthData.importError = importError.message;
+            }
 
     return new Response(JSON.stringify(healthData, null, 2), {
       status: 200,

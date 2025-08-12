@@ -1,6 +1,7 @@
 import { WebContainer } from '@webcontainer/api';
 import { WORK_DIR_NAME } from '~/utils/constants';
 import { cleanStackTrace } from '~/utils/stacktrace';
+import { workbenchStore } from '~/lib/stores/workbench';
 
 interface WebContainerContext {
   loaded: boolean;
@@ -31,8 +32,6 @@ if (!import.meta.env.SSR) {
       })
       .then(async (webcontainer) => {
         webcontainerContext.loaded = true;
-
-        const { workbenchStore } = await import('~/lib/stores/workbench');
 
         const response = await fetch('/inspector-script.js');
         const inspectorScript = await response.text();

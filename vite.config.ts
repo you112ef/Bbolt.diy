@@ -14,11 +14,20 @@ export default defineConfig((config) => {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'global': 'globalThis',
     },
+    logLevel: 'warn',
     build: {
       target: 'esnext',
       sourcemap: false, // Disable sourcemaps to reduce memory usage
+      reportCompressedSize: false,
+      chunkSizeWarningLimit: 16384,
       rollupOptions: {
         external: [],
+        onwarn(warning, warn) {
+          // Suppress noisy sourcemap warnings and empty bundle notices that are non-actionable
+          if (warning.code === 'SOURCEMAP_ERROR') return;
+          if (warning.code === 'EMPTY_BUNDLE') return;
+          warn(warning);
+        },
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
@@ -30,6 +39,18 @@ export default defineConfig((config) => {
               }
               if (id.includes('@radix-ui')) {
                 return 'radix';
+              }
+              if (id.includes('xterm')) {
+                return 'xterm';
+              }
+              if (id.includes('chart.js')) {
+                return 'chartjs';
+              }
+              if (id.includes('shiki')) {
+                return 'shiki';
+              }
+              if (id.includes('@octokit')) {
+                return 'octokit';
               }
               return 'vendor';
             }
@@ -80,6 +101,7 @@ export default defineConfig((config) => {
           v3_relativeSplatPath: true,
           v3_throwAbortReason: true,
           v3_lazyRouteDiscovery: true,
+          v3_singleFetch: true,
         },
       }),
       UnoCSS(),

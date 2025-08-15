@@ -1,0 +1,112 @@
+{
+  "version": "1.0.0",
+  "description": "AI Configuration for bolt.diy - Enhanced with AI Agents and Local AI",
+  "features": {
+    "aiAssistant": {
+      "enabled": true,
+      "description": "Floating AI assistant with specialized agents",
+      "agents": [
+        {
+          "type": "explainer",
+          "name": "Code Explainer",
+          "description": "Analyzes and explains code functionality and patterns",
+          "systemPrompt": "You are a Code Explainer AI. Provide clear, educational explanations of code."
+        },
+        {
+          "type": "fixer", 
+          "name": "Bug Fixer",
+          "description": "Identifies and fixes bugs, errors, and code issues",
+          "systemPrompt": "You are a Code Fixer AI. Find and fix bugs with working solutions."
+        },
+        {
+          "type": "optimizer",
+          "name": "Performance Optimizer", 
+          "description": "Optimizes code for better performance and efficiency",
+          "systemPrompt": "You are a Performance Optimizer AI. Improve code speed and efficiency."
+        },
+        {
+          "type": "tester",
+          "name": "Test Generator",
+          "description": "Generates comprehensive test suites and strategies", 
+          "systemPrompt": "You are a Test Generator AI. Create thorough tests for code."
+        },
+        {
+          "type": "docs",
+          "name": "Documentation Writer",
+          "description": "Creates comprehensive documentation and comments",
+          "systemPrompt": "You are a Documentation Writer AI. Create clear, helpful documentation."
+        }
+      ]
+    },
+    "monacoEditor": {
+      "enabled": true,
+      "description": "Alternative Monaco editor (VSCode-like) alongside CodeMirror",
+      "lazyLoad": true,
+      "features": [
+        "IntelliSense",
+        "Multi-cursor editing", 
+        "Advanced find/replace",
+        "Code folding",
+        "Bracket matching",
+        "Auto-completion"
+      ]
+    },
+    "localAI": {
+      "enabled": true,
+      "description": "Offline AI capabilities using local models",
+      "provider": "local",
+      "models": [
+        {
+          "name": "bolt-assistant",
+          "description": "Lightweight AI model for code assistance",
+          "size": "~50MB compressed",
+          "type": "gguf"
+        }
+      ],
+      "config": {
+        "temperature": 0.7,
+        "maxTokens": 2048,
+        "contextLength": 4096
+      }
+    }
+  },
+  "integration": {
+    "preserveExisting": true,
+    "description": "All AI features are additive and do not modify existing functionality",
+    "loadingStrategy": "lazy",
+    "components": {
+      "AIExtensions": {
+        "path": "/app/components/extensions/AIExtensions.tsx",
+        "description": "Main integration point for AI features"
+      },
+      "AIAssistant": {
+        "path": "/app/components/ai/AIAssistant.tsx", 
+        "description": "Main AI chat interface with agent selection"
+      },
+      "MonacoEditor": {
+        "path": "/app/components/editor/monaco/MonacoEditor.tsx",
+        "description": "Alternative Monaco editor implementation"
+      }
+    }
+  },
+  "offlineCapabilities": {
+    "enabled": true,
+    "description": "Works completely offline using WebAssembly and local models",
+    "technologies": [
+      "transformers.js for smaller models",
+      "llama.cpp WASM for larger models", 
+      "WebGPU acceleration when available",
+      "Service Worker for model caching"
+    ]
+  },
+  "security": {
+    "dataPrivacy": "All AI processing happens locally - no data sent to external servers",
+    "codePrivacy": "User code never leaves the browser",
+    "modelSecurity": "Models are verified and sandboxed"
+  },
+  "performance": {
+    "lazyLoading": "All AI components are lazy-loaded to prevent impact on initial load",
+    "memoryManagement": "Models are loaded/unloaded as needed",
+    "bundleImpact": "Minimal impact on main bundle size"
+  }
+}

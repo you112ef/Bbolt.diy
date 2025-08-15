@@ -2,7 +2,6 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-<<<<<<< HEAD
     branches:
       - main
   pull_request:
@@ -11,60 +10,16 @@ permissions:
   contents: read
   deployments: write
   pull-requests: write
-=======
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-<<<<<<< HEAD
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Enable corepack and pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@9.14.4 --activate
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build
-        env:
-          NODE_ENV: production
-=======
-    permissions:
-      contents: read
-      deployments: write
-    steps:
-      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup PNPM
@@ -75,20 +30,20 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile=false
+        run: pnpm install --frozen-lockfile
 
       - name: Build
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
+        env:
+          NODE_ENV: production
         run: pnpm run build
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
-<<<<<<< HEAD
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
@@ -97,11 +52,3 @@ jobs:
           wranglerVersion: '4'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-=======
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: ${{ secrets.CF_PAGES_PROJECT }}
-          directory: build/client
-          branch: ${{ github.ref_name }}
-          wranglerVersion: '3'
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe

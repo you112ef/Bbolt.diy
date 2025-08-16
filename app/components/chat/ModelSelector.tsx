@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 import type { UIProviderInfo } from '~/lib/modules/llm/types';
-=======
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 import { useEffect, useState, useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import type { ModelInfo } from '~/lib/modules/llm/types';

@@ -54,47 +54,8 @@ export default async function handleRequest(
 
   const body = new ReadableStream({
     start(controller) {
-<<<<<<< HEAD
-      const head = renderHeadToString({ request, remixContext, Head });
-
-      controller.enqueue(
-        new Uint8Array(
-          new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en"><head>${head}</head><body><div id="root" class="w-full h-full">`,
-          ),
-        ),
-      );
-
-      const reader = readable.getReader();
-
-      function read() {
-        reader
-          .read()
-          .then(({ done, value }) => {
-            if (done) {
-              controller.enqueue(new Uint8Array(new TextEncoder().encode('</div></body></html>')));
-              controller.close();
-
-              return;
-            }
-
-            controller.enqueue(value);
-            read();
-          })
-          .catch((error) => {
-            controller.error(error);
-            readable.cancel();
-          });
-      }
-      read();
-    },
-
-    cancel() {
-      readable.cancel();
-=======
       controller.enqueue(new Uint8Array(new TextEncoder().encode(fullHtml)));
       controller.close();
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
     },
   });
 

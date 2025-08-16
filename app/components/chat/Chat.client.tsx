@@ -32,6 +32,7 @@ import type { ElementInfo } from '~/components/workbench/Inspector';
 import type { TextUIPart, FileUIPart, Attachment } from '@ai-sdk/ui-utils';
 import { useMCPStore } from '~/lib/stores/mcp';
 import type { LlmErrorAlertType } from '~/types/actions';
+import type { ModelInfo } from '~/lib/modules/llm/types';
 
 const toastAnimation = cssTransition({
   enter: 'animated fadeInRight',
@@ -141,7 +142,13 @@ export const ChatImpl = memo(
     const [llmErrorAlert, setLlmErrorAlert] = useState<LlmErrorAlertType | undefined>(undefined);
     const [model, setModel] = useState(() => {
       const savedModel = Cookies.get('selectedModel');
-      return savedModel || DEFAULT_MODEL;
+      if (savedModel) return savedModel;
+      const envProvider = (import.meta.env?.LLM_PROVIDER || '').toString().toLowerCase();
+      const envModel = (import.meta.env?.OLLAMA_MODEL || '').toString();
+      if (envProvider === 'ollama' && envModel) {
+        return envModel;
+      }
+      return DEFAULT_MODEL;
     });
     const [provider, setProvider] = useState<UIProviderInfo>(() => {
       const toUIProvider = (p: ProviderInfo): UIProviderInfo => ({
@@ -153,8 +160,16 @@ export const ChatImpl = memo(
         icon: p.icon,
       });
       const savedProvider = Cookies.get('selectedProvider');
-      const found = (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
-
+      if (savedProvider) {
+        const foundSaved = (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+        return toUIProvider(foundSaved);
+      }
+      const envProvider = (import.meta.env?.LLM_PROVIDER || '').toString().toLowerCase();
+      if (envProvider) {
+        const foundEnv = (PROVIDER_LIST.find((p) => p.name.toLowerCase() === envProvider) || DEFAULT_PROVIDER) as ProviderInfo;
+        return toUIProvider(foundEnv);
+      }
+      const found = DEFAULT_PROVIDER as ProviderInfo;
       return toUIProvider(found);
     });
     const { showChat } = useStore(chatStore);
@@ -163,6 +178,8 @@ export const ChatImpl = memo(
     const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
     const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
     const mcpSettings = useMCPStore((state) => state.settings);
+    const [modelList, setModelList] = useState<ModelInfo[]>([]);
+    const [isModelLoading, setIsModelLoading] = useState<'all' | 'Ollama' | undefined>(undefined);
 
     const {
       messages,
@@ -624,12 +641,50 @@ export const ChatImpl = memo(
     );
 
     useEffect(() => {
-      const storedApiKeys = Cookies.get('apiKeys');
+      if (typeof window !== 'undefined') {
+        let parsedApiKeys: Record<string, string> | undefined = {};
 
-      if (storedApiKeys) {
-        setApiKeys(JSON.parse(storedApiKeys));
+        try {
+          parsedApiKeys = getApiKeysFromCookies();
+          setApiKeys(parsedApiKeys);
+        } catch (error) {
+          console.error('Error loading API keys from cookies:', error);
+          Cookies.remove('apiKeys');
+        }
+
+        setIsModelLoading('all');
+        fetch('/api/models')
+          .then((response) => response.json())
+          .then((data) => {
+            const typedData = data as { modelList: ModelInfo[] };
+            setModelList(typedData.modelList);
+          })
+          .catch((error) => {
+            console.error('Error fetching model list:', error);
+          })
+          .finally(() => {
+            setIsModelLoading(undefined);
+          });
+
+        // If env prefers Ollama and base URL is set, force-load Ollama models list once
+        const envProvider = (import.meta.env?.LLM_PROVIDER || '').toString().toLowerCase();
+        const ollamaBase = (import.meta.env?.OLLAMA_API_BASE_URL || '').toString();
+        if (envProvider === 'ollama' && ollamaBase) {
+          setIsModelLoading('Ollama');
+          fetch('/api/models/Ollama')
+            .then((r) => r.json())
+            .then((data) => {
+              const typed = data as { modelList: ModelInfo[] };
+              setModelList((prev) => {
+                const other = prev.filter((m) => m.provider !== 'Ollama');
+                return [...other, ...typed.modelList];
+              });
+            })
+            .catch((e) => console.warn('Failed to prefetch Ollama models', e))
+            .finally(() => setIsModelLoading(undefined));
+        }
       }
-    }, []);
+    }, [providerList, provider]);
 
     const handleModelChange = (newModel: string) => {
       setModel(newModel);
@@ -711,6 +766,8 @@ export const ChatImpl = memo(
         selectedElement={selectedElement}
         setSelectedElement={setSelectedElement}
         addToolResult={addToolResult}
+        modelList={modelList}
+        isModelLoading={isModelLoading}
       />
     );
   },

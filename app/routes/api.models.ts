@@ -17,7 +17,7 @@ interface ModelsResponse {
 let cachedProviders: UIProviderInfo[] | null = null;
 let cachedDefaultProvider: UIProviderInfo | null = null;
 
-function getProviderInfo(llmManager: LLMManager) {
+function getProviderInfo(llmManager: LLMManager, env?: Record<string, string>) {
   if (!cachedProviders) {
     cachedProviders = llmManager.getAllProviders().map((provider) => ({
       name: provider.name,
@@ -28,8 +28,12 @@ function getProviderInfo(llmManager: LLMManager) {
     }));
   }
 
+  const envPreferred = (env?.LLM_PROVIDER || '').toString().toLowerCase();
+
   if (!cachedDefaultProvider) {
-    const defaultProvider = llmManager.getDefaultProvider();
+    const defaultProvider = envPreferred
+      ? llmManager.getAllProviders().find((p) => p.name.toLowerCase() === envPreferred) || llmManager.getDefaultProvider()
+      : llmManager.getDefaultProvider();
     cachedDefaultProvider = {
       name: defaultProvider.name,
       staticModels: defaultProvider.staticModels,
@@ -62,7 +66,7 @@ export async function loader({
   const apiKeys = getApiKeysFromCookie(cookieHeader);
   const providerSettings = getProviderSettingsFromCookie(cookieHeader);
 
-  const { providers, defaultProvider } = getProviderInfo(llmManager);
+  const { providers, defaultProvider } = getProviderInfo(llmManager, context.cloudflare?.env);
 
   let modelList: ModelInfo[] = [];
 

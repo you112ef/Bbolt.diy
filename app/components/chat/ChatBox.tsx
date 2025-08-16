@@ -119,7 +119,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               />
               {(props.providerList || []).length > 0 &&
                 props.provider &&
-                (!LOCAL_PROVIDERS.includes(props.provider.name) || 'OpenAILike') && (
+                (props.provider.name !== 'Ollama' && props.provider.name !== 'LMStudio' && props.provider.name !== 'OpenAILike') && (
                   <APIKeyManager
                     provider={props.provider}
                     apiKey={props.apiKeys[props.provider.name] || ''}

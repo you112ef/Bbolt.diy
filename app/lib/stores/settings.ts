@@ -71,6 +71,30 @@ const getInitialProviderSettings = (): ProviderSetting => {
     };
   });
 
+  // If env prefers a specific provider, enable it
+  const envPreferred = (import.meta.env?.LLM_PROVIDER || '').toString().toLowerCase();
+  if (envPreferred) {
+    Object.keys(initialSettings).forEach((name) => {
+      initialSettings[name].settings = {
+        ...initialSettings[name].settings,
+        enabled: name.toLowerCase() === envPreferred || initialSettings[name].settings.enabled,
+      };
+    });
+  }
+
+  // Seed Ollama base URL and enable if provided by env
+  const ollamaBase = (import.meta.env?.OLLAMA_API_BASE_URL || '').toString();
+  if (ollamaBase) {
+    const key = 'Ollama';
+    if (initialSettings[key]) {
+      initialSettings[key].settings = {
+        ...initialSettings[key].settings,
+        baseUrl: ollamaBase,
+        enabled: true,
+      };
+    }
+  }
+
   // Only try to load from localStorage in the browser
   if (isBrowser) {
     const savedSettings = localStorage.getItem(PROVIDER_SETTINGS_KEY);

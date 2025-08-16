@@ -151,8 +151,11 @@ export default function LocalProvidersTab() {
   const fetchOllamaModels = async () => {
     try {
       setIsLoadingModels(true);
-
-      const response = await fetch('http://127.0.0.1:11434/api/tags');
+      const baseUrl =
+        (providers?.Ollama?.settings?.baseUrl as string | undefined) ||
+        (import.meta.env?.OLLAMA_API_BASE_URL as string | undefined) ||
+        OLLAMA_API_URL;
+      const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/tags`);
       const data = (await response.json()) as { models: OllamaModel[] };
 
       setOllamaModels(
@@ -170,7 +173,11 @@ export default function LocalProvidersTab() {
 
   const updateOllamaModel = async (modelName: string): Promise<boolean> => {
     try {
-      const response = await fetch(`${OLLAMA_API_URL}/api/pull`, {
+      const baseUrl =
+        (providers?.Ollama?.settings?.baseUrl as string | undefined) ||
+        (import.meta.env?.OLLAMA_API_BASE_URL as string | undefined) ||
+        OLLAMA_API_URL;
+      const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/pull`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: modelName }),
@@ -222,7 +229,7 @@ export default function LocalProvidersTab() {
         }
       }
 
-      const updatedResponse = await fetch('http://127.0.0.1:11434/api/tags');
+      const updatedResponse = await fetch(`${baseUrl.replace(/\/$/, '')}/api/tags`);
       const updatedData = (await updatedResponse.json()) as { models: OllamaModel[] };
       const updatedModel = updatedData.models.find((m) => m.name === modelName);
 
@@ -279,7 +286,11 @@ export default function LocalProvidersTab() {
 
   const handleDeleteOllamaModel = async (modelName: string) => {
     try {
-      const response = await fetch(`${OLLAMA_API_URL}/api/delete`, {
+      const baseUrl =
+        (providers?.Ollama?.settings?.baseUrl as string | undefined) ||
+        (import.meta.env?.OLLAMA_API_BASE_URL as string | undefined) ||
+        OLLAMA_API_URL;
+      const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/delete`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

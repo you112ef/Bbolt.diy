@@ -1,6 +1,5 @@
-import type { WebContainer } from '@webcontainer/api';
-import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
-import { webcontainer as webcontainerPromise } from '~/lib/webcontainer';
+import { useCallback, useState } from 'react';
+import { webcontainerInstance } from '~/lib/webcontainer';
 import git, { type GitAuth, type PromiseFsClient } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
 import Cookies from 'js-cookie';
@@ -30,11 +29,11 @@ const saveGitAuth = (url: string, auth: GitAuth) => {
 
 export function useGit() {
   const [ready, setReady] = useState(false);
-  const [webcontainer, setWebcontainer] = useState<WebContainer>();
+  const [webcontainer, setWebcontainer] = useState();
   const [fs, setFs] = useState<PromiseFsClient>();
-  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
-  useEffect(() => {
-    webcontainerPromise.then((container) => {
+  const fileData = useState<Record<string, { data: any; encoding?: string }>>({});
+  useState(() => {
+    webcontainerInstance.then((container) => {
       fileData.current = {};
       setWebcontainer(container);
       setFs(getFs(container, fileData));
@@ -172,8 +171,8 @@ export function useGit() {
 }
 
 const getFs = (
-  webcontainer: WebContainer,
-  record: MutableRefObject<Record<string, { data: any; encoding?: string }>>,
+  webcontainer: any,
+  record: any,
 ) => ({
   promises: {
     readFile: async (path: string, options: any) => {

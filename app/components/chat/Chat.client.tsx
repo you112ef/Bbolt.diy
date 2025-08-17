@@ -1,16 +1,11 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useStore } from '@nanostores/react';
+import { chatStore, chatActions } from '~/lib/stores/chat';
 import { aiModelsStore, aiModelsActions } from '~/lib/stores/aiModels';
 import { localAIManager } from '~/enhanced/models/providers/OfflineAI';
+import { LoadingSpinner } from '~/components/ui/LoadingSpinner';
+import { Alert } from '~/components/ui/Alert';
 import type { AIModel } from '~/types/aiModels';
-
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-  modelId?: string;
-  isError?: boolean;
-}
 
 interface ChatClientProps {
   className?: string;
@@ -18,12 +13,11 @@ interface ChatClientProps {
 
 export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
   const [input, setInput] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Get state from stores
+  const { messages, isLoading, error, isTyping, selectedModelId } = chatStore();
   const { selectedModel, localModels, cloudModels } = aiModelsStore.getState();
 
   // Auto-scroll to bottom when new messages arrive
@@ -39,34 +33,22 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
     }
   }, [input]);
 
-  const addMessage = useCallback((message: ChatMessage) => {
-    setMessages(prev => [...prev, message]);
-  }, []);
-
-  const clearMessages = useCallback(() => {
-    setMessages([]);
-  }, []);
-
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
-
   const handleSendMessage = useCallback(async () => {
-    if (!input.trim() || isGenerating) return;
+    if (!input.trim() || isLoading) return;
 
-    const userMessage: ChatMessage = {
+    const userMessage = {
       id: `msg_${Date.now()}`,
-      role: 'user',
+      role: 'user' as const,
       content: input.trim(),
       timestamp: new Date().toISOString(),
       modelId: selectedModel?.id || null
     };
 
     // Add user message
-    addMessage(userMessage);
+    chatActions.addMessage(userMessage);
     setInput('');
-    setIsGenerating(true);
-    setError(null);
+    chatActions.setLoading(true);
+    chatActions.setError(null);
 
     try {
       let assistantResponse = '';
@@ -90,34 +72,34 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
         assistantResponse = 'يرجى اختيار نموذج ذكاء اصطناعي أولاً.';
       }
 
-      const assistantMessage: ChatMessage = {
+      const assistantMessage = {
         id: `msg_${Date.now()}_${Math.random()}`,
-        role: 'assistant',
+        role: 'assistant' as const,
         content: assistantResponse,
         timestamp: new Date().toISOString(),
         modelId: selectedModel?.id || null
       };
 
-      addMessage(assistantMessage);
+      chatActions.addMessage(assistantMessage);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء توليد الرد';
-      setError(errorMessage);
+      chatActions.setError(errorMessage);
       
-      const errorMsg: ChatMessage = {
+      const errorMsg = {
         id: `error_${Date.now()}`,
-        role: 'assistant',
+        role: 'assistant' as const,
         content: `❌ خطأ: ${errorMessage}`,
         timestamp: new Date().toISOString(),
         modelId: selectedModel?.id || null,
         isError: true
       };
 
-      addMessage(errorMsg);
+      chatActions.addMessage(errorMsg);
     } finally {
-      setIsGenerating(false);
+      chatActions.setLoading(false);
     }
-  }, [input, isGenerating, selectedModel, addMessage]);
+  }, [input, isLoading, selectedModel]);
 
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -128,13 +110,14 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
 
   const handleModelSelect = useCallback((model: AIModel) => {
     aiModelsActions.setSelectedModel(model);
+    chatActions.setSelectedModel(model.id);
   }, []);
 
   const clearChat = useCallback(() => {
     if (confirm('هل أنت متأكد من حذف جميع الرسائل؟')) {
-      clearMessages();
+      chatActions.clearMessages();
     }
-  }, [clearMessages]);
+  }, []);
 
   const availableModels = [...localModels, ...cloudModels];
 
@@ -251,7 +234,7 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
         )}
         
         {/* Typing indicator */}
-        {isGenerating && (
+        {isTyping && (
           <div className="flex justify-start">
             <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-3">
               <div className="flex items-center space-x-2">
@@ -271,15 +254,12 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
 
       {/* Error Display */}
       {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border-t border-red-200 dark:border-red-800">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-          <button
-            onClick={clearError}
-            className="mt-2 text-xs text-red-600 dark:text-red-300 hover:underline"
-          >
-            إغلاق
-          </button>
-        </div>
+        <Alert
+          type="error"
+          message={error}
+          onClose={() => chatActions.setError(null)}
+          className="m-4"
+        />
       )}
 
       {/* Input */}
@@ -296,7 +276,7 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
                   ? `اكتب رسالتك هنا... (${selectedModel.name})`
                   : 'اختر نموذج ذكاء اصطناعي أولاً...'
               }
-              disabled={!selectedModel || isGenerating}
+              disabled={!selectedModel || isLoading}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white disabled:opacity-50"
               rows={1}
               maxLength={4000}
@@ -313,12 +293,12 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
           
           <button
             onClick={handleSendMessage}
-            disabled={!input.trim() || !selectedModel || isGenerating}
+            disabled={!input.trim() || !selectedModel || isLoading}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isGenerating ? (
+            {isLoading ? (
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <LoadingSpinner size="sm" color="white" />
                 <span>جاري التوليد...</span>
               </div>
             ) : (

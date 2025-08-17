@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useStore } from '@nanostores/react';
 import { aiModelsStore, aiModelsActions } from '~/lib/stores/aiModels';
+import { LoadingSpinner } from '~/components/ui/LoadingSpinner';
+import { Alert } from '~/components/ui/Alert';
 import type { AIModel } from '~/types/aiModels';
 
 interface AIModelsTabProps {
@@ -153,15 +155,13 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-          <button
-            onClick={() => aiModelsActions.clearError()}
-            className="mt-2 text-xs text-red-600 dark:text-red-300 hover:underline"
-          >
-            إغلاق
-          </button>
-        </div>
+        <Alert
+          type="error"
+          title="خطأ في تحميل النموذج"
+          message={error}
+          onClose={() => aiModelsActions.clearError()}
+          className="mb-4"
+        />
       )}
 
       {/* Upload Section */}
@@ -388,7 +388,7 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
       {(isLoading || isUploading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3" />
+            <LoadingSpinner size="lg" color="primary" className="mx-auto mb-3" />
             <p className="text-gray-700 dark:text-gray-300">
               {isUploading ? 'جاري رفع النموذج...' : 'جاري التحميل...'}
             </p>

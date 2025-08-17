@@ -1,20 +1,19 @@
-import { useStore } from '@nanostores/react';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { streamingState } from '~/lib/stores/streaming';
 import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportChatButton';
 import { useChatHistory } from '~/lib/persistence';
 import { DeployButton } from '~/components/deploy/DeployButton';
-import { chatStore } from '~/lib/stores/chat';
+import { chatStore, chatActions } from '~/lib/stores/chat';
+import { useStore } from '@nanostores/react';
 
 interface HeaderActionButtonsProps {
   chatStarted: boolean;
 }
 
 export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
-  // const activePreview = useStore(workbenchStore.previews)[0];
   const isStreaming = useStore(streamingState);
   const { exportChat } = useChatHistory();
-  const { showChat } = useStore(chatStore);
+  const { showChat } = chatStore();
 
   const shouldShowButtons = !isStreaming;
 
@@ -25,7 +24,7 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
           <button
             className="px-2 py-1 rounded-md text-xs border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3"
             onClick={() => {
-              chatStore.setKey('showChat', true);
+              chatActions.setShowChat(true);
               workbenchStore.showWorkbench.set(false);
             }}
             aria-pressed={showChat}
@@ -36,7 +35,7 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
           <button
             className="px-2 py-1 rounded-md text-xs border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3"
             onClick={() => {
-              chatStore.setKey('showChat', false);
+              chatActions.setShowChat(false);
               workbenchStore.showWorkbench.set(true);
               workbenchStore.currentView.set('code');
             }}

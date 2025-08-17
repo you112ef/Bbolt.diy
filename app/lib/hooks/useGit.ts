@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { WebContainer } from '@webcontainer/api';
 import { webcontainerInstance } from '~/lib/webcontainer';
 import git, { type GitAuth, type PromiseFsClient } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
@@ -29,16 +30,21 @@ const saveGitAuth = (url: string, auth: GitAuth) => {
 
 export function useGit() {
   const [ready, setReady] = useState(false);
-  const [webcontainer, setWebcontainer] = useState();
-  const [fs, setFs] = useState<PromiseFsClient>();
-  const fileData = useState<Record<string, { data: any; encoding?: string }>>({});
-  useState(() => {
-    webcontainerInstance.then((container) => {
-      fileData.current = {};
-      setWebcontainer(container);
-      setFs(getFs(container, fileData));
-      setReady(true);
-    });
+  const [webcontainer, setWebcontainer] = useState<WebContainer | null>(null);
+  const [fs, setFs] = useState<PromiseFsClient | undefined>(undefined);
+  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
+
+  useEffect(() => {
+    webcontainerInstance
+      .then((container) => {
+        fileData.current = {};
+        setWebcontainer(container);
+        setFs(getFs(container, fileData));
+        setReady(true);
+      })
+      .catch((err) => {
+        console.error('Failed to initialize WebContainer for git:', err);
+      });
   }, []);
 
   const gitClone = useCallback(
@@ -49,14 +55,7 @@ export function useGit() {
 
       fileData.current = {};
 
-      /*
-       * Skip Git initialization for now - let isomorphic-git handle it
-       * This avoids potential issues with our manual initialization
-       */
-
-      const headers: {
-        [x: string]: string;
-      } = {
+      const headers: { [x: string]: string } = {
         'User-Agent': 'bolt.diy',
       };
 
@@ -82,37 +81,24 @@ export function useGit() {
           singleBranch: true,
           corsProxy: '/api/git-proxy',
           headers,
-          onProgress: (event) => {
-            console.log('Git clone progress:', event);
+          onProgress: (_event: any) => {
+            // no-op
           },
-          onAuth: (url) => {
-            let auth = lookupSavedPassword(url);
-
-            if (auth) {
-              console.log('Using saved authentication for', url);
-              return auth;
+          onAuth: (url: string): GitAuth | void => {
+            const saved = lookupSavedPassword(url);
+            if (saved) {
+              return saved as GitAuth;
             }
-
-            console.log('Repository requires authentication:', url);
-
-            if (confirm('This repository requires authentication. Would you like to enter your GitHub credentials?')) {
-              auth = {
-                username: prompt('Enter username') || '',
-                password: prompt('Enter password or personal access token') || '',
-              };
-              return auth;
-            } else {
-              return { cancel: true };
-            }
+            return;
           },
-          onAuthFailure: (url, _auth) => {
+          onAuthFailure: (url: string, _auth: GitAuth) => {
             console.error(`Authentication failed for ${url}`);
             toast.error(`Authentication failed for ${url.split('/')[2]}. Please check your credentials and try again.`);
             throw new Error(
               `Authentication failed for ${url.split('/')[2]}. Please check your credentials and try again.`,
             );
           },
-          onAuthSuccess: (url, auth) => {
+          onAuthSuccess: (url: string, auth: GitAuth) => {
             console.log(`Authentication successful for ${url}`);
             saveGitAuth(url, auth);
           },
@@ -171,9 +157,9 @@ export function useGit() {
 }
 
 const getFs = (
-  webcontainer: any,
-  record: any,
-) => ({
+  webcontainer: WebContainer,
+  record: React.MutableRefObject<Record<string, { data: any; encoding?: string }>>,
+): PromiseFsClient => ({
   promises: {
     readFile: async (path: string, options: any) => {
       const encoding = options?.encoding;
@@ -181,10 +167,9 @@ const getFs = (
 
       try {
         const result = await webcontainer.fs.readFile(relativePath, encoding);
-
-        return result;
+        return result as any;
       } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     writeFile: async (path: string, data: any, options: any = {}) => {
@@ -199,16 +184,15 @@ const getFs = (
         if (data instanceof Uint8Array) {
           // For binary data, don't pass encoding
           const result = await webcontainer.fs.writeFile(relativePath, data);
-          return result;
+          return result as any;
         } else {
           // For text data, use the encoding if provided
           const encoding = options?.encoding || 'utf8';
           const result = await webcontainer.fs.writeFile(relativePath, data, encoding);
-
-          return result;
+          return result as any;
         }
       } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     mkdir: async (path: string, options: any) => {
@@ -216,10 +200,9 @@ const getFs = (
 
       try {
         const result = await webcontainer.fs.mkdir(relativePath, { ...options, recursive: true });
-
-        return result;
+        return result as any;
       } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     readdir: async (path: string, options: any) => {
@@ -227,21 +210,9 @@ const getFs = (
 
       try {
         const result = await webcontainer.fs.readdir(relativePath, options);
-
-        return result;
+        return result as any;
       } catch (error) {
-        throw error;
-      }
-    },
-    rm: async (path: string, options: any) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
-
-      try {
-        const result = await webcontainer.fs.rm(relativePath, { ...(options || {}) });
-
-        return result;
-      } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     rmdir: async (path: string, options: any) => {
@@ -249,19 +220,18 @@ const getFs = (
 
       try {
         const result = await webcontainer.fs.rm(relativePath, { recursive: true, ...options });
-
-        return result;
+        return result as any;
       } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     unlink: async (path: string) => {
       const relativePath = pathUtils.relative(webcontainer.workdir, path);
 
       try {
-        return await webcontainer.fs.rm(relativePath, { recursive: false });
+        return (await webcontainer.fs.rm(relativePath, { recursive: false })) as any;
       } catch (error) {
-        throw error;
+        throw error as any;
       }
     },
     stat: async (path: string) => {
@@ -294,11 +264,11 @@ const getFs = (
             ctime: new Date(),
             birthtime: new Date(),
             atime: new Date(),
-          };
+          } as any;
         }
 
         const resp = await webcontainer.fs.readdir(dirPath, { withFileTypes: true });
-        const fileInfo = resp.find((x) => x.name === fileName);
+        const fileInfo = (resp as any[]).find((x) => x.name === fileName);
 
         if (!fileInfo) {
           const err = new Error(`ENOENT: no such file or directory, stat '${path}'`) as NodeJS.ErrnoException;
@@ -331,7 +301,7 @@ const getFs = (
           ctime: new Date(),
           birthtime: new Date(),
           atime: new Date(),
-        };
+        } as any;
       } catch (error: any) {
         if (!error.code) {
           error.code = 'ENOENT';
@@ -344,24 +314,18 @@ const getFs = (
       }
     },
     lstat: async (path: string) => {
-      return await getFs(webcontainer, record).promises.stat(path);
+      return (await getFs(webcontainer, record).promises.stat(path)) as any;
     },
     readlink: async (path: string) => {
       throw new Error(`EINVAL: invalid argument, readlink '${path}'`);
     },
     symlink: async (target: string, path: string) => {
-      /*
-       * Since WebContainer doesn't support symlinks,
-       * we'll throw a "operation not supported" error
-       */
+      // WebContainer doesn't support symlinks
       throw new Error(`EPERM: operation not permitted, symlink '${target}' -> '${path}'`);
     },
 
     chmod: async (_path: string, _mode: number) => {
-      /*
-       * WebContainer doesn't support changing permissions,
-       * but we can pretend it succeeded for compatibility
-       */
+      // Not supported; pretend success
       return await Promise.resolve();
     },
   },
@@ -369,45 +333,31 @@ const getFs = (
 
 const pathUtils = {
   dirname: (path: string) => {
-    // Handle empty or just filename cases
     if (!path || !path.includes('/')) {
       return '.';
     }
-
-    // Remove trailing slashes
-    path = path.replace(/\/+$/, '');
-
-    // Get directory part
+    path = path.replace(/\/+$|\/$/, '');
     return path.split('/').slice(0, -1).join('/') || '/';
   },
 
   basename: (path: string, ext?: string) => {
-    // Remove trailing slashes
-    path = path.replace(/\/+$/, '');
-
-    // Get the last part of the path
+    path = path.replace(/\/+$|\/$/, '');
     const base = path.split('/').pop() || '';
-
-    // If extension is provided, remove it from the result
     if (ext && base.endsWith(ext)) {
       return base.slice(0, -ext.length);
     }
-
     return base;
   },
   relative: (from: string, to: string): string => {
-    // Handle empty inputs
     if (!from || !to) {
       return '.';
     }
 
-    // Normalize paths by removing trailing slashes and splitting
-    const normalizePathParts = (p: string) => p.replace(/\/+$/, '').split('/').filter(Boolean);
+    const normalizePathParts = (p: string) => p.replace(/\/+$|\/$/, '').split('/').filter(Boolean);
 
     const fromParts = normalizePathParts(from);
     const toParts = normalizePathParts(to);
 
-    // Find common parts at the start of both paths
     let commonLength = 0;
     const minLength = Math.min(fromParts.length, toParts.length);
 
@@ -415,20 +365,12 @@ const pathUtils = {
       if (fromParts[i] !== toParts[i]) {
         break;
       }
-
       commonLength++;
     }
 
-    // Calculate the number of "../" needed
     const upCount = fromParts.length - commonLength;
-
-    // Get the remaining path parts we need to append
     const remainingPath = toParts.slice(commonLength);
-
-    // Construct the relative path
     const relativeParts = [...Array(upCount).fill('..'), ...remainingPath];
-
-    // Handle empty result case
     return relativeParts.length === 0 ? '.' : relativeParts.join('/');
   },
 };

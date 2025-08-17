@@ -1,4 +1,3 @@
-import { useStore } from '@nanostores/react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { chatStore } from '~/lib/stores/chat';
 import { classNames } from '~/utils/classNames';
@@ -6,7 +5,7 @@ import { HeaderActionButtons } from './HeaderActionButtons.client';
 import { ChatDescription } from '~/lib/persistence/ChatDescription.client';
 
 export function Header() {
-  const chat = useStore(chatStore);
+  const { showChat } = chatStore() as any;
 
   return (
     <header
@@ -14,8 +13,8 @@ export function Header() {
         'enhanced-header flex items-center px-4 border-b h-[48px] contrast-125',
         'bolt-glass backdrop-blur-md',
         {
-          'border-transparent bg-transparent': !chat.started,
-          'border-bolt-elements-borderColor bg-bolt-elements-background-depth-1/80': chat.started,
+          'border-transparent bg-transparent': !showChat,
+          'border-bolt-elements-borderColor bg-bolt-elements-background-depth-1/80': showChat,
         },
       )}
     >
@@ -31,7 +30,7 @@ export function Header() {
           />
         </a>
       </div>
-      {chat.started && (
+      {showChat && (
         <>
           <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary bolt-text-sm opacity-90">
             <ClientOnly>{() => <ChatDescription />}</ClientOnly>
@@ -39,7 +38,7 @@ export function Header() {
           <ClientOnly>
             {() => (
               <div className="">
-                <HeaderActionButtons chatStarted={chat.started} />
+                <HeaderActionButtons chatStarted={true} />
               </div>
             )}
           </ClientOnly>

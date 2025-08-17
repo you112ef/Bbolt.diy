@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useStore } from '@nanostores/react';
 import { aiModelsStore } from '~/lib/stores/aiModels';
 import { localAIManager } from '../../models/providers/OfflineAI';
-import type { AIModel, ModelInferenceConfig } from '~/types/aiModels';
+import type { AIModel } from '~/types/aiModels';
 
 // Enhanced AI Agent types with real capabilities
 export interface AIAgent {
@@ -311,7 +310,7 @@ export const AIAgentsChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<AIModel | null>(null);
   
-  const localModels = useStore(aiModelsStore).localModels;
+  const localModels = aiModelsStore().localModels;
 
   // Initialize with first available model
   useEffect(() => {
@@ -338,7 +337,9 @@ export const AIAgentsChat: React.FC = () => {
 
     try {
       // Prepare the full prompt with agent context
-      const fullPrompt = `${selectedAgent.systemPrompt}\n\nالمحادثة السابقة:\n${messages.map(m => `${m.role === 'user' ? 'المستخدم' : 'المساعد'}: ${m.content}`).join('\n')}\n\nالمستخدم: ${userMessage}\n\nالمساعد:`;
+      const fullPrompt = `${selectedAgent.systemPrompt}\n\nالمحادثة السابقة:\n${messages
+        .map((m: { role: 'user' | 'assistant'; content: string }) => `${m.role === 'user' ? 'المستخدم' : 'المساعد'}: ${m.content}`)
+        .join('\n')}\n\nالمستخدم: ${userMessage}\n\nالمساعد:`;
 
       // Execute agent tools if needed
       let enhancedPrompt = fullPrompt;
@@ -358,11 +359,8 @@ export const AIAgentsChat: React.FC = () => {
         selectedModel.id,
         enhancedPrompt,
         {
-          maxTokens: selectedAgent.modelRequirements.maxTokens || 2000,
-          temperature: selectedAgent.modelRequirements.temperature || 0.7,
-          topP: selectedAgent.modelRequirements.topP || 0.9,
-          stopSequences: ['المستخدم:', 'User:']
-        }
+          modelId: selectedModel.id,
+        } as any,
       );
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);

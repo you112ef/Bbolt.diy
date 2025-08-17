@@ -96,16 +96,23 @@ export function useSettings(): UseSettingsReturn {
     const enabledProviders = Object.entries(providers)
       .filter(([_key, provider]) => provider.settings.enabled)
       .map(([_name, providerConfig]) => {
-        const { name, staticModels, getDynamicModels, getApiKeyLink, labelForGetApiKey, icon } = providerConfig;
+        const name = (providerConfig as any).name as string;
+        const staticModels = (providerConfig as any).staticModels;
+        const getDynamicModels = (providerConfig as any).getDynamicModels as
+          | ((provider: string, apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) => Promise<any>)
+          | undefined;
+        const getApiKeyLinkFn = (providerConfig as any).getApiKeyLink as (() => string) | string | undefined;
+        const getApiKeyLink = typeof getApiKeyLinkFn === 'function' ? getApiKeyLinkFn() : getApiKeyLinkFn;
+        const labelForGetApiKey = (providerConfig as any).labelForGetApiKey as string | undefined;
+        const icon = (providerConfig as any).icon as string | undefined;
         const uiProvider: UIProviderInfo = {
           name,
           staticModels,
-          getDynamicModels: getDynamicModels
-            ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
-
-                // Adapt legacy signature that expected providerName as first arg
-                getDynamicModels(name, apiKeys, settings, serverEnv)
-            : undefined,
+          getDynamicModels:
+            getDynamicModels
+              ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
+                  getDynamicModels(name, apiKeys, settings, serverEnv)
+              : undefined,
           getApiKeyLink,
           labelForGetApiKey,
           icon,

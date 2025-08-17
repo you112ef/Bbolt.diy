@@ -78,6 +78,9 @@ export function useVercelDeploy() {
 
       // Get the build files
       const container = await webcontainerInstance;
+      if (!container) {
+        throw new Error('Webcontainer not available');
+      }
 
       // Remove /home/project from buildPath if it exists
       const buildPath = artifact.runner.buildOutput.path.replace('/home/project', '');

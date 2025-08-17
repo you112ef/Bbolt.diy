@@ -12,7 +12,8 @@ import { logStore } from '~/lib/stores/logs';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { extractRelativePath } from '~/utils/diff';
 import { formatSize } from '~/utils/formatSize';
-import type { FileMap, File } from '~/lib/stores/files';
+import type { FileMap } from '~/lib/stores/files';
+import type { File as WCFile } from '~/lib/.server/llm/constants';
 
 // UI Components
 import { Badge, EmptyState, StatusIndicator, SearchInput } from '~/components/ui';
@@ -245,7 +246,7 @@ export function PushToGitHubDialog({ isOpen, onClose, onPush }: PushToGitHubDial
         .filter(([, dirent]) => dirent?.type === 'file' && !dirent.isBinary)
         .map(([path, dirent]) => ({
           path: extractRelativePath(path),
-          size: new TextEncoder().encode((dirent as File).content || '').length,
+          size: new TextEncoder().encode((dirent as WCFile).content || '').length,
         }));
 
       setPushedFiles(filesList);

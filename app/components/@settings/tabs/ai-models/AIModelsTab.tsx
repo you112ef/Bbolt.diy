@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { useStore } from '@nanostores/react';
 import { aiModelsStore, aiModelsActions } from '~/lib/stores/aiModels';
 import { LoadingSpinner } from '~/components/ui/LoadingSpinner';
 import { Alert } from '~/components/ui/Alert';
@@ -14,7 +13,7 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { localModels, cloudModels, selectedModel, isLoading, error, uploadProgress: storeProgress } = useStore(aiModelsStore);
+  const { localModels, cloudModels, selectedModel, isLoading, error, uploadProgress: storeProgress } = aiModelsStore();
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -67,20 +66,17 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
           type: fileExtension === '.gguf' ? 'GGUF' : 
                 fileExtension === '.bin' ? 'PyTorch' :
                 fileExtension === '.safetensors' ? 'SafeTensors' : 'ONNX',
+          uploadDate: new Date().toISOString(),
           status: 'ready',
           isLocal: true,
           capabilities: ['text-generation', 'chat'],
-          parameters: {
-            maxTokens: 2000,
-            temperature: 0.7,
-            topP: 0.9
-          },
+          parameters: 'maxTokens=2000, temperature=0.7, topP=0.9',
           description: `نموذج محلي: ${file.name}`,
           modelPath: URL.createObjectURL(file)
         };
 
         // Load the model
-        const success = await aiModelsActions.loadLocalModel(modelId, modelInfo.modelPath);
+        const success = await aiModelsActions.loadLocalModel(modelId, modelInfo.modelPath!);
         
         if (success) {
           // Clear progress
@@ -276,7 +272,6 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
                     <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                       <span>النوع: {model.type}</span>
                       <span>الحجم: {(model.size / (1024 * 1024)).toFixed(1)} MB</span>
-                      <span>الحد الأقصى: {model.parameters.maxTokens} رمز</span>
                     </div>
                   </div>
                   
@@ -354,11 +349,6 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                       {model.description}
                     </p>
-                    
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                      <span>النوع: {model.type}</span>
-                      <span>الحد الأقصى: {model.parameters.maxTokens} رمز</span>
-                    </div>
                   </div>
                   
                   <div className="flex items-center space-x-2">

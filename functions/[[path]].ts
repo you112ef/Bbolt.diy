@@ -4,26 +4,25 @@ import type { AppLoadContext } from '@remix-run/cloudflare';
 
 // Minimal context typing to stay compatible with Pages runtime
 type AnyEnv = Record<string, unknown>;
-type PagesFn = (context: any) => Response | Promise<Response>;
 
 // Enhanced error handling and context setup for Cloudflare Pages
-export const onRequest: PagesFn = async (context: any) => {
+export const onRequest: PagesFunction = async (context) => {
 	try {
 		// Import the server build dynamically
 		// @ts-ignore - The build artifact exists at runtime; TS can't resolve it during typecheck
 		const serverBuild = (await import('../build/server')) as unknown as ServerBuild;
 
 		// Create the app load context with Cloudflare-specific data
-		const getLoadContext = (): AppLoadContext => {
+		const getLoadContext = ({ request, context: evt }: { request: Request; context: any }): AppLoadContext => {
 			return {
 				cloudflare: {
-					cf: context.request?.cf,
+					cf: (request as any)?.cf,
 					ctx: {
-						waitUntil: (...args: any[]) => (context as any)?.waitUntil?.(...args),
-						passThroughOnException: () => (context as any)?.passThroughOnException?.(),
+						waitUntil: (...args: any[]) => evt?.waitUntil?.(...args),
+						passThroughOnException: () => evt?.passThroughOnException?.(),
 					} as any,
 					caches: (globalThis as any).caches,
-					env: (context as any).env as AnyEnv,
+					env: (evt as any)?.env as AnyEnv,
 				},
 			} as AppLoadContext;
 		};
@@ -31,18 +30,24 @@ export const onRequest: PagesFn = async (context: any) => {
 		// Create the Pages Function handler with proper error handling
 		const handler = createPagesFunctionHandler({
 			build: serverBuild,
-			getLoadContext: getLoadContext as unknown as () => AppLoadContext,
+			getLoadContext,
 			mode: process.env.NODE_ENV as 'development' | 'production',
 		});
 
 		// Execute the handler with the context
 		const response = await handler(context as any);
 
-		// Add CORS headers for API routes
+		// Backfill CORS headers for API routes without clobbering route-specific headers
 		if (context.request.url.includes('/api/')) {
-			response.headers.set('Access-Control-Allow-Origin', '*');
-			response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-			response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+			if (!response.headers.has('Access-Control-Allow-Origin')) {
+				response.headers.set('Access-Control-Allow-Origin', '*');
+			}
+			if (!response.headers.has('Access-Control-Allow-Methods')) {
+				response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+			}
+			if (!response.headers.has('Access-Control-Allow-Headers')) {
+				response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+			}
 		}
 
 		return response;

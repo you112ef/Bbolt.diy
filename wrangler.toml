@@ -8,6 +8,9 @@ compatibility_flags = [
   "streams_enable_constructors"
 ]
 
+# Ensure Pages uses static output directory only
+pages_build_output_dir = "build/client"
+
 # Build configuration
 [build]
 command = "pnpm run build"

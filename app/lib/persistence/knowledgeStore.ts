@@ -36,16 +36,19 @@ export async function deleteDocument(id: string) {
 }
 
 export async function searchDocuments(query: string, limit = 10) {
-  const q = query.toLowerCase();
+  const safeQuery = query || '';
+  const q = safeQuery.toLowerCase();
   const scored = Array.from(store.docs.values())
     .map((d) => {
-      const hay = `${d.name}\n${d.text || ''}`.toLowerCase();
-      const count = hay.split(q).length - 1;
-      const score = count > 0 ? count + Math.min((d.text || '').length / 10000, 1) : 0;
-      const snippetIndex = (d.text || '').toLowerCase().indexOf(q);
+      const docName = d.name || '';
+      const docText = d.text || '';
+      const hay = `${docName}\n${docText}`.toLowerCase();
+      const count = q ? hay.split(q).length - 1 : 0;
+      const score = count > 0 ? count + Math.min(docText.length / 10000, 1) : 0;
+      const snippetIndex = q ? docText.toLowerCase().indexOf(q) : -1;
       const start = Math.max(0, snippetIndex - 60);
-      const end = Math.min((d.text || '').length, start + 160);
-      const snippet = snippetIndex >= 0 ? (d.text || '').slice(start, end) : '';
+      const end = Math.min(docText.length, start + 160);
+      const snippet = snippetIndex >= 0 ? docText.slice(start, end) : '';
 
       return { doc: d, score, snippet };
     })

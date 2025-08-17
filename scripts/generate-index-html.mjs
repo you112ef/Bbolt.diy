@@ -23,6 +23,8 @@ async function main() {
     .map((css) => `<link rel="stylesheet" href="/assets/${css}" />`)
     .join('\n    ');
 
+  const remixDataShim = `\n    <script>\n      (function(){\n        try {\n          var originalFetch = window.fetch;\n          window.fetch = function(input, init){\n            try {\n              var req = (typeof input === 'string') ? new Request(input, init) : input;\n              var url = (typeof input === 'string') ? input : req.url;\n              var isData = (req.headers && req.headers.get('X-Remix-Data') === 'yes') || /(?:__data|_data)/.test(url) || /[?&]index(?:=|&|$)/.test(url);\n              if (isData) {\n                return Promise.resolve(new Response(JSON.stringify({}), { status: 200, headers: { 'Content-Type': 'application/json' } }));\n              }\n            } catch (_) {}\n            return originalFetch(input, init);\n          };\n        } catch (e) { /* noop */ }\n      })();\n    </script>`;
+
   const html = `<!doctype html>
 <html lang="ar" dir="rtl">
   <head>
@@ -35,6 +37,7 @@ async function main() {
   </head>
   <body>
     <div id="root"></div>
+    ${remixDataShim}
     <script type="module" src="/assets/${remixManifestJs}"></script>
     <script type="module" src="/assets/${entryClientJs}"></script>
   </body>

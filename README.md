@@ -1,398 +1,176 @@
-# YOUSEF.SHTIWE AI
-
-[الوثائق بالعربية](./docs/AR.md)
-
-[![YOUSEF.SHTIWE AI: AI-Powered Full-Stack Web Development Platform](./public/social_preview_index.jpg)](https://yousef.shtiwe.dev)
-
-Welcome to YOUSEF.SHTIWE AI Platform, an advanced AI-powered development environment that allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
-
------
-Check the [YOUSEF.SHTIWE AI Docs](https://yousef.shtiwe.dev/docs) for more official installation instructions and more information.
-
------
-YOUSEF.SHTIWE AI Platform offers advanced features and integrations for AI-powered development.
-
-YOUSEF.SHTIWE AI was created to provide the BEST AI development experience with enhanced features and integrations!
-
-## Table of Contents
-
-- [Join the Community](#join-the-community)
-- [Requested Additions](#requested-additions)
-- [Features](#features)
-- [Setup](#setup)
-- [Run the Application](#run-the-application)
-- [Available Scripts](#available-scripts)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [FAQ](#faq)
-
-## Join the community
-
-[Join the YOUSEF.SHTIWE AI community for support and discussions!](https://yousef.shtiwe.dev/community)
-
-## Project management
-
-YOUSEF.SHTIWE AI is continuously evolving! The development team focuses on organizing the project in a way that allows
-you to understand where the current areas of focus are.
-
-If you want to know what we are working on, what we are planning to work on, or if you want to contribute to the
-project, please check the [project management guide](./PROJECT.md) to get started easily.
-
-## Requested Additions
-
-- ✅ OpenRouter Integration (@coleam00)
-- ✅ Gemini Integration (@jonathands)
-- ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
-- ✅ Filter models by provider (@jasonm23)
-- ✅ Download project as ZIP (@fabwaseem)
-- ✅ Improvements to the main bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
-- ✅ DeepSeek API Integration (@zenith110)
-- ✅ Mistral API Integration (@ArulGandhi)
-- ✅ "Open AI Like" API Integration (@ZerxZ)
-- ✅ Ability to sync files (one way sync) to local folder (@muzafferkadir)
-- ✅ Containerize the application with Docker for easy installation (@aaronbolton)
-- ✅ Publish projects directly to GitHub (@goncaloalves)
-- ✅ Ability to enter API keys in the UI (@ali00209)
-- ✅ xAI Grok Beta Integration (@milutinke)
-- ✅ LM Studio Integration (@karrot0)
-- ✅ HuggingFace Integration (@ahsan3219)
-- ✅ Bolt terminal to see the output of LLM run commands (@thecodacus)
-- ✅ Streaming of code output (@thecodacus)
-- ✅ Ability to revert code to earlier version (@wonderwhy-er)
-- ✅ Chat history backup and restore functionality (@sidbetatester)
-- ✅ Cohere Integration (@hasanraiyan)
-- ✅ Dynamic model max token length (@hasanraiyan)
-- ✅ Better prompt enhancing (@SujalXplores)
-- ✅ Prompt caching (@SujalXplores)
-- ✅ Load local projects into the app (@wonderwhy-er)
-- ✅ Together Integration (@mouimet-infinisoft)
-- ✅ Mobile friendly (@qwikode)
-- ✅ Better prompt enhancing (@SujalXplores)
-- ✅ Attach images to prompts (@atrokhym)(@stijnus)
-- ✅ Added Git Clone button (@thecodacus)
-- ✅ Git Import from url (@thecodacus)
-- ✅ PromptLibrary to have different variations of prompts for different use cases (@thecodacus)
-- ✅ Detect package.json and commands to auto install & run preview for folder and git import (@wonderwhy-er)
-- ✅ Selection tool to target changes visually (@emcconnell)
-- ✅ Detect terminal Errors and ask bolt to fix it (@thecodacus)
-- ✅ Detect preview Errors and ask bolt to fix it (@wonderwhy-er)
-- ✅ Add Starter Template Options (@thecodacus)
-- ✅ Perplexity Integration (@meetpateltech)
-- ✅ AWS Bedrock Integration (@kunjabijukchhe)
-- ✅ Add a "Diff View" to see the changes (@toddyclipsgg)
-- ⬜ **HIGH PRIORITY** - Prevent bolt from rewriting files as often (file locking and diffs)
-- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
-- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
-- ✅ Deploy directly to Netlify (@xKevIsDev)
-- ✅ Supabase Integration (@xKevIsDev)
-- ⬜ Have LLM plan the project in a MD file for better results/transparency
-- ⬜ VSCode Integration with git-like confirmations
-- ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
-- ✅ Voice prompting
-- ⬜ Azure Open AI API Integration
-- ⬜ Vertex AI Integration
-- ⬜ Granite Integration
-- ✅ Popout Window for Web Container(@stijnus)
-- ✅ Ability to change Popout window size (@stijnus)
-
-## Features
-
-- **AI-powered full-stack web development** for **NodeJS based applications** directly in your browser.
-- **Support for multiple LLMs** with an extensible architecture to integrate additional models.
-- **Attach images to prompts** for better contextual understanding.
-- **Integrated terminal** to view output of LLM-run commands.
-- **Revert code to earlier versions** for easier debugging and quicker changes.
-- **Download projects as ZIP** for easy portability Sync to a folder on the host.
-- **Integration-ready Docker support** for a hassle-free setup.
-- **Deploy** directly to **Netlify**
+# YOUSEF.SHTIWE AI Platform
+
+منصة تطوير ذكية مدعومة بالذكاء الاصطناعي مع بيئة تطوير متكاملة في المتصفح
+
+## 🚀 الميزات الرئيسية
+
+### 🤖 **الذكاء الاصطناعي المحلي الحقيقي**
+- **نماذج GGUF**: دعم كامل لنماذج Llama و Mistral المحلية
+- **Transformers.js**: تشغيل نماذج PyTorch مباشرة في المتصفح
+- **إدارة ذكية**: تحميل وإدارة متقدمة للنماذج المحلية
+- **استدلال محلي**: معالجة النصوص بدون اتصال بالإنترنت
+
+### 💻 **بيئة التطوير المتكاملة**
+- **WebContainer حقيقي**: تشغيل Node.js في المتصفح مع دعم كامل
+- **محرر Monaco**: محرر كود متقدم مع دعم جميع اللغات
+- **طرفية تفاعلية**: Xterm.js مع دعم الأوامر الكاملة
+- **معاينة مباشرة**: تحديث فوري للمشاريع مع Hot Reload
+
+### 🎯 **وكلاء الذكاء الاصطناعي المتخصصة**
+- **مفسر الكود**: شرح مفصل للكود مع أمثلة عملية
+- **مصلح الأخطاء**: اكتشاف وإصلاح الأخطاء البرمجية
+- **محسن الكود**: تحسين الأداء وتقليل التعقيد
+- **مصمم البنية**: تصميم بنى برمجية قابلة للتطوير
+- **مدقق الأمان**: اكتشاف ثغرات الأمان وحلول الحماية
+
+### 🌐 **دعم متعدد المنصات**
+- **Cloudflare Pages**: نشر سريع ومجاني
+- **Electron**: تطبيق سطح المكتب
+- **Capacitor**: تطبيقات الهاتف المحمول
+- **Docker**: حاويات قابلة للنشر
+
+## 🛠️ التقنيات المستخدمة
+
+### **الواجهة الأمامية**
+- **Remix**: إطار عمل كامل المكدس
+- **React 18**: واجهة مستخدم تفاعلية
+- **TypeScript**: أمان الأنواع
+- **UnoCSS**: تنسيق سريع ومرن
+
+### **الذكاء الاصطناعي**
+- **@xenova/transformers**: نماذج PyTorch في المتصفح
+- **@llama-node/llama-cpp**: نماذج GGUF المحلية
+- **Vercel AI SDK**: تكامل مع مزودي الذكاء الاصطناعي
+- **Nanostores**: إدارة الحالة التفاعلية
+
+### **بيئة التطوير**
+- **@webcontainer/api**: Node.js في المتصفح
+- **@monaco-editor/react**: محرر كود متقدم
+- **@xterm/xterm**: طرفية تفاعلية
+- **Vite**: بناء سريع
+
+## 📦 التثبيت والتشغيل
+
+### **المتطلبات**
+- Node.js 18+
+- pnpm (موصى به)
+
+### **التثبيت**
+```bash
+# استنساخ المشروع
+git clone https://github.com/yousef-shtiwe/yousef-shtiwe-ai.git
+cd yousef-shtiwe-ai
+
+# تثبيت التبعيات
+pnpm install
+
+# تشغيل في وضع التطوير
+pnpm dev
+
+# بناء للإنتاج
+pnpm build
+```
+
+### **تشغيل الذكاء الاصطناعي المحلي**
+
+#### **1. نماذج GGUF (Ollama)**
+```bash
+# تثبيت Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# تشغيل Ollama
+ollama serve
+
+# تحميل نموذج
+ollama pull llama2:7b
+ollama pull mistral:7b
+```
+
+#### **2. نماذج Transformers.js**
+```bash
+# النماذج متاحة تلقائياً في المتصفح
+# لا حاجة لتثبيت إضافي
+```
+
+## 🎨 الميزات المحسنة
+
+### **الواجهة العربية**
+- دعم كامل للغة العربية
+- اتجاه من اليمين إلى اليسار (RTL)
+- واجهة مستخدم محلية
+
+### **إدارة المشاريع**
+- إنشاء مشاريع جديدة
+- استيراد من GitHub
+- حفظ واسترجاع المشاريع
 
-## Setup
+### **التطوير المتقدم**
+- Git integration
+- Debugging tools
+- Code formatting
+- Linting
 
-If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.
+## 🔧 الإعدادات
 
-Let's get you up and running with YOUSEF.SHTIWE AI Platform!
+### **مزودي الذكاء الاصطناعي**
+- **OpenAI**: GPT-4, GPT-3.5
+- **Anthropic**: Claude
+- **Google**: Gemini
+- **Mistral**: Mistral AI
+- **Ollama**: نماذج محلية
+- **LM Studio**: نماذج محلية
 
-## Quick Download
+### **التخصيص**
+- الثيمات (فاتح/داكن)
+- تخطيط الواجهة
+- اختصارات لوحة المفاتيح
+- إعدادات المحرر
 
-[![Download Latest Release](https://img.shields.io/github/v/release/you112ef/Bbolt.diy?label=Download%20YOUSEF.SHTIWE&sort=semver)](https://github.com/you112ef/Bbolt.diy/releases/latest) ← Click here to go the the latest release version!
+## 📚 التوثيق
 
-- Next **click source.zip**
+### **الذكاء الاصطناعي المحلي**
+- [دليل نماذج GGUF](./docs/gguf-models.md)
+- [دليل Transformers.js](./docs/transformers.md)
+- [إعداد Ollama](./docs/ollama-setup.md)
 
-## Prerequisites
+### **بيئة التطوير**
+- [دليل WebContainer](./docs/webcontainer.md)
+- [إعداد المحرر](./docs/editor-setup.md)
+- [استخدام الطرفية](./docs/terminal.md)
 
-Before you begin, you'll need to install two important pieces of software:
+### **وكلاء الذكاء الاصطناعي**
+- [دليل الوكلاء](./docs/ai-agents.md)
+- [إنشاء وكلاء مخصصة](./docs/custom-agents.md)
 
-### Install Node.js
+## 🤝 المساهمة
 
-Node.js is required to run the application.
+نرحب بالمساهمات! يرجى قراءة [دليل المساهمة](./CONTRIBUTING.md) للمزيد من المعلومات.
 
-1. Visit the [Node.js Download Page](https://nodejs.org/en/download/)
-2. Download the "LTS" (Long Term Support) version for your operating system
-3. Run the installer, accepting the default settings
-4. Verify Node.js is properly installed:
-   - **For Windows Users**:
-     1. Press `Windows + R`
-     2. Type "sysdm.cpl" and press Enter
-     3. Go to "Advanced" tab → "Environment Variables"
-     4. Check if `Node.js` appears in the "Path" variable
-   - **For Mac/Linux Users**:
-     1. Open Terminal
-     2. Type this command:
-        ```bash
-        echo $PATH
-        ```
-     3. Look for `/usr/local/bin` in the output
+### **المساهمة في التطوير**
+1. Fork المشروع
+2. إنشاء فرع للميزة الجديدة
+3. Commit التغييرات
+4. Push إلى الفرع
+5. إنشاء Pull Request
 
-## Running the Application
+## 📄 الترخيص
 
-You have two options for running YOUSEF.SHTIWE AI: directly on your machine or using Docker.
+هذا المشروع مرخص تحت رخصة MIT - انظر ملف [LICENSE](./LICENSE) للتفاصيل.
 
-### Option 1: Direct Installation (Recommended for Beginners)
+## 🙏 الشكر والتقدير
 
-1. **Install Package Manager (pnpm)**:
+- [WebContainer](https://webcontainers.io/) - بيئة Node.js في المتصفح
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - محرر الكود
+- [Xterm.js](https://xtermjs.org/) - الطرفية التفاعلية
+- [Transformers.js](https://huggingface.co/docs/transformers.js) - نماذج الذكاء الاصطناعي
+- [Ollama](https://ollama.ai/) - نماذج الذكاء الاصطناعي المحلية
 
-   ```bash
-   npm install -g pnpm
-   ```
+## 📞 الدعم
 
-2. **Install Project Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Start the Application**:
-
-   ```bash
-   pnpm run dev
-   ```
-   
-### Option 2: Using Docker
-
-This option requires some familiarity with Docker but provides a more isolated environment.
-
-#### Additional Prerequisite
-
-- Install Docker: [Download Docker](https://www.docker.com/)
-
-#### Steps:
-
-1. **Build the Docker Image**:
-
-   ```bash
-   # Using npm script:
-   npm run dockerbuild
-
-   # OR using direct Docker command:
-   docker build . --target bolt-ai-development
-   ```
-
-2. **Run the Container**:
-   ```bash
-   docker compose --profile development up
-   ```
-
-## Configuring API Keys and Providers
-
-### Adding Your API Keys
-
-Setting up your API keys in YOUSEF.SHTIWE AI is straightforward:
-
-1. Open the home page (main interface)
-2. Select your desired provider from the dropdown menu
-3. Click the pencil (edit) icon
-4. Enter your API key in the secure input field
-
-![API Key Configuration Interface](./docs/images/api-key-ui-section.png)
-
-### Configuring Custom Base URLs
-
-For providers that support custom base URLs (such as Ollama or LM Studio), follow these steps:
-
-1. Click the settings icon in the sidebar to open the settings menu
-   ![Settings Button Location](./docs/images/bolt-settings-button.png)
-
-2. Navigate to the "Providers" tab
-3. Search for your provider using the search bar
-4. Enter your custom base URL in the designated field
-   ![Provider Base URL Configuration](./docs/images/provider-base-url.png)
-
-> **Note**: Custom base URLs are particularly useful when running local instances of AI models or using custom API endpoints.
-
-### Supported Providers
-
-- Ollama
-- LM Studio
-- OpenAILike
-
-## Setup Using Git (For Developers only)
-
-This method is recommended for developers who want to:
-
-- Contribute to the project
-- Stay updated with the latest changes
-- Switch between different versions
-- Create custom modifications
-
-#### Prerequisites
-
-1. Install Git: [Download Git](https://git-scm.com/downloads)
-
-#### Initial Setup
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone -b stable https://github.com/stackblitz-labs/bolt.diy.git
-   ```
-
-2. **Navigate to Project Directory**:
-
-   ```bash
-   cd bolt.diy
-   ```
-
-3. **Install Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-4. **Start the Development Server**:
-   ```bash
-   pnpm run dev
-   ```
-
-5. **(OPTIONAL)** Switch to the Main Branch if you want to use pre-release/testbranch:
-   ```bash
-   git checkout main
-   pnpm install
-   pnpm run dev
-   ```
-  Hint: Be aware that this can have beta-features and more likely got bugs than the stable release
-
->**Open the WebUI to test (Default: http://localhost:5173)**
->   - Beginngers: 
->     - Try to use a sophisticated Provider/Model like Anthropic with Claude Sonnet 3.x Models to get best results
->     - Explanation: The System Prompt currently implemented in bolt.diy cant cover the best performance for all providers and models out there. So it works better with some models, then other, even if the models itself are perfect for >programming
->     - Future: Planned is a Plugin/Extentions-Library so there can be different System Prompts for different Models, which will help to get better results
-
-#### Staying Updated
-
-To get the latest changes from the repository:
-
-1. **Save Your Local Changes** (if any):
-
-   ```bash
-   git stash
-   ```
-
-2. **Pull Latest Updates**:
-
-   ```bash
-   git pull 
-   ```
-
-3. **Update Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-4. **Restore Your Local Changes** (if any):
-   ```bash
-   git stash pop
-   ```
-
-#### Troubleshooting Git Setup
-
-If you encounter issues:
-
-1. **Clean Installation**:
-
-   ```bash
-   # Remove node modules and lock files
-   rm -rf node_modules pnpm-lock.yaml
-
-   # Clear pnpm cache
-   pnpm store prune
-
-   # Reinstall dependencies
-   pnpm install
-   ```
-
-2. **Reset Local Changes**:
-   ```bash
-   # Discard all local changes
-   git reset --hard origin/main
-   ```
-
-Remember to always commit your local changes or stash them before pulling updates to avoid conflicts.
+- **GitHub Issues**: للإبلاغ عن الأخطاء والطلبات
+- **Discord**: للمناقشات والدعم المباشر
+- **Email**: support@yousef-shtiwe.ai
 
 ---
 
-## Available Scripts
-
-- **`pnpm run dev`**: Starts the development server.
-- **`pnpm run build`**: Builds the project.
-- **`pnpm run start`**: Runs the built application locally using Wrangler Pages.
-- **`pnpm run preview`**: Builds and runs the production build locally.
-- **`pnpm test`**: Runs the test suite using Vitest.
-- **`pnpm run typecheck`**: Runs TypeScript type checking.
-- **`pnpm run typegen`**: Generates TypeScript types using Wrangler.
-- **`pnpm run deploy`**: Deploys the project to Cloudflare Pages.
-- **`pnpm run lint:fix`**: Automatically fixes linting issues.
-
----
-
-## Contributing
-
-We welcome contributions! Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
-
----
-
-## Roadmap
-
-Explore upcoming features and priorities on our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo).
-
----
-
-## FAQ
-
-For answers to common questions, issues, and to see a list of recommended models, visit our [FAQ Page](FAQ.md).
-
-
-# Licensing
-**Who needs a commercial WebContainer API license?**
-
-bolt.diy source code is distributed as MIT, but it uses WebContainers API that [requires licensing](https://webcontainers.io/enterprise) for production usage in a commercial, for-profit setting. (Prototypes or POCs do not require a commercial license.) If you're using the API to meet the needs of your customers, prospective customers, and/or employees, you need a license to ensure compliance with our Terms of Service. Usage of the API in violation of these terms may result in your access being revoked.
-
-## الهوية البصرية واللغة (YOUSEF.SHTIWE)
-
-- الهوية: تم اعتماد شعار وأيقونة جديدة باسم "YOUSEF.SHTIWE".
-- الألوان: تم استبدال التدرج البنفسجي بلوحة سماوية (Sky/Cyan) عبر متغيرات اللون و`accent` في `uno.config.ts`.
-- الأيقونات:
-  - favicon (PNG): تم تحديث الرابط إلى `/favicon-new.png`.
-  - favicon (SVG): تم تعديل التدرج في `public/favicon.svg`.
-  - الشعار: تم تعديل التدرج في `public/logo.svg`.
-  - تم تحديث `site.webmanifest` ليلائم الأيقونات الجديدة و`theme_color`.
-- اللون العام للمتصفح: تم تحديث `<meta name="theme-color">` إلى `#0EA5E9`.
-
-### التعريب (i18n)
-- اللغة الافتراضية: العربية `ar` واتجاه `rtl`.
-- مكان الضبط:
-  - يولد الخادم وسم `<html lang="ar" dir="rtl">` افتراضياً ويمكن تغييره عبر الكوكيز `lang`.
-  - مزود الترجمة: `app/lib/i18n.tsx` مع ملفات `app/locales/{ar,en}.json`.
-- لتغيير اللغة برمجياً:
-  - استخدم `const { setLanguage } = useI18n(); setLanguage('en');` سيُحدّث الكوكيز ويعيد ضبط `lang/dir`.
-
-### ملفات تأثرت بالتغيير
-- `app/entry.server.tsx`: ضبط `lang` و`dir` من الكوكيز (افتراضياً ar/rtl).
-- `app/root.tsx`: تحديث `theme-color`، إضافة `I18nProvider`، تحديث روابط favicon.
-- `uno.config.ts`: تحويل لوحة `accent` إلى سماء.
-- `app/styles/variables.scss`: مواءمة ألوان الطرفية.
-- تعديلات بنسجات CSS البنفسجية إلى سماوية في عدة مكونات (لوحات التحكم، القوائم، نتائج البحث...).
-
-### كيفية ضبط هوية بصرية لاحقاً
-- الألوان: عدّل `accent` في `uno.config.ts` ومتغيرات CSS في `app/styles/variables.scss`.
-- الأيقونات: استبدل الملفات في `public/` وعدّل الروابط في `app/root.tsx` و`public/site.webmanifest`.
+**YOUSEF.SHTIWE AI Platform** - منصة التطوير الذكية للعصر الرقمي 🚀

@@ -56,7 +56,7 @@ export class RealLocalAIManager implements LocalModelManager {
     }
   }
 
-  async inference(modelId: string, prompt: string, config: ModelInferenceConfig = {}): Promise<string> {
+  async inference(modelId: string, prompt: string, config: ModelInferenceConfig = { modelId }): Promise<string> {
     try {
       const model = this.loadedModels.get(modelId);
       if (!model) {
@@ -108,14 +108,15 @@ export class RealLocalAIManager implements LocalModelManager {
       fileName: `${modelId}.model`,
       size: 1024 * 1024 * 100, // 100MB
       type: 'GGUF',
+      uploadDate: new Date().toISOString(),
       status: 'ready',
       isLocal: true,
       capabilities: ['text-generation', 'chat'],
-      parameters: {
+      parameters: JSON.stringify({
         maxTokens: 2000,
         temperature: 0.7,
         topP: 0.9
-      },
+      }),
       description: `Local AI model loaded from ${model.path}`,
       modelPath: model.path
     };

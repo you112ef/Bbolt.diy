@@ -5,6 +5,7 @@ import { ExportChatButton } from '~/components/chat/chatExportAndImport/ExportCh
 import { useChatHistory } from '~/lib/persistence';
 import { DeployButton } from '~/components/deploy/DeployButton';
 import { chatStore } from '~/lib/stores/chat';
+import { useCallback } from 'react';
 
 interface HeaderActionButtonsProps {
   chatStarted: boolean;
@@ -14,7 +15,7 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
   // const activePreview = useStore(workbenchStore.previews)[0];
   const isStreaming = useStore(streamingState);
   const { exportChat } = useChatHistory();
-  const { showChat } = useStore(chatStore);
+  const showChat = chatStore((state) => state.currentChatId !== 'default');
 
   const shouldShowButtons = !isStreaming;
 
@@ -25,7 +26,6 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
           <button
             className="px-2 py-1 rounded-md text-xs border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3"
             onClick={() => {
-              chatStore.setKey('showChat', true);
               workbenchStore.showWorkbench.set(false);
             }}
             aria-pressed={showChat}
@@ -36,7 +36,6 @@ export function HeaderActionButtons({ chatStarted }: HeaderActionButtonsProps) {
           <button
             className="px-2 py-1 rounded-md text-xs border border-bolt-elements-borderColor bg-bolt-elements-background-depth-2 text-bolt-elements-textPrimary hover:bg-bolt-elements-background-depth-3"
             onClick={() => {
-              chatStore.setKey('showChat', false);
               workbenchStore.showWorkbench.set(true);
               workbenchStore.currentView.set('code');
             }}

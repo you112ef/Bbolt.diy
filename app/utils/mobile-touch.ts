@@ -342,13 +342,13 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-    element.addEventListener('touchstart', (e: TouchEvent) => {
+    element.addEventListener('touchstart', (e: Event) => {
       const te = e as TouchEvent;
       startY = te.touches[0].clientY;
       isPulling = element.scrollTop === 0;
     });
 
-    element.addEventListener('touchmove', (e: TouchEvent) => {
+    element.addEventListener('touchmove', (e: Event) => {
       const te = e as TouchEvent;
 
       if (!isPulling) {

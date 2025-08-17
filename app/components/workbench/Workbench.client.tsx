@@ -295,7 +295,7 @@ export const Workbench = memo(
     const unsavedFiles = useStore(workbenchStore.unsavedFiles);
     const files = useStore(workbenchStore.files);
     const selectedView = useStore(workbenchStore.currentView);
-    const { showChat } = useStore(chatStore);
+    const showChat = chatStore((state) => state.currentChatId !== 'default');
     const canHideChat = showWorkbench || !showChat;
 
     const isSmallViewport = useViewport(1024);
@@ -347,6 +347,9 @@ export const Workbench = memo(
       setIsSyncing(true);
 
       try {
+        if (!window.showDirectoryPicker) {
+          throw new Error('Directory picker not supported in this browser');
+        }
         const directoryHandle = await window.showDirectoryPicker();
         await workbenchStore.syncFiles(directoryHandle);
         toast.success('Files synced successfully');
@@ -390,7 +393,8 @@ export const Workbench = memo(
                     disabled={!canHideChat || isSmallViewport}
                     onClick={() => {
                       if (canHideChat) {
-                        chatStore.setKey('showChat', !showChat);
+                        // Toggle chat visibility by updating workbench state
+                        workbenchStore.showWorkbench.set(!showWorkbench);
                       }
                     }}
                   />

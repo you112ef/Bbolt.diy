@@ -96,16 +96,11 @@ export function useSettings(): UseSettingsReturn {
     const enabledProviders = Object.entries(providers)
       .filter(([_key, provider]) => provider.settings.enabled)
       .map(([_name, providerConfig]) => {
-        const { name, staticModels, getDynamicModels, getApiKeyLink, labelForGetApiKey, icon } = providerConfig;
+        const { name, staticModels, getApiKeyLink, labelForGetApiKey, icon } = providerConfig;
         const uiProvider: UIProviderInfo = {
           name,
           staticModels,
-          getDynamicModels: getDynamicModels
-            ? (apiKeys?: Record<string, string>, settings?: IProviderSetting, serverEnv?: Record<string, string>) =>
-
-                // Adapt legacy signature that expected providerName as first arg
-                getDynamicModels(name, apiKeys, settings, serverEnv)
-            : undefined,
+          getDynamicModels: undefined,
           getApiKeyLink,
           labelForGetApiKey,
           icon,

@@ -14,7 +14,7 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { localModels, cloudModels, selectedModel, isLoading, error, uploadProgress: storeProgress } = useStore(aiModelsStore);
+  const { localModels, cloudModels, selectedModel, isLoading, error, uploadProgress: storeProgress } = aiModelsStore();
 
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -67,20 +67,21 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
           type: fileExtension === '.gguf' ? 'GGUF' : 
                 fileExtension === '.bin' ? 'PyTorch' :
                 fileExtension === '.safetensors' ? 'SafeTensors' : 'ONNX',
+          uploadDate: new Date().toISOString(),
           status: 'ready',
           isLocal: true,
           capabilities: ['text-generation', 'chat'],
-          parameters: {
+          parameters: JSON.stringify({
             maxTokens: 2000,
             temperature: 0.7,
             topP: 0.9
-          },
+          }),
           description: `نموذج محلي: ${file.name}`,
           modelPath: URL.createObjectURL(file)
         };
 
         // Load the model
-        const success = await aiModelsActions.loadLocalModel(modelId, modelInfo.modelPath);
+        const success = await aiModelsActions.loadLocalModel(modelId, modelInfo.modelPath || '');
         
         if (success) {
           // Clear progress
@@ -239,7 +240,7 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
           </div>
         ) : (
           <div className="grid gap-3">
-            {localModels.map((model) => (
+            {localModels.map((model: any) => (
               <div
                 key={model.id}
                 className={`p-4 border rounded-lg transition-colors ${
@@ -324,7 +325,7 @@ export const AIModelsTab: React.FC<AIModelsTabProps> = ({ className }) => {
           </div>
         ) : (
           <div className="grid gap-3">
-            {cloudModels.map((model) => (
+            {cloudModels.map((model: any) => (
               <div
                 key={model.id}
                 className={`p-4 border rounded-lg transition-colors ${

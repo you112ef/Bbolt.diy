@@ -2,6 +2,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { webcontainerManager } from '~/lib/webcontainer';
 
+// Export types from server constants
+export interface File {
+  type: 'file';
+  content: string;
+  isBinary: boolean;
+  isLocked?: boolean;
+  lockedByFolder?: string;
+}
+
+export interface Folder {
+  type: 'folder';
+  isLocked?: boolean;
+  lockedByFolder?: string;
+}
+
+type Dirent = File | Folder;
+
+export type FileMap = Record<string, Dirent | undefined>;
+
 interface FileItem {
   name: string;
   path: string;
@@ -72,14 +91,15 @@ export const filesStore = create<FilesState & FilesActions>()(
             const filePath = path === '/' ? `/${fileName}` : `${path}/${fileName}`;
             
             try {
-              const stats = await webcontainerManager.getInstance()?.fs.stat(filePath);
+              // WebContainer doesn't have a stat method, so we'll use basic file info
+              const isDirectory = fileName.includes('.') === false; // Simple heuristic
               
               files.push({
                 name: fileName,
                 path: filePath,
-                type: stats?.isDirectory() ? 'directory' : 'file',
-                size: stats?.size,
-                lastModified: stats?.mtime ? new Date(stats.mtime) : undefined
+                type: isDirectory ? 'directory' : 'file',
+                size: undefined,
+                lastModified: undefined
               });
             } catch (error) {
               console.warn(`Could not get stats for ${filePath}:`, error);

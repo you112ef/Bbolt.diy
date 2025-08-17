@@ -106,10 +106,6 @@ preview_id = "your_preview_kv_namespace_id_here"
 name = "CHAT_SESSIONS"
 class_name = "ChatSession"
 
-[[env.production.durable_objects]]
-name = "ChatSession"
-script_name = "chat-session-worker"
-
 # R2 Storage for file uploads
 [[env.production.r2_buckets]]
 binding = "AI_PLATFORM_R2"

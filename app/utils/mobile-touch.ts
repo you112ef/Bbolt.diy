@@ -365,7 +365,7 @@ class MobileTouchManager {
       }
     }) as EventListener;
 
-    element.addEventListener('touchend', (async () => {
+    element.addEventListener('touchend', async () => {
       if (!isPulling) {
         return;
       }
@@ -385,7 +385,7 @@ class MobileTouchManager {
       }
 
       isPulling = false;
-    }) as EventListener;
+    });
   }
 }
 

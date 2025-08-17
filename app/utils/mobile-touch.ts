@@ -342,13 +342,13 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-    element.addEventListener('touchstart', (e: Event) => {
+    element.addEventListener('touchstart', (e: TouchEvent) => {
       const te = e as TouchEvent;
       startY = te.touches[0].clientY;
       isPulling = element.scrollTop === 0;
-    }) as EventListener;
+    });
 
-    element.addEventListener('touchmove', (e: Event) => {
+    element.addEventListener('touchmove', (e: TouchEvent) => {
       const te = e as TouchEvent;
 
       if (!isPulling) {
@@ -363,7 +363,7 @@ class MobileTouchManager {
         element.classList.add('pulling');
         te.preventDefault();
       }
-    }) as EventListener;
+    });
 
     element.addEventListener('touchend', async () => {
       if (!isPulling) {

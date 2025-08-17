@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import type { TextSearchOptions, TextSearchOnProgressCallback, WebContainer } from '@webcontainer/api';
 import { workbenchStore } from '~/lib/stores/workbench';

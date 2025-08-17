@@ -7,7 +7,6 @@ import BackgroundRays from '~/components/ui/BackgroundRays';
 
 export const meta: MetaFunction = () => {
   return [
-<<<<<<< HEAD
     { title: 'يوسف شتيوي AI - منصة التطوير بالذكاء الاصطناعي' },
     { name: 'description', content: 'منصة تطوير متقدمة بالذكاء الاصطناعي لبناء التطبيقات والمواقع بسهولة وسرعة' },
     { name: 'keywords', content: 'يوسف شتيوي, AI, ذكاء اصطناعي, تطوير, برمجة, React, تطبيقات' },
@@ -20,10 +19,6 @@ export const meta: MetaFunction = () => {
     { name: 'twitter:card', content: 'summary_large_image' },
     { name: 'twitter:title', content: 'يوسف شتيوي AI' },
     { name: 'twitter:description', content: 'منصة تطوير متقدمة بالذكاء الاصطناعي' },
-=======
-    { title: 'YOUSEF.SHTIWE AI – منصة بناء الذكاء الاصطناعي' },
-    { name: 'description', content: 'تحدث مع YOUSEF.SHTIWE AI – منصة متقدمة لبناء حلول الذكاء الاصطناعي' },
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
   ];
 };
 

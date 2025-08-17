@@ -77,21 +77,13 @@ export const useTouch = (
       }
 
       if ('Haptics' in window && (window as any).Haptics) {
-<<<<<<< HEAD
         const Haptics = (window as any).Haptics;
-=======
-        const haptics = (window as any).Haptics;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
-        const styles = {
-          light: 'LIGHT',
-          medium: 'MEDIUM',
-          heavy: 'HEAVY',
-        };
-<<<<<<< HEAD
-        Haptics.impact({ style: styles[type] });
-=======
-        haptics.impact({ style: styles[type] });
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
+              const styles = {
+        light: 'LIGHT',
+        medium: 'MEDIUM',
+        heavy: 'HEAVY',
+      };
+      Haptics.impact({ style: styles[type] });
       } else if ('vibrate' in navigator) {
         const patterns = {
           light: [10],

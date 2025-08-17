@@ -136,10 +136,8 @@ export default App;
       console.log(`File system event: ${eventType} - ${filename}`);
       
       // Update files store if it exists
-      if (filesStore) {
-        // Trigger a refresh of the file system
-        this.refreshFileSystem();
-      }
+      // Trigger a refresh of the file system
+      this.refreshFileSystem();
     });
   }
 
@@ -147,7 +145,7 @@ export default App;
     if (!this.instance) return;
 
     try {
-      const files = await this.instance.fs.readdir('/', { recursive: true });
+      const files = await this.instance.fs.readdir('/');
       console.log('File system refreshed:', files);
     } catch (error) {
       console.error('Error refreshing file system:', error);
@@ -164,9 +162,7 @@ export default App;
       console.log(`File written: ${path}`);
       
       // Update files store if it exists
-      if (filesStore) {
-        // The file watcher will handle the update
-      }
+      // The file watcher will handle the update
     } catch (error) {
       console.error(`Error writing file ${path}:`, error);
       throw error;
@@ -183,9 +179,7 @@ export default App;
       console.log(`File deleted: ${path}`);
       
       // Update files store if it exists
-      if (filesStore) {
-        // The file watcher will handle the update
-      }
+      // The file watcher will handle the update
     } catch (error) {
       console.error(`Error deleting file ${path}:`, error);
       throw error;
@@ -212,7 +206,7 @@ export default App;
     }
 
     try {
-      const files = await this.instance.fs.readdir(path, { recursive: true });
+      const files = await this.instance.fs.readdir(path);
       return files as string[];
     } catch (error) {
       console.error(`Error listing files in ${path}:`, error);

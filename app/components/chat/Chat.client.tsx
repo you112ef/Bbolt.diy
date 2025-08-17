@@ -40,8 +40,8 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
       id: `msg_${Date.now()}`,
       role: 'user' as const,
       content: input.trim(),
-      timestamp: new Date().toISOString(),
-      modelId: selectedModel?.id || null
+      timestamp: new Date(),
+      modelId: selectedModel?.id || undefined
     };
 
     // Add user message
@@ -59,9 +59,10 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
           selectedModel.id,
           input.trim(),
           {
-            maxTokens: selectedModel.parameters.maxTokens,
-            temperature: selectedModel.parameters.temperature,
-            topP: selectedModel.parameters.topP
+            modelId: selectedModel.id,
+            maxTokens: 1000,
+            temperature: 0.7,
+            topP: 0.9
           }
         );
       } else if (selectedModel) {
@@ -76,8 +77,8 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
         id: `msg_${Date.now()}_${Math.random()}`,
         role: 'assistant' as const,
         content: assistantResponse,
-        timestamp: new Date().toISOString(),
-        modelId: selectedModel?.id || null
+        timestamp: new Date(),
+        modelId: selectedModel?.id || undefined
       };
 
       chatActions.addMessage(assistantMessage);
@@ -90,8 +91,8 @@ export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
         id: `error_${Date.now()}`,
         role: 'assistant' as const,
         content: `❌ خطأ: ${errorMessage}`,
-        timestamp: new Date().toISOString(),
-        modelId: selectedModel?.id || null,
+        timestamp: new Date(),
+        modelId: selectedModel?.id || undefined,
         isError: true
       };
 

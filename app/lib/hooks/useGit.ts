@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { webcontainerInstance } from '~/lib/webcontainer';
 import git, { type GitAuth, type PromiseFsClient } from 'isomorphic-git';
 import http from 'isomorphic-git/http/web';
@@ -29,16 +29,18 @@ const saveGitAuth = (url: string, auth: GitAuth) => {
 
 export function useGit() {
   const [ready, setReady] = useState(false);
-  const [webcontainer, setWebcontainer] = useState();
+  const [webcontainer, setWebcontainer] = useState<any>();
   const [fs, setFs] = useState<PromiseFsClient>();
-  const fileData = useState<Record<string, { data: any; encoding?: string }>>({});
-  useState(() => {
-    webcontainerInstance.then((container) => {
-      fileData.current = {};
-      setWebcontainer(container);
-      setFs(getFs(container, fileData));
-      setReady(true);
-    });
+  const fileData = useRef<Record<string, { data: any; encoding?: string }>>({});
+  useEffect(() => {
+    if (webcontainerInstance) {
+      webcontainerInstance.then((container) => {
+        fileData.current = {};
+        setWebcontainer(container);
+        setFs(getFs(container, fileData));
+        setReady(true);
+      });
+    }
   }, []);
 
   const gitClone = useCallback(
@@ -76,7 +78,7 @@ export function useGit() {
         await git.clone({
           fs,
           http,
-          dir: webcontainer.workdir,
+          dir: '/',
           url,
           depth: 1,
           singleBranch: true,
@@ -124,7 +126,7 @@ export function useGit() {
           data[key] = value;
         }
 
-        return { workdir: webcontainer.workdir, data };
+        return { workdir: '/', data };
       } catch (error) {
         console.error('Git clone error:', error);
 
@@ -177,7 +179,7 @@ const getFs = (
   promises: {
     readFile: async (path: string, options: any) => {
       const encoding = options?.encoding;
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         const result = await webcontainer.fs.readFile(relativePath, encoding);
@@ -188,7 +190,7 @@ const getFs = (
       }
     },
     writeFile: async (path: string, data: any, options: any = {}) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       if (record.current) {
         record.current[relativePath] = { data, encoding: options?.encoding };
@@ -212,7 +214,7 @@ const getFs = (
       }
     },
     mkdir: async (path: string, options: any) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         const result = await webcontainer.fs.mkdir(relativePath, { ...options, recursive: true });
@@ -223,7 +225,7 @@ const getFs = (
       }
     },
     readdir: async (path: string, options: any) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         const result = await webcontainer.fs.readdir(relativePath, options);
@@ -234,7 +236,7 @@ const getFs = (
       }
     },
     rm: async (path: string, options: any) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         const result = await webcontainer.fs.rm(relativePath, { ...(options || {}) });
@@ -245,7 +247,7 @@ const getFs = (
       }
     },
     rmdir: async (path: string, options: any) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         const result = await webcontainer.fs.rm(relativePath, { recursive: true, ...options });
@@ -256,7 +258,7 @@ const getFs = (
       }
     },
     unlink: async (path: string) => {
-      const relativePath = pathUtils.relative(webcontainer.workdir, path);
+      const relativePath = pathUtils.relative('/', path);
 
       try {
         return await webcontainer.fs.rm(relativePath, { recursive: false });
@@ -266,8 +268,8 @@ const getFs = (
     },
     stat: async (path: string) => {
       try {
-        const relativePath = pathUtils.relative(webcontainer.workdir, path);
-        const dirPath = pathUtils.dirname(relativePath);
+                  const relativePath = pathUtils.relative('/', path);
+        const dirPath = pathUtils.dirname(pathUtils.relative('/', path));
         const fileName = pathUtils.basename(relativePath);
 
         // Special handling for .git/index file
@@ -298,7 +300,7 @@ const getFs = (
         }
 
         const resp = await webcontainer.fs.readdir(dirPath, { withFileTypes: true });
-        const fileInfo = resp.find((x) => x.name === fileName);
+        const fileInfo = resp.find((x: any) => x.name === fileName);
 
         if (!fileInfo) {
           const err = new Error(`ENOENT: no such file or directory, stat '${path}'`) as NodeJS.ErrnoException;

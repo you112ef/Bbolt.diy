@@ -311,7 +311,7 @@ export const AIAgentsChat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedModel, setSelectedModel] = useState<AIModel | null>(null);
   
-  const localModels = useStore(aiModelsStore).localModels;
+  const localModels = aiModelsStore().localModels;
 
   // Initialize with first available model
   useEffect(() => {
@@ -358,10 +358,11 @@ export const AIAgentsChat: React.FC = () => {
         selectedModel.id,
         enhancedPrompt,
         {
+          modelId: selectedModel?.id || '',
           maxTokens: selectedAgent.modelRequirements.maxTokens || 2000,
           temperature: selectedAgent.modelRequirements.temperature || 0.7,
           topP: selectedAgent.modelRequirements.topP || 0.9,
-          stopSequences: ['المستخدم:', 'User:']
+          // stopSequences: ['المستخدم:', 'User:'] // Not supported in current config
         }
       );
 
@@ -431,13 +432,13 @@ export const AIAgentsChat: React.FC = () => {
         <select
           value={selectedModel?.id || ''}
           onChange={(e) => {
-            const model = localModels.find(m => m.id === e.target.value);
+            const model = localModels.find((m: any) => m.id === e.target.value);
             setSelectedModel(model || null);
           }}
           className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value="">اختر نموذج...</option>
-          {localModels.map((model) => (
+          {localModels.map((model: any) => (
             <option key={model.id} value={model.id}>
               {model.name} ({model.type})
             </option>

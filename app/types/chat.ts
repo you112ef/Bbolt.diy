@@ -5,6 +5,7 @@ export interface ChatMessage {
   timestamp: Date;
   modelId?: string;
   metadata?: Record<string, any>;
+  isError?: boolean;
 }
 
 export interface ChatHistory {

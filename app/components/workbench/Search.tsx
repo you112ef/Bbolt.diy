@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import type { TextSearchOptions, TextSearchOnProgressCallback, WebContainer } from '@webcontainer/api';
 import { workbenchStore } from '~/lib/stores/workbench';
@@ -128,6 +128,9 @@ export function Search() {
 
     try {
       const instance = await webcontainerInstance;
+      if (!instance) {
+        throw new Error('WebContainer instance not available');
+      }
       const options: Omit<TextSearchOptions, 'folders'> = {
         homeDir: WORK_DIR, // Adjust this path as needed
         includes: ['**/*.*'],

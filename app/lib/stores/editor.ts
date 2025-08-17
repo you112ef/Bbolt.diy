@@ -1,6 +1,6 @@
 import { atom, computed, map, type MapStore, type WritableAtom } from 'nanostores';
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
-import type { FileMap, FilesStore } from './files';
+import type { FileMap } from './files';
 import { createScopedLogger } from '~/utils/logger';
 
 export type EditorDocuments = Record<string, EditorDocument>;
@@ -10,7 +10,7 @@ type SelectedFile = WritableAtom<string | undefined>;
 const logger = createScopedLogger('EditorStore');
 
 export class EditorStore {
-  #filesStore: FilesStore;
+  #filesStore: any; // TODO: Replace with proper type
 
   selectedFile: SelectedFile = import.meta.hot?.data.selectedFile ?? atom<string | undefined>();
   documents: MapStore<EditorDocuments> = import.meta.hot?.data.documents ?? map({});
@@ -23,7 +23,7 @@ export class EditorStore {
     return documents[selectedFile];
   });
 
-  constructor(filesStore: FilesStore) {
+  constructor(filesStore: any) {
     this.#filesStore = filesStore;
 
     if (import.meta.hot) {
@@ -32,7 +32,7 @@ export class EditorStore {
     }
   }
 
-  setDocuments(files: FileMap) {
+  setDocuments(files: any) {
     const previousDocuments = this.documents.value;
 
     this.documents.set(

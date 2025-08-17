@@ -292,7 +292,7 @@ function FileContextMenu({
 
   const isFolder = useMemo(() => {
     const files = workbenchStore.files.get();
-    const fileEntry = files[fullPath];
+    const fileEntry = (files as any)[fullPath];
 
     return !fileEntry || fileEntry.type === 'folder';
   }, [fullPath]);
@@ -403,13 +403,13 @@ function FileContextMenu({
   };
 
   // Handler for locking a file with full lock
-  const handleLockFile = () => {
+  const handleLockFile = async () => {
     try {
       if (isFolder) {
         return;
       }
 
-      const success = workbenchStore.lockFile(fullPath);
+      const success = await workbenchStore.lockFile(fullPath);
 
       if (success) {
         toast.success(`File locked successfully`);
@@ -423,13 +423,13 @@ function FileContextMenu({
   };
 
   // Handler for unlocking a file
-  const handleUnlockFile = () => {
+  const handleUnlockFile = async () => {
     try {
       if (isFolder) {
         return;
       }
 
-      const success = workbenchStore.unlockFile(fullPath);
+      const success = await workbenchStore.unlockFile(fullPath);
 
       if (success) {
         toast.success(`File unlocked successfully`);
@@ -443,13 +443,13 @@ function FileContextMenu({
   };
 
   // Handler for locking a folder with full lock
-  const handleLockFolder = () => {
+  const handleLockFolder = async () => {
     try {
       if (!isFolder) {
         return;
       }
 
-      const success = workbenchStore.lockFolder(fullPath);
+      const success = await workbenchStore.lockFolder(fullPath);
 
       if (success) {
         toast.success(`Folder locked successfully`);
@@ -463,13 +463,13 @@ function FileContextMenu({
   };
 
   // Handler for unlocking a folder
-  const handleUnlockFolder = () => {
+  const handleUnlockFolder = async () => {
     try {
       if (!isFolder) {
         return;
       }
 
-      const success = workbenchStore.unlockFolder(fullPath);
+      const success = await workbenchStore.unlockFolder(fullPath);
 
       if (success) {
         toast.success(`Folder unlocked successfully`);

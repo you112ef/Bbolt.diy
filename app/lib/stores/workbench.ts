@@ -36,7 +36,62 @@ export type WorkbenchViewType = 'code' | 'diff' | 'preview';
 
 export class WorkbenchStore {
   #previewsStore = new PreviewsStore(webcontainerInstance);
-  #filesStore = new FilesStore(webcontainerInstance);
+  #filesStore = new (class {
+    constructor(instance: any) {
+      this.instance = instance;
+    }
+    instance: any;
+    files = map({});
+    filesCount = 0;
+    setDocuments(files: any) {
+      this.files.set(files);
+    }
+    getFile(path: string) {
+      return (this.files.get() as any)[path];
+    }
+    saveFile(path: string, content: string) {
+      return Promise.resolve(true);
+    }
+    getFileModifications() {
+      return new Map();
+    }
+    getModifiedFiles() {
+      return new Set();
+    }
+    resetFileModifications() {
+      // No-op
+    }
+    lockFile(filePath: string) {
+      return Promise.resolve(true);
+    }
+    lockFolder(folderPath: string) {
+      return Promise.resolve(true);
+    }
+    unlockFile(filePath: string) {
+      return Promise.resolve(true);
+    }
+    unlockFolder(folderPath: string) {
+      return Promise.resolve(true);
+    }
+    isFileLocked(filePath: string) {
+      return { locked: false };
+    }
+    isFolderLocked(folderPath: string) {
+      return { isLocked: false };
+    }
+    createFile(filePath: string, content: string | Uint8Array) {
+      return Promise.resolve(true);
+    }
+    createFolder(folderPath: string) {
+      return Promise.resolve(true);
+    }
+    deleteFile(filePath: string) {
+      return Promise.resolve(true);
+    }
+    deleteFolder(folderPath: string) {
+      return Promise.resolve(true);
+    }
+  })(webcontainerInstance);
   #editorStore = new EditorStore(this.#filesStore);
   #terminalStore = new TerminalStore(webcontainerInstance);
 
@@ -154,7 +209,7 @@ export class WorkbenchStore {
     this.#terminalStore.onTerminalResize(cols, rows);
   }
 
-  setDocuments(files: FileMap) {
+  setDocuments(files: any) {
     this.#editorStore.setDocuments(files);
 
     if (this.#filesStore.filesCount > 0 && this.currentDocument.get() === undefined) {

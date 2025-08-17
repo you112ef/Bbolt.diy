@@ -17,6 +17,7 @@ import { description } from '~/lib/persistence';
 import Cookies from 'js-cookie';
 import { createSampler } from '~/utils/sampler';
 import type { ActionAlert, DeployAlert, SupabaseAlert } from '~/types/actions';
+import { FilesStore, type FileMap } from './files';
 
 const { saveAs } = fileSaver;
 
@@ -67,12 +68,12 @@ export class WorkbenchStore {
       import.meta.hot.data.deployAlert = this.deployAlert;
 
       // Ensure binary files are properly preserved across hot reloads
-      const filesMap = this.files.get();
+      const filesMap = this.files.get() as FileMap;
 
       for (const [path, dirent] of Object.entries(filesMap)) {
-        if (dirent?.type === 'file' && dirent.isBinary && dirent.content) {
+        if (dirent?.type === 'file' && (dirent as any).isBinary && (dirent as any).content) {
           // Make sure binary content is preserved
-          this.files.setKey(path, { ...dirent });
+          this.files.setKey(path, { ...(dirent as any) });
         }
       }
     }
@@ -179,7 +180,7 @@ export class WorkbenchStore {
       return;
     }
 
-    const originalContent = this.#filesStore.getFile(filePath)?.content;
+    const originalContent = (this.#filesStore.getFile(filePath) as any)?.content as string | undefined;
     const unsavedChanges = originalContent !== undefined && originalContent !== newContent;
 
     this.#editorStore.updateFile(filePath, newContent);
@@ -261,7 +262,7 @@ export class WorkbenchStore {
     }
 
     const { filePath } = currentDocument;
-    const file = this.#filesStore.getFile(filePath);
+    const file = this.#filesStore.getFile(filePath) as any;
 
     if (!file) {
       return;

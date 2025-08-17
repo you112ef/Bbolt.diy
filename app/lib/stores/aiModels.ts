@@ -124,7 +124,8 @@ export const aiModelsStore = create<AIModelsState & AIModelsActions>((set, get) 
     set({ isLoading: true, error: null });
     
     try {
-      const response = await localAIManager.inference(modelId, prompt, config || {});
+      const cfg: ModelInferenceConfig | undefined = config ? { ...config, modelId: config.modelId || modelId } : { modelId };
+      const response = await localAIManager.inference(modelId, prompt, cfg as any);
       return response;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Inference failed';

@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { webcontainerManager } from '~/lib/webcontainer';
+import { map, type MapStore } from 'nanostores';
+import type { WebContainer } from '@webcontainer/api';
+import type { FileMap as WCFileMap, File as WCFile, Folder as WCFolder } from '~/lib/.server/llm/constants';
 
 interface FileItem {
   name: string;
@@ -72,14 +75,15 @@ export const filesStore = create<FilesState & FilesActions>()(
             const filePath = path === '/' ? `/${fileName}` : `${path}/${fileName}`;
             
             try {
-              const stats = await webcontainerManager.getInstance()?.fs.stat(filePath);
+              const dir = await webcontainerManager.getInstance().then((wc) => wc.fs.readdir(path, { withFileTypes: true }) as any);
+              const entry = (dir as any[]).find((e) => e.name === fileName);
               
               files.push({
                 name: fileName,
                 path: filePath,
-                type: stats?.isDirectory() ? 'directory' : 'file',
-                size: stats?.size,
-                lastModified: stats?.mtime ? new Date(stats.mtime) : undefined
+                type: entry && typeof entry.isDirectory === 'function' && entry.isDirectory() ? 'directory' : 'file',
+                size: undefined,
+                lastModified: undefined
               });
             } catch (error) {
               console.warn(`Could not get stats for ${filePath}:`, error);
@@ -245,3 +249,127 @@ export const filesActions = {
   refresh: filesStore.getState().refresh,
   reset: filesStore.getState().reset
 };
+
+// Re-export the FileMap type used across workbench/editor
+export type FileMap = WCFileMap;
+
+// Minimal FilesStore class used by workbench/editor code paths
+export class FilesStore {
+  #webcontainer: Promise<WebContainer>;
+  files: MapStore<FileMap> = map({} as FileMap);
+  #modifiedFiles = new Map<string, string>();
+
+  constructor(webcontainerPromise: Promise<WebContainer>) {
+    this.#webcontainer = webcontainerPromise;
+  }
+
+  get filesCount(): number {
+    const files = this.files.get();
+    return Object.keys(files || {}).length;
+  }
+
+  getFile(path: string): (WCFile | WCFolder) | undefined {
+    const files = this.files.get();
+    return files[path];
+  }
+
+  async saveFile(path: string, content: string): Promise<void> {
+    const wc = await this.#webcontainer;
+    // Write to webcontainer
+    await wc.fs.writeFile(path, content, 'utf8');
+    // Update in-memory map
+    const current = this.files.get();
+    const entry = current[path] as WCFile | undefined;
+    this.files.setKey(path, { type: 'file', content, isBinary: entry?.isBinary ?? false } as WCFile);
+  }
+
+  getFileModifications(): Map<string, string> {
+    return this.#modifiedFiles;
+  }
+
+  getModifiedFiles(): Map<string, string> {
+    return this.#modifiedFiles;
+  }
+
+  resetFileModifications(): void {
+    this.#modifiedFiles.clear();
+  }
+
+  // Locking helpers
+  lockFile(path: string): boolean {
+    const entry = this.getFile(path);
+    if (!entry || entry.type !== 'file') return false;
+    this.files.setKey(path, { ...entry, isLocked: true } as WCFile);
+    return true;
+  }
+
+  lockFolder(path: string): boolean {
+    const entry = this.getFile(path);
+    const folder: WCFolder = { type: 'folder', isLocked: true };
+    this.files.setKey(path, { ...(entry?.type === 'folder' ? entry : {}), ...folder } as WCFolder);
+    return true;
+  }
+
+  unlockFile(path: string): boolean {
+    const entry = this.getFile(path);
+    if (!entry || entry.type !== 'file') return false;
+    const { isLocked, lockedByFolder, ...rest } = entry as WCFile & { lockedByFolder?: string };
+    this.files.setKey(path, { ...rest, type: 'file' } as WCFile);
+    return true;
+  }
+
+  unlockFolder(path: string): boolean {
+    const entry = this.getFile(path);
+    if (!entry || entry.type !== 'folder') return false;
+    const { isLocked, lockedByFolder, ...rest } = entry as WCFolder & { lockedByFolder?: string };
+    this.files.setKey(path, { ...rest, type: 'folder' } as WCFolder);
+    return true;
+  }
+
+  isFileLocked(path: string): boolean {
+    const entry = this.getFile(path);
+    return !!(entry && entry.type === 'file' && (entry as WCFile).isLocked);
+    
+  }
+
+  isFolderLocked(path: string): boolean {
+    const entry = this.getFile(path);
+    return !!(entry && entry.type === 'folder' && (entry as WCFolder).isLocked);
+  }
+
+  async createFile(path: string, content: string | Uint8Array = ''): Promise<boolean> {
+    const wc = await this.#webcontainer;
+    await wc.fs.writeFile(path, content as any, typeof content === 'string' ? 'utf8' : undefined);
+    this.files.setKey(path, { type: 'file', content: typeof content === 'string' ? content : '', isBinary: !(typeof content === 'string') } as WCFile);
+    return true;
+  }
+
+  async createFolder(path: string): Promise<boolean> {
+    const wc = await this.#webcontainer;
+    await wc.fs.mkdir(path, { recursive: true });
+    this.files.setKey(path, { type: 'folder' } as WCFolder);
+    return true;
+  }
+
+  async deleteFile(path: string): Promise<boolean> {
+    const wc = await this.#webcontainer;
+    await wc.fs.rm(path, { recursive: false });
+    const current = { ...this.files.get() };
+    delete (current as any)[path];
+    this.files.set(current as FileMap);
+    return true;
+  }
+
+  async deleteFolder(path: string): Promise<boolean> {
+    const wc = await this.#webcontainer;
+    await wc.fs.rm(path, { recursive: true });
+    const current = { ...this.files.get() };
+    Object.keys(current).forEach((p) => {
+      if (p === path || p.startsWith(`${path}/`)) {
+        delete (current as any)[p];
+      }
+    });
+    this.files.set(current as FileMap);
+    return true;
+  }
+}

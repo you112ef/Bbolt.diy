@@ -10,6 +10,7 @@ interface ChatState {
   selectedModelId: string | null;
   chatHistory: Record<string, ChatMessage[]>;
   currentChatId: string;
+  showChat: boolean;
 }
 
 interface ChatActions {
@@ -31,6 +32,7 @@ interface ChatActions {
   setTyping: (typing: boolean) => void;
   setSelectedModel: (modelId: string | null) => void;
   setCurrentChatId: (chatId: string) => void;
+  setShowChat: (show: boolean) => void;
   
   // Utility
   reset: () => void;
@@ -43,7 +45,8 @@ const initialState: ChatState = {
   isTyping: false,
   selectedModelId: null,
   chatHistory: {},
-  currentChatId: 'default'
+  currentChatId: 'default',
+  showChat: true,
 };
 
 export const chatStore = create<ChatState & ChatActions>()(
@@ -53,92 +56,90 @@ export const chatStore = create<ChatState & ChatActions>()(
 
       // Message Management
       addMessage: (message: ChatMessage) => {
-        set(state => {
+        set((state) => {
           const newMessages = [...state.messages, message];
           const newChatHistory = {
             ...state.chatHistory,
-            [state.currentChatId]: newMessages
+            [state.currentChatId]: newMessages,
           };
-          
+
           return {
             messages: newMessages,
-            chatHistory: newChatHistory
+            chatHistory: newChatHistory,
           };
         });
       },
 
       updateMessage: (messageId: string, updates: Partial<ChatMessage>) => {
-        set(state => {
-          const updatedMessages = state.messages.map(msg =>
-            msg.id === messageId ? { ...msg, ...updates } : msg
-          );
-          
+        set((state) => {
+          const updatedMessages = state.messages.map((msg) => (msg.id === messageId ? { ...msg, ...updates } : msg));
+
           const newChatHistory = {
             ...state.chatHistory,
-            [state.currentChatId]: updatedMessages
+            [state.currentChatId]: updatedMessages,
           };
-          
+
           return {
             messages: updatedMessages,
-            chatHistory: newChatHistory
+            chatHistory: newChatHistory,
           };
         });
       },
 
       removeMessage: (messageId: string) => {
-        set(state => {
-          const filteredMessages = state.messages.filter(msg => msg.id !== messageId);
+        set((state) => {
+          const filteredMessages = state.messages.filter((msg) => msg.id !== messageId);
           const newChatHistory = {
             ...state.chatHistory,
-            [state.currentChatId]: filteredMessages
+            [state.currentChatId]: filteredMessages,
           };
-          
+
           return {
             messages: filteredMessages,
-            chatHistory: newChatHistory
+            chatHistory: newChatHistory,
           };
         });
       },
 
       clearMessages: () => {
-        set(state => {
+        set((state) => {
           const newChatHistory = {
             ...state.chatHistory,
-            [state.currentChatId]: []
+            [state.currentChatId]: [],
           };
-          
+
           return {
             messages: [],
-            chatHistory: newChatHistory
+            chatHistory: newChatHistory,
           };
         });
       },
 
       // Chat History
       saveChat: (chatId: string, messages: ChatMessage[]) => {
-        set(state => ({
+        set((state) => ({
           chatHistory: {
             ...state.chatHistory,
-            [chatId]: messages
-          }
+            [chatId]: messages,
+          },
         }));
       },
 
       loadChat: (chatId: string) => {
-        set(state => ({
+        set((state) => ({
           messages: state.chatHistory[chatId] || [],
-          currentChatId: chatId
+          currentChatId: chatId,
         }));
       },
 
       deleteChat: (chatId: string) => {
-        set(state => {
+        set((state) => {
           const newChatHistory = { ...state.chatHistory };
           delete newChatHistory[chatId];
-          
+
           return {
             chatHistory: newChatHistory,
-            messages: state.currentChatId === chatId ? [] : state.messages
+            messages: state.currentChatId === chatId ? [] : state.messages,
           };
         });
       },
@@ -153,19 +154,21 @@ export const chatStore = create<ChatState & ChatActions>()(
       setTyping: (typing: boolean) => set({ isTyping: typing }),
       setSelectedModel: (modelId: string | null) => set({ selectedModelId: modelId }),
       setCurrentChatId: (chatId: string) => set({ currentChatId: chatId }),
+      setShowChat: (show: boolean) => set({ showChat: show }),
 
       // Utility
-      reset: () => set(initialState)
+      reset: () => set(initialState),
     }),
     {
       name: 'chat-storage',
       partialize: (state) => ({
         chatHistory: state.chatHistory,
         selectedModelId: state.selectedModelId,
-        currentChatId: state.currentChatId
-      })
-    }
-  )
+        currentChatId: state.currentChatId,
+        showChat: state.showChat,
+      }),
+    },
+  ),
 );
 
 // Export actions for easier access
@@ -183,5 +186,6 @@ export const chatActions = {
   setTyping: chatStore.getState().setTyping,
   setSelectedModel: chatStore.getState().setSelectedModel,
   setCurrentChatId: chatStore.getState().setCurrentChatId,
-  reset: chatStore.getState().reset
+  setShowChat: chatStore.getState().setShowChat,
+  reset: chatStore.getState().reset,
 };

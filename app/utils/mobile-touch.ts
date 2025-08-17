@@ -52,10 +52,10 @@ class MobileTouchManager {
 
   private initializeGlobalListeners(): void {
     // Prevent default touch behaviors that interfere with gestures
-    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: false });
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchmove', this.handleTouchMove.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this) as any, { passive: false } as any);
 
     // Prevent double-tap zoom
     let lastTouchEnd = 0;
@@ -323,16 +323,16 @@ class MobileTouchManager {
     element.classList.add('touch-target');
 
     // Add active state handling
-    element.addEventListener('touchstart', (e) => {
+    element.addEventListener('touchstart', (e: any) => {
       element.classList.add('touch-active');
       this.triggerHaptic('light', element);
     });
 
-    element.addEventListener('touchend', () => {
+    (element as any).addEventListener('touchend', () => {
       element.classList.remove('touch-active');
     });
 
-    element.addEventListener('touchcancel', () => {
+    (element as any).addEventListener('touchcancel', () => {
       element.classList.remove('touch-active');
     });
   }
@@ -342,13 +342,13 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-    element.addEventListener('touchstart', (e: TouchEvent) => {
+    (element as any).addEventListener('touchstart', (e: any) => {
       const te = e as TouchEvent;
       startY = te.touches[0].clientY;
-      isPulling = element.scrollTop === 0;
+      isPulling = (element as any).scrollTop === 0;
     });
 
-    element.addEventListener('touchmove', (e: TouchEvent) => {
+    (element as any).addEventListener('touchmove', (e: any) => {
       const te = e as TouchEvent;
 
       if (!isPulling) {
@@ -365,7 +365,7 @@ class MobileTouchManager {
       }
     });
 
-    element.addEventListener('touchend', async () => {
+    (element as any).addEventListener('touchend', async () => {
       if (!isPulling) {
         return;
       }

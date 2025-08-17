@@ -228,7 +228,7 @@ ${value.content}
 
     const validSnapshot = snapshot || { chatIndex: '', files: {} };
 
-    if (!validSnapshot?.files) {
+    if (!validSnapshot?.files || !container) {
       return;
     }
 
@@ -247,7 +247,7 @@ ${value.content}
           key = key.replace(container.workdir, '');
         }
 
-        await container.fs.writeFile(key, value.content, { encoding: value.isBinary ? undefined : 'utf8' });
+        await container.fs.writeFile(key, value.content, { encoding: value.isBinary ? undefined : 'utf8' } as any);
       } else {
       }
     });

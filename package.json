@@ -12,7 +12,7 @@
     "email": "yousef@shtiwe.dev"
   },
   "scripts": {
-    "build": "remix vite:build",
+    "build": "remix vite:build && node scripts/generate-index-html.mjs",
     "dev": "remix vite:dev",
     "test": "vitest",
     "test:watch": "vitest",

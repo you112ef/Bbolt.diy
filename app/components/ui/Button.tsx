@@ -58,12 +58,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ...props
     },
     ref,
-  ) => {
-<<<<<<< HEAD
+      ) => {
     const [isPressed, setIsPressed] = React.useState(false);
-=======
-    /* no pressed state */
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
     const longPressTimerRef = React.useRef<NodeJS.Timeout | null>(null);
     const [isMobile, setIsMobile] = React.useState(false);
 
@@ -96,11 +92,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handleTouchStart = React.useCallback(
       (e: React.TouchEvent<HTMLButtonElement>) => {
-<<<<<<< HEAD
         setIsPressed(true);
-=======
-        /* noop */
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         triggerHaptic();
 
         if (onLongPress) {
@@ -116,11 +108,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const handleTouchEnd = React.useCallback(
       (e: React.TouchEvent<HTMLButtonElement>) => {
-<<<<<<< HEAD
         setIsPressed(false);
-=======
-        /* noop */
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
         if (longPressTimerRef.current) {
           clearTimeout(longPressTimerRef.current);

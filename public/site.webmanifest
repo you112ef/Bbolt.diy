@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "يوسف شتيوي AI - منصة التطوير بالذكاء الاصطناعي",
   "short_name": "يوسف AI",
   "start_url": "/",
@@ -32,7 +31,10 @@
     { "src": "/favicon-enhanced.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
     { "src": "/favicon-enhanced.png", "sizes": "384x384", "type": "image/png", "purpose": "any" },
     { "src": "/favicon-enhanced.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/yousef-logo-enhanced.png", "sizes": "1024x512", "type": "image/png", "purpose": "any" }
+    { "src": "/yousef-logo-enhanced.png", "sizes": "1024x512", "type": "image/png", "purpose": "any" },
+    { "src": "/favicon-new.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/logo-icon-new.png", "sizes": "512x512", "type": "image/png" }
   ],
   "prefer_related_applications": false,
   "edge_side_panel": {
@@ -43,19 +45,5 @@
       "protocol": "web+ysai",
       "url": "/?import=%s"
     }
-=======
-  "name": "YOUSEF.SHTIWE AI",
-  "short_name": "YOUSEF.SHTIWE",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#09090B",
-  "theme_color": "#0EA5E9",
-  "description": "Advanced AI development platform",
-  "icons": [
-    { "src": "/favicon-new.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "/logo-icon-new.png", "sizes": "512x512", "type": "image/png" }
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
   ]
 }

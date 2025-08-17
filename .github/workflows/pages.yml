@@ -1,0 +1,75 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Build project
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          VITE_DISABLE_SOURCEMAPS: true
+          VITE_OPTIMIZE_BUILD: true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build/client
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Notify deployment status
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "🎉 Successfully deployed to GitHub Pages!"
+            echo "🌐 URL: ${{ needs.deploy.outputs.page_url }}"
+            echo "📱 Your app is now live at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          else
+            echo "❌ Deployment to GitHub Pages failed!"
+            echo "🔍 Check the logs above for detailed error information"
+          fi

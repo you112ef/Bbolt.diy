@@ -1,6 +1,6 @@
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition } from 'react';
-import { hydrateRoot } from 'react-dom/client';
+import { hydrateRoot, createRoot } from 'react-dom/client';
 
 function showFatalError(message: string, details?: unknown) {
 	try {
@@ -50,11 +50,19 @@ startTransition(() => {
 		if (!rootEl) {
 			throw new Error('Missing #root element');
 		}
-		hydrateRoot(rootEl, <RemixBrowser />);
-		console.log('[entry.client] Hydration started');
+		if (rootEl.childElementCount > 0) {
+			// SSR markup exists; hydrate
+			hydrateRoot(rootEl, <RemixBrowser />);
+			console.log('[entry.client] Hydration started (SSR)');
+		} else {
+			// No SSR markup; CSR mount
+			const root = createRoot(rootEl);
+			root.render(<RemixBrowser />);
+			console.log('[entry.client] Client render started (CSR)');
+		}
 	} catch (err) {
-		console.error('Hydration failed:', err);
-		showFatalError('Hydration failed. Check console for details.', err instanceof Error ? err.stack || err.message : err);
+		console.error('Hydration/render failed:', err);
+		showFatalError('Hydration/render failed. Check console for details.', err instanceof Error ? err.stack || err.message : err);
 	}
 
 	if ('serviceWorker' in navigator) {

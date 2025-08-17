@@ -61,19 +61,11 @@ class MobileTouchManager {
     let lastTouchEnd = 0;
     document.addEventListener(
       'touchend',
-<<<<<<< HEAD
-      (e) => {
-        const now = Date.now();
-
-        if (now - lastTouchEnd <= 300) {
-          e.preventDefault();
-=======
       (e: Event) => {
         const now = Date.now();
 
         if (now - lastTouchEnd <= 300) {
           (e as TouchEvent).preventDefault();
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         }
 
         lastTouchEnd = now;
@@ -350,35 +342,20 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-<<<<<<< HEAD
     element.addEventListener('touchstart', (e: Event) => {
-      const touchEvent = e as TouchEvent;
-      startY = touchEvent.touches[0].clientY;
-=======
-    element.addEventListener('touchstart', ((e: Event) => {
       const te = e as TouchEvent;
       startY = te.touches[0].clientY;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
       isPulling = element.scrollTop === 0;
-    }) as EventListener);
+    }) as EventListener;
 
-<<<<<<< HEAD
     element.addEventListener('touchmove', (e: Event) => {
-      const touchEvent = e as TouchEvent;
-=======
-    element.addEventListener('touchmove', ((e: Event) => {
       const te = e as TouchEvent;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
       if (!isPulling) {
         return;
       }
 
-<<<<<<< HEAD
-      currentY = touchEvent.touches[0].clientY;
-=======
       currentY = te.touches[0].clientY;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
       const deltaY = currentY - startY;
 
@@ -386,13 +363,9 @@ class MobileTouchManager {
         element.classList.add('pulling');
         te.preventDefault();
       }
-    }) as EventListener);
+    }) as EventListener;
 
-<<<<<<< HEAD
-    element.addEventListener('touchend', async () => {
-=======
     element.addEventListener('touchend', (async () => {
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
       if (!isPulling) {
         return;
       }
@@ -412,7 +385,7 @@ class MobileTouchManager {
       }
 
       isPulling = false;
-    }) as EventListener);
+    }) as EventListener;
   }
 }
 

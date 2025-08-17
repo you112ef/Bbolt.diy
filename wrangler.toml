@@ -37,7 +37,6 @@ VITE_BUILD_TARGET = "esnext"
 VITE_CHUNK_SIZE_WARNING_LIMIT = "2000"
 
 # AI Provider API Keys (set these in Cloudflare Dashboard)
-[env.production.vars]
 OPENAI_API_KEY = ""
 ANTHROPIC_API_KEY = ""
 GOOGLE_API_KEY = ""
@@ -47,18 +46,15 @@ LMSTUDIO_API_BASE_URL = ""
 TOGETHER_API_BASE_URL = ""
 
 # Database Configuration
-[env.production.vars]
 SUPABASE_URL = ""
 SUPABASE_ANON_KEY = ""
 SUPABASE_SERVICE_ROLE_KEY = ""
 
 # Authentication
-[env.production.vars]
 AUTH_SECRET = ""
 SESSION_SECRET = ""
 
 # Deployment Integrations
-[env.production.vars]
 CLOUDFLARE_ACCOUNT_ID = ""
 CLOUDFLARE_API_TOKEN = ""
 GITHUB_CLIENT_ID = ""
@@ -69,13 +65,11 @@ NETLIFY_TOKEN = ""
 NETLIFY_SITE_ID = ""
 
 # Payment Processing
-[env.production.vars]
 STRIPE_SECRET_KEY = ""
 STRIPE_PUBLISHABLE_KEY = ""
 STRIPE_WEBHOOK_SECRET = ""
 
 # Communication Services
-[env.production.vars]
 SENDGRID_API_KEY = ""
 SENDGRID_FROM_EMAIL = ""
 TWILIO_ACCOUNT_SID = ""
@@ -83,7 +77,6 @@ TWILIO_AUTH_TOKEN = ""
 TWILIO_PHONE_NUMBER = ""
 
 # Cloud Services
-[env.production.vars]
 FIREBASE_PROJECT_ID = ""
 FIREBASE_PRIVATE_KEY = ""
 FIREBASE_CLIENT_EMAIL = ""
@@ -93,7 +86,6 @@ MONGODB_URI = ""
 MONGODB_DB_NAME = ""
 
 # Container and Platform Services
-[env.production.vars]
 DOCKERHUB_USERNAME = ""
 DOCKERHUB_PASSWORD = ""
 RAILWAY_TOKEN = ""

@@ -1,713 +1,335 @@
-import { useStore } from '@nanostores/react';
-import type { Message } from 'ai';
-import { useChat } from '@ai-sdk/react';
-import { useAnimate } from 'framer-motion';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { cssTransition, toast, ToastContainer } from 'react-toastify';
-import { useMessageParser, usePromptEnhancer, useShortcuts } from '~/lib/hooks';
-import { description, useChatHistory } from '~/lib/persistence';
-import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore } from '~/lib/stores/workbench';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
-import { cubicEasingFn } from '~/utils/easings';
-import { createScopedLogger, renderLogger } from '~/utils/logger';
-import { BaseChat } from './BaseChat';
-import Cookies from 'js-cookie';
-import { debounce } from '~/utils/debounce';
-import { useSettings } from '~/lib/hooks/useSettings';
-import type { ProviderInfo, UIProviderInfo } from '~/lib/modules/llm/types';
-import { useSearchParams } from '@remix-run/react';
-import { createSampler } from '~/utils/sampler';
-import { getTemplates, selectStarterTemplate } from '~/utils/selectStarterTemplate';
-import { logStore } from '~/lib/stores/logs';
-import { streamingState } from '~/lib/stores/streaming';
-import { filesToArtifacts } from '~/utils/fileUtils';
-import { supabaseConnection } from '~/lib/stores/supabase';
-import { defaultDesignScheme, type DesignScheme } from '~/types/design-scheme';
-import type { ElementInfo } from '~/components/workbench/Inspector';
-import type { TextUIPart, FileUIPart, Attachment } from '@ai-sdk/ui-utils';
-import { useMCPStore } from '~/lib/stores/mcp';
-import type { LlmErrorAlertType } from '~/types/actions';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { aiModelsStore, aiModelsActions } from '~/lib/stores/aiModels';
+import { localAIManager } from '~/enhanced/models/providers/OfflineAI';
+import type { AIModel } from '~/types/aiModels';
 
-const toastAnimation = cssTransition({
-  enter: 'animated fadeInRight',
-  exit: 'animated fadeOutRight',
-});
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  modelId?: string;
+  isError?: boolean;
+}
 
-const logger = createScopedLogger('Chat');
+interface ChatClientProps {
+  className?: string;
+}
 
-export function Chat() {
-  renderLogger.trace('Chat');
+export const ChatClient: React.FC<ChatClientProps> = ({ className }) => {
+  const [input, setInput] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { ready, initialMessages, storeMessageHistory, importChat, exportChat } = useChatHistory();
-  const title = useStore(description);
+  const { selectedModel, localModels, cloudModels } = aiModelsStore.getState();
+
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    workbenchStore.setReloadedMessages(initialMessages.map((m) => m.id));
-  }, [initialMessages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
+  const addMessage = useCallback((message: ChatMessage) => {
+    setMessages(prev => [...prev, message]);
+  }, []);
+
+  const clearMessages = useCallback(() => {
+    setMessages([]);
+  }, []);
+
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!input.trim() || isGenerating) return;
+
+    const userMessage: ChatMessage = {
+      id: `msg_${Date.now()}`,
+      role: 'user',
+      content: input.trim(),
+      timestamp: new Date().toISOString(),
+      modelId: selectedModel?.id || null
+    };
+
+    // Add user message
+    addMessage(userMessage);
+    setInput('');
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      let assistantResponse = '';
+
+      if (selectedModel?.isLocal) {
+        // Use local AI model
+        assistantResponse = await aiModelsActions.performInference(
+          selectedModel.id,
+          input.trim(),
+          {
+            maxTokens: selectedModel.parameters.maxTokens,
+            temperature: selectedModel.parameters.temperature,
+            topP: selectedModel.parameters.topP
+          }
+        );
+      } else if (selectedModel) {
+        // Use cloud AI model (implement cloud API call here)
+        assistantResponse = `استجابة من النموذج السحابي: ${selectedModel.name}`;
+      } else {
+        // No model selected
+        assistantResponse = 'يرجى اختيار نموذج ذكاء اصطناعي أولاً.';
+      }
+
+      const assistantMessage: ChatMessage = {
+        id: `msg_${Date.now()}_${Math.random()}`,
+        role: 'assistant',
+        content: assistantResponse,
+        timestamp: new Date().toISOString(),
+        modelId: selectedModel?.id || null
+      };
+
+      addMessage(assistantMessage);
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'حدث خطأ أثناء توليد الرد';
+      setError(errorMessage);
+      
+      const errorMsg: ChatMessage = {
+        id: `error_${Date.now()}`,
+        role: 'assistant',
+        content: `❌ خطأ: ${errorMessage}`,
+        timestamp: new Date().toISOString(),
+        modelId: selectedModel?.id || null,
+        isError: true
+      };
+
+      addMessage(errorMsg);
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [input, isGenerating, selectedModel, addMessage]);
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  }, [handleSendMessage]);
+
+  const handleModelSelect = useCallback((model: AIModel) => {
+    aiModelsActions.setSelectedModel(model);
+  }, []);
+
+  const clearChat = useCallback(() => {
+    if (confirm('هل أنت متأكد من حذف جميع الرسائل؟')) {
+      clearMessages();
+    }
+  }, [clearMessages]);
+
+  const availableModels = [...localModels, ...cloudModels];
 
   return (
-    <>
-      {ready && (
-        <ChatImpl
-          description={title}
-          initialMessages={initialMessages}
-          exportChat={exportChat}
-          storeMessageHistory={storeMessageHistory}
-          importChat={importChat}
-        />
+    <div className={`chat-client ${className || ''}`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center space-x-3">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            المحادثة
+          </h2>
+          {selectedModel && (
+            <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
+              {selectedModel.name}
+            </span>
+          )}
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={clearChat}
+            className="px-3 py-1 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+          >
+            مسح المحادثة
+          </button>
+        </div>
+      </div>
+
+      {/* Model Selection */}
+      {availableModels.length > 0 && (
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            اختيار النموذج:
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {availableModels.map((model) => (
+              <button
+                key={model.id}
+                onClick={() => handleModelSelect(model)}
+                className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                  selectedModel?.id === model.id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }`}
+              >
+                {model.name}
+                {model.isLocal && (
+                  <span className="ml-1 text-[10px]">(محلي)</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
-      <ToastContainer
-        closeButton={({ closeToast }) => {
-          return (
-            <button className="Toastify__close-button" onClick={closeToast}>
-              <div className="i-ph:x text-lg" />
-            </button>
-          );
-        }}
-        icon={({ type }) => {
-          /**
-           * @todo Handle more types if we need them. This may require extra color palettes.
-           */
-          switch (type) {
-            case 'success': {
-              return <div className="i-ph:check-bold text-bolt-elements-icon-success text-2xl" />;
-            }
-            case 'error': {
-              return <div className="i-ph:warning-circle-bold text-bolt-elements-icon-error text-2xl" />;
-            }
-          }
 
-          return undefined;
-        }}
-        position="bottom-right"
-        pauseOnFocusLoss
-        transition={toastAnimation}
-        autoClose={3000}
-      />
-    </>
-  );
-}
-
-const processSampledMessages = createSampler(
-  (options: {
-    messages: Message[];
-    initialMessages: Message[];
-    isLoading: boolean;
-    parseMessages: (messages: Message[], isLoading: boolean) => void;
-    storeMessageHistory: (messages: Message[]) => Promise<void>;
-  }) => {
-    const { messages, initialMessages, isLoading, parseMessages, storeMessageHistory } = options;
-    parseMessages(messages, isLoading);
-
-    if (messages.length > initialMessages.length) {
-      storeMessageHistory(messages).catch((error) => toast.error(error.message));
-    }
-  },
-  50,
-);
-
-interface ChatProps {
-  initialMessages: Message[];
-  storeMessageHistory: (messages: Message[]) => Promise<void>;
-  importChat: (description: string, messages: Message[]) => Promise<void>;
-  exportChat: () => void;
-  description?: string;
-}
-
-export const ChatImpl = memo(
-  ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
-    useShortcuts();
-
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-    const [imageDataList, setImageDataList] = useState<string[]>([]);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [fakeLoading, setFakeLoading] = useState(false);
-    const files = useStore(workbenchStore.files);
-    const [designScheme, setDesignScheme] = useState<DesignScheme>(defaultDesignScheme);
-    const actionAlert = useStore(workbenchStore.alert);
-    const deployAlert = useStore(workbenchStore.deployAlert);
-    const supabaseConn = useStore(supabaseConnection);
-    const selectedProject = supabaseConn.stats?.projects?.find(
-      (project) => project.id === supabaseConn.selectedProjectId,
-    );
-    const supabaseAlert = useStore(workbenchStore.supabaseAlert);
-    const { activeProviders, promptId, autoSelectTemplate, contextOptimizationEnabled } = useSettings();
-    const [llmErrorAlert, setLlmErrorAlert] = useState<LlmErrorAlertType | undefined>(undefined);
-    const [model, setModel] = useState(() => {
-      const savedModel = Cookies.get('selectedModel');
-      return savedModel || DEFAULT_MODEL;
-    });
-    const [provider, setProvider] = useState<UIProviderInfo>(() => {
-      const toUIProvider = (p: ProviderInfo): UIProviderInfo => ({
-        name: p.name,
-        staticModels: p.staticModels,
-        getDynamicModels: p.getDynamicModels,
-        getApiKeyLink: p.getApiKeyLink,
-        labelForGetApiKey: p.labelForGetApiKey,
-        icon: p.icon,
-      });
-      const savedProvider = Cookies.get('selectedProvider');
-      const found = (PROVIDER_LIST.find((p) => p.name === savedProvider) || DEFAULT_PROVIDER) as ProviderInfo;
-
-      return toUIProvider(found);
-    });
-    const { showChat } = useStore(chatStore);
-    const [animationScope, animate] = useAnimate();
-    const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
-    const [chatMode, setChatMode] = useState<'discuss' | 'build'>('build');
-    const [selectedElement, setSelectedElement] = useState<ElementInfo | null>(null);
-    const mcpSettings = useMCPStore((state) => state.settings);
-
-    const {
-      messages,
-      isLoading,
-      input,
-      handleInputChange,
-      setInput,
-      stop,
-      append,
-      setMessages,
-      reload,
-      error,
-      data: chatData,
-      setData,
-      addToolResult,
-    } = useChat({
-      api: '/api/chat',
-      body: {
-        apiKeys,
-        files,
-        promptId,
-        contextOptimization: contextOptimizationEnabled,
-        chatMode,
-        designScheme,
-        supabase: {
-          isConnected: supabaseConn.isConnected,
-          hasSelectedProject: !!selectedProject,
-          credentials: {
-            supabaseUrl: supabaseConn?.credentials?.supabaseUrl,
-            anonKey: supabaseConn?.credentials?.anonKey,
-          },
-        },
-        maxLLMSteps: mcpSettings.maxLLMSteps,
-      },
-      sendExtraMessageFields: true,
-      onError: (e) => {
-        setFakeLoading(false);
-        handleError(e, 'chat');
-      },
-      onFinish: (message, response) => {
-        const usage = response.usage;
-        setData(undefined);
-
-        if (usage) {
-          console.log('Token usage:', usage);
-          logStore.logProvider('Chat response completed', {
-            component: 'Chat',
-            action: 'response',
-            model,
-            provider: provider.name,
-            usage,
-            messageLength: message.content.length,
-          });
-        }
-
-        logger.debug('Finished streaming');
-      },
-      initialMessages,
-      initialInput: Cookies.get(PROMPT_COOKIE_KEY) || '',
-    });
-    useEffect(() => {
-      const prompt = searchParams.get('prompt');
-
-      // console.log(prompt, searchParams, model, provider);
-
-      if (prompt) {
-        setSearchParams({});
-        runAnimation();
-        append({
-          role: 'user',
-          content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${prompt}`,
-        });
-      }
-    }, [model, provider, searchParams]);
-
-    const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
-    const { parsedMessages, parseMessages } = useMessageParser();
-
-    const TEXTAREA_MAX_HEIGHT = chatStarted ? 400 : 200;
-
-    useEffect(() => {
-      chatStore.setKey('started', initialMessages.length > 0);
-    }, []);
-
-    useEffect(() => {
-      processSampledMessages({
-        messages,
-        initialMessages,
-        isLoading,
-        parseMessages,
-        storeMessageHistory,
-      });
-    }, [messages, isLoading, parseMessages]);
-
-    const scrollTextArea = () => {
-      const textarea = textareaRef.current;
-
-      if (textarea) {
-        textarea.scrollTop = textarea.scrollHeight;
-      }
-    };
-
-    const abort = () => {
-      stop();
-      chatStore.setKey('aborted', true);
-      workbenchStore.abortAllActions();
-
-      logStore.logProvider('Chat response aborted', {
-        component: 'Chat',
-        action: 'abort',
-        model,
-        provider: provider.name,
-      });
-    };
-
-    const handleError = useCallback(
-      (error: any, context: 'chat' | 'template' | 'llmcall' = 'chat') => {
-        logger.error(`${context} request failed`, error);
-
-        stop();
-        setFakeLoading(false);
-
-        let errorInfo = {
-          message: 'An unexpected error occurred',
-          isRetryable: true,
-          statusCode: 500,
-          provider: provider.name,
-          type: 'unknown' as const,
-          retryDelay: 0,
-        };
-
-        if (error.message) {
-          try {
-            const parsed = JSON.parse(error.message);
-
-            if (parsed.error || parsed.message) {
-              errorInfo = { ...errorInfo, ...parsed };
-            } else {
-              errorInfo.message = error.message;
-            }
-          } catch {
-            errorInfo.message = error.message;
-          }
-        }
-
-        let errorType: LlmErrorAlertType['errorType'] = 'unknown';
-        let title = 'Request Failed';
-
-        if (errorInfo.statusCode === 401 || errorInfo.message.toLowerCase().includes('api key')) {
-          errorType = 'authentication';
-          title = 'Authentication Error';
-        } else if (errorInfo.statusCode === 429 || errorInfo.message.toLowerCase().includes('rate limit')) {
-          errorType = 'rate_limit';
-          title = 'Rate Limit Exceeded';
-        } else if (errorInfo.message.toLowerCase().includes('quota')) {
-          errorType = 'quota';
-          title = 'Quota Exceeded';
-        } else if (errorInfo.statusCode >= 500) {
-          errorType = 'network';
-          title = 'Server Error';
-        }
-
-        logStore.logError(`${context} request failed`, error, {
-          component: 'Chat',
-          action: 'request',
-          error: errorInfo.message,
-          context,
-          retryable: errorInfo.isRetryable,
-          errorType,
-          provider: provider.name,
-        });
-
-        // Create API error alert
-        setLlmErrorAlert({
-          type: 'error',
-          title,
-          description: errorInfo.message,
-          provider: provider.name,
-          errorType,
-        });
-        setData([]);
-      },
-      [provider.name, stop],
-    );
-
-    const clearApiErrorAlert = useCallback(() => {
-      setLlmErrorAlert(undefined);
-    }, []);
-
-    useEffect(() => {
-      const textarea = textareaRef.current;
-
-      if (textarea) {
-        textarea.style.height = 'auto';
-
-        const scrollHeight = textarea.scrollHeight;
-
-        textarea.style.height = `${Math.min(scrollHeight, TEXTAREA_MAX_HEIGHT)}px`;
-        textarea.style.overflowY = scrollHeight > TEXTAREA_MAX_HEIGHT ? 'auto' : 'hidden';
-      }
-    }, [input, textareaRef]);
-
-    const runAnimation = async () => {
-      if (chatStarted) {
-        return;
-      }
-
-      await Promise.all([
-        animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
-        animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn }),
-      ]);
-
-      chatStore.setKey('started', true);
-
-      setChatStarted(true);
-    };
-
-    // Helper function to create message parts array from text and images
-    const createMessageParts = (text: string, images: string[] = []): Array<TextUIPart | FileUIPart> => {
-      // Create an array of properly typed message parts
-      const parts: Array<TextUIPart | FileUIPart> = [
-        {
-          type: 'text',
-          text,
-        },
-      ];
-
-      // Add image parts if any
-      images.forEach((imageData) => {
-        // Extract correct MIME type from the data URL
-        const mimeType = imageData.split(';')[0].split(':')[1] || 'image/jpeg';
-
-        // Create file part according to AI SDK format
-        parts.push({
-          type: 'file',
-          mimeType,
-          data: imageData.replace(/^data:image\/[^;]+;base64,/, ''),
-        });
-      });
-
-      return parts;
-    };
-
-    // Helper function to convert File[] to Attachment[] for AI SDK
-    const filesToAttachments = async (files: File[]): Promise<Attachment[] | undefined> => {
-      if (files.length === 0) {
-        return undefined;
-      }
-
-      const attachments = await Promise.all(
-        files.map(
-          (file) =>
-            new Promise<Attachment>((resolve) => {
-              const reader = new FileReader();
-
-              reader.onloadend = () => {
-                resolve({
-                  name: file.name,
-                  contentType: file.type,
-                  url: reader.result as string,
-                });
-              };
-              reader.readAsDataURL(file);
-            }),
-        ),
-      );
-
-      return attachments;
-    };
-
-    const sendMessage = async (_event: React.UIEvent, messageInput?: string) => {
-      const messageContent = messageInput || input;
-
-      if (!messageContent?.trim()) {
-        return;
-      }
-
-      if (isLoading) {
-        abort();
-        return;
-      }
-
-      let finalMessageContent = messageContent;
-
-      if (selectedElement) {
-        console.log('Selected Element:', selectedElement);
-
-        const elementInfo = `<div class=\"__boltSelectedElement__\" data-element='${JSON.stringify(selectedElement)}'>${JSON.stringify(`${selectedElement.displayText}`)}</div>`;
-        finalMessageContent = messageContent + elementInfo;
-      }
-
-      runAnimation();
-
-      if (!chatStarted) {
-        setFakeLoading(true);
-
-        if (autoSelectTemplate) {
-          const { template, title } = await selectStarterTemplate({
-            message: finalMessageContent,
-            model,
-            provider,
-          });
-
-          if (template !== 'blank') {
-            const temResp = await getTemplates(template, title).catch((e) => {
-              if (e.message.includes('rate limit')) {
-                toast.warning('Rate limit exceeded. Skipping starter template\n Continuing with blank template');
-              } else {
-                toast.warning('Failed to import starter template\n Continuing with blank template');
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[400px]">
+        {messages.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="i-ph:chat-circle text-4xl mb-3" />
+            <p className="text-lg font-medium mb-2">مرحباً! 👋</p>
+            <p className="text-sm">
+              {selectedModel 
+                ? `ابدأ المحادثة مع ${selectedModel.name}`
+                : 'اختر نموذج ذكاء اصطناعي للبدء في المحادثة'
               }
+            </p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                  message.role === 'user'
+                    ? 'bg-blue-500 text-white'
+                    : message.isError
+                    ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800'
+                    : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                }`}
+              >
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0">
+                    {message.role === 'user' ? (
+                      <div className="i-ph:user text-lg" />
+                    ) : (
+                      <div className="i-ph:robot text-lg" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {message.content}
+                    </p>
+                    <div className="flex items-center justify-between mt-2 text-xs opacity-70">
+                      <span>
+                        {new Date(message.timestamp).toLocaleTimeString('ar-SA', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                      {message.modelId && (
+                        <span className="text-xs">
+                          {availableModels.find(m => m.id === message.modelId)?.name || 'نموذج غير معروف'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+        
+        {/* Typing indicator */}
+        {isGenerating && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-3">
+              <div className="flex items-center space-x-2">
+                <div className="i-ph:robot text-lg" />
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
 
-              return null;
-            });
+      {/* Error Display */}
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border-t border-red-200 dark:border-red-800">
+          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+          <button
+            onClick={clearError}
+            className="mt-2 text-xs text-red-600 dark:text-red-300 hover:underline"
+          >
+            إغلاق
+          </button>
+        </div>
+      )}
 
-            if (temResp) {
-              const { assistantMessage, userMessage } = temResp;
-              const userMessageText = `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`;
-
-              setMessages([
-                {
-                  id: `1-${new Date().getTime()}`,
-                  role: 'user',
-                  content: userMessageText,
-                  parts: createMessageParts(userMessageText, imageDataList),
-                },
-                {
-                  id: `2-${new Date().getTime()}`,
-                  role: 'assistant',
-                  content: assistantMessage,
-                },
-                {
-                  id: `3-${new Date().getTime()}`,
-                  role: 'user',
-                  content: `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userMessage}`,
-                  annotations: ['hidden'],
-                },
-              ]);
-
-              const reloadOptions =
-                uploadedFiles.length > 0
-                  ? { experimental_attachments: await filesToAttachments(uploadedFiles) }
-                  : undefined;
-
-              reload(reloadOptions);
-              setInput('');
-              Cookies.remove(PROMPT_COOKIE_KEY);
-
-              setUploadedFiles([]);
-              setImageDataList([]);
-
-              resetEnhancer();
-
-              textareaRef.current?.blur();
-              setFakeLoading(false);
-
-              return;
-            }
-          }
-        }
-
-        // If autoSelectTemplate is disabled or template selection failed, proceed with normal message
-        const userMessageText = `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`;
-        const attachments = uploadedFiles.length > 0 ? await filesToAttachments(uploadedFiles) : undefined;
-
-        setMessages([
-          {
-            id: `${new Date().getTime()}`,
-            role: 'user',
-            content: userMessageText,
-            parts: createMessageParts(userMessageText, imageDataList),
-            experimental_attachments: attachments,
-          },
-        ]);
-        reload(attachments ? { experimental_attachments: attachments } : undefined);
-        setFakeLoading(false);
-        setInput('');
-        Cookies.remove(PROMPT_COOKIE_KEY);
-
-        setUploadedFiles([]);
-        setImageDataList([]);
-
-        resetEnhancer();
-
-        textareaRef.current?.blur();
-
-        return;
-      }
-
-      if (error != null) {
-        setMessages(messages.slice(0, -1));
-      }
-
-      const modifiedFiles = workbenchStore.getModifiedFiles();
-
-      chatStore.setKey('aborted', false);
-
-      if (modifiedFiles !== undefined) {
-        const userUpdateArtifact = filesToArtifacts(modifiedFiles, `${Date.now()}`);
-        const messageText = `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${userUpdateArtifact}${finalMessageContent}`;
-
-        const attachmentOptions =
-          uploadedFiles.length > 0 ? { experimental_attachments: await filesToAttachments(uploadedFiles) } : undefined;
-
-        append(
-          {
-            role: 'user',
-            content: messageText,
-            parts: createMessageParts(messageText, imageDataList),
-          },
-          attachmentOptions,
-        );
-
-        workbenchStore.resetAllFileModifications();
-      } else {
-        const messageText = `[Model: ${model}]\n\n[Provider: ${provider.name}]\n\n${finalMessageContent}`;
-
-        const attachmentOptions =
-          uploadedFiles.length > 0 ? { experimental_attachments: await filesToAttachments(uploadedFiles) } : undefined;
-
-        append(
-          {
-            role: 'user',
-            content: messageText,
-            parts: createMessageParts(messageText, imageDataList),
-          },
-          attachmentOptions,
-        );
-      }
-
-      setInput('');
-      Cookies.remove(PROMPT_COOKIE_KEY);
-
-      setUploadedFiles([]);
-      setImageDataList([]);
-
-      resetEnhancer();
-
-      textareaRef.current?.blur();
-    };
-
-    /**
-     * Handles the change event for the textarea and updates the input state.
-     * @param event - The change event from the textarea.
-     */
-    const onTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      handleInputChange(event);
-    };
-
-    /**
-     * Debounced function to cache the prompt in cookies.
-     * Caches the trimmed value of the textarea input after a delay to optimize performance.
-     */
-    const debouncedCachePrompt = useCallback(
-      debounce((event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const trimmedValue = event.target.value.trim();
-        Cookies.set(PROMPT_COOKIE_KEY, trimmedValue, { expires: 30 });
-      }, 1000),
-      [],
-    );
-
-    useEffect(() => {
-      const storedApiKeys = Cookies.get('apiKeys');
-
-      if (storedApiKeys) {
-        setApiKeys(JSON.parse(storedApiKeys));
-      }
-    }, []);
-
-    const handleModelChange = (newModel: string) => {
-      setModel(newModel);
-      Cookies.set('selectedModel', newModel, { expires: 30 });
-    };
-
-    const handleProviderChange = (newProvider: UIProviderInfo) => {
-      setProvider(newProvider);
-      Cookies.set('selectedProvider', newProvider.name, { expires: 30 });
-    };
-
-    return (
-      <BaseChat
-        ref={animationScope}
-        textareaRef={textareaRef}
-        input={input}
-        showChat={showChat}
-        chatStarted={chatStarted}
-        isStreaming={isLoading || fakeLoading}
-        onStreamingChange={(streaming) => {
-          streamingState.set(streaming);
-        }}
-        enhancingPrompt={enhancingPrompt}
-        promptEnhanced={promptEnhanced}
-        sendMessage={sendMessage}
-        model={model}
-        setModel={handleModelChange}
-        provider={provider}
-        setProvider={handleProviderChange}
-        providerList={activeProviders}
-        handleInputChange={(e) => {
-          onTextareaChange(e);
-          debouncedCachePrompt(e);
-        }}
-        handleStop={abort}
-        description={description}
-        importChat={importChat}
-        exportChat={exportChat}
-        messages={messages.map((message, i) => {
-          if (message.role === 'user') {
-            return message;
-          }
-
-          return {
-            ...message,
-            content: parsedMessages[i] || '',
-          };
-        })}
-        enhancePrompt={() => {
-          enhancePrompt(
-            input,
-            (input) => {
-              setInput(input);
-              scrollTextArea();
-            },
-            model,
-            provider,
-            apiKeys,
-          );
-        }}
-        uploadedFiles={uploadedFiles}
-        setUploadedFiles={setUploadedFiles}
-        imageDataList={imageDataList}
-        setImageDataList={setImageDataList}
-        actionAlert={actionAlert}
-        clearAlert={() => workbenchStore.clearAlert()}
-        supabaseAlert={supabaseAlert}
-        clearSupabaseAlert={() => workbenchStore.clearSupabaseAlert()}
-        deployAlert={deployAlert}
-        clearDeployAlert={() => workbenchStore.clearDeployAlert()}
-        llmErrorAlert={llmErrorAlert}
-        clearLlmErrorAlert={clearApiErrorAlert}
-        data={chatData}
-        chatMode={chatMode}
-        setChatMode={setChatMode}
-        append={append}
-        designScheme={designScheme}
-        setDesignScheme={setDesignScheme}
-        selectedElement={selectedElement}
-        setSelectedElement={setSelectedElement}
-        addToolResult={addToolResult}
-      />
-    );
-  },
-);
+      {/* Input */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-end space-x-3">
+          <div className="flex-1">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={
+                selectedModel 
+                  ? `اكتب رسالتك هنا... (${selectedModel.name})`
+                  : 'اختر نموذج ذكاء اصطناعي أولاً...'
+              }
+              disabled={!selectedModel || isGenerating}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white disabled:opacity-50"
+              rows={1}
+              maxLength={4000}
+            />
+            <div className="flex justify-between items-center mt-1">
+              <span className="text-xs text-gray-500">
+                {input.length}/4000
+              </span>
+              <span className="text-xs text-gray-500">
+                اضغط Enter للإرسال، Shift+Enter للسطر الجديد
+              </span>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleSendMessage}
+            disabled={!input.trim() || !selectedModel || isGenerating}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {isGenerating ? (
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>جاري التوليد...</span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <div className="i-ph:paper-plane-right" />
+                <span>إرسال</span>
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

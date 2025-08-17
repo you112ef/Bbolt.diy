@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { aiModelsStore } from '~/lib/stores/aiModels';
-import { localAIManager } from '../providers/OfflineAI';
+import { localAIManager } from '../../models/providers/OfflineAI';
 import type { AIModel, ModelInferenceConfig } from '~/types/aiModels';
 
 // Enhanced AI Agent types with real capabilities

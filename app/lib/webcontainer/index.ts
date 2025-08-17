@@ -1,49 +1,35 @@
 import { WebContainer } from '@webcontainer/api';
-import { filesStore } from '~/lib/stores/files';
 
 let webcontainerInstance: WebContainer | null = null;
 let isInitialized = false;
 
-// Enhanced WebContainer configuration
 const WEBCONTAINER_CONFIG = {
   coep: 'credentialless' as const,
   workdirName: 'project',
   forwardPreviewErrors: true,
-  // Add more robust configuration
   env: {
     NODE_ENV: 'development',
-    // Enable better debugging
     DEBUG: 'webcontainer:*',
   },
-  // Improve performance
   mount: {
-    // Mount additional tools and utilities
-    '/usr/local/bin': {
+    node_modules: {
       directory: {
-        'node': {
-          file: {
-            contents: '#!/bin/sh\nexec /usr/bin/node "$@"',
-            mode: 0o755,
-          },
-        },
-        'npm': {
-          file: {
-            contents: '#!/bin/sh\nexec /usr/bin/npm "$@"',
-            mode: 0o755,
-          },
-        },
-        'pnpm': {
-          file: {
-            contents: '#!/bin/sh\nexec /usr/bin/pnpm "$@"',
-            mode: 0o755,
-          },
-        },
+        fs: 'node_modules',
+      },
+    },
+    npm: {
+      directory: {
+        fs: 'npm',
+      },
+    },
+    pnpm: {
+      directory: {
+        fs: 'pnpm',
       },
     },
   },
 };
 
-// Enhanced error handling and recovery
 class WebContainerManager {
   private instance: WebContainer | null = null;
   private retryCount = 0;
@@ -51,26 +37,21 @@ class WebContainerManager {
   private listeners: Map<string, Function[]> = new Map();
 
   async initialize(): Promise<WebContainer> {
-    if (this.instance && isInitialized) {
+    if (this.instance) {
       return this.instance;
     }
 
     try {
       console.log('Initializing WebContainer...');
       
-      // Boot WebContainer with enhanced configuration
       this.instance = await WebContainer.boot(WEBCONTAINER_CONFIG);
       
-      // Set up enhanced event listeners
       this.setupEventListeners();
-      
-      // Initialize file system
       await this.initializeFileSystem();
       
       isInitialized = true;
-      webcontainerInstance = this.instance;
-      
       console.log('WebContainer initialized successfully');
+      
       return this.instance;
     } catch (error) {
       console.error('Failed to initialize WebContainer:', error);
@@ -82,63 +63,58 @@ class WebContainerManager {
         return this.initialize();
       }
       
-      throw new Error(`WebContainer initialization failed after ${this.maxRetries} attempts`);
+      throw error;
     }
   }
 
   private setupEventListeners() {
     if (!this.instance) return;
 
-    // Enhanced preview message handling
-    this.instance.on('preview', (data) => {
-      console.log('WebContainer preview:', data);
-      this.emit('preview', data);
+    // Preview events
+    this.instance.on('server-ready', (port, url) => {
+      console.log(`Server ready on port ${port}: ${url}`);
+      this.emit('preview-ready', { port, url });
     });
 
-    // Enhanced error handling
+    // Error events
     this.instance.on('error', (error) => {
       console.error('WebContainer error:', error);
       this.emit('error', error);
     });
 
-    // File system events
-    this.instance.on('file-change', (event) => {
-      console.log('File changed:', event);
-      this.emit('file-change', event);
+    // File change events
+    this.instance.on('file-change', (path) => {
+      console.log(`File changed: ${path}`);
+      this.emit('file-change', path);
     });
 
     // Process events
     this.instance.on('process', (process) => {
-      console.log('Process started:', process);
-      this.emit('process', process);
+      console.log(`Process started: ${process.command}`);
+      this.emit('process-start', process);
     });
   }
 
   private async initializeFileSystem() {
     if (!this.instance) return;
 
-    // Create basic project structure
-    await this.instance.mount({
-      'package.json': {
-        file: {
-          contents: JSON.stringify({
-            name: 'webcontainer-project',
-            version: '1.0.0',
-            type: 'module',
-            scripts: {
-              dev: 'vite',
-              build: 'vite build',
-              preview: 'vite preview',
-            },
-            dependencies: {
-              'vite': '^5.0.0',
-            },
-          }, null, 2),
+    try {
+      // Create initial project structure
+      await this.writeFile('package.json', JSON.stringify({
+        name: 'webcontainer-project',
+        version: '1.0.0',
+        type: 'module',
+        scripts: {
+          dev: 'vite',
+          build: 'vite build',
+          preview: 'vite preview'
         },
-      },
-      'index.html': {
-        file: {
-          contents: `<!DOCTYPE html>
+        dependencies: {
+          'vite': '^5.0.0'
+        }
+      }, null, 2));
+
+      await this.writeFile('index.html', `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -146,55 +122,35 @@ class WebContainerManager {
   <title>WebContainer Project</title>
 </head>
 <body>
-  <div id="app">
-    <h1>Hello WebContainer!</h1>
-    <p>Edit this file to see live changes.</p>
-  </div>
+  <div id="app"></div>
   <script type="module" src="/main.js"></script>
 </body>
-</html>`,
-        },
-      },
-      'main.js': {
-        file: {
-          contents: `console.log('Hello from WebContainer!');`,
-        },
-      },
-      'vite.config.js': {
-        file: {
-          contents: `import { defineConfig } from 'vite';
+</html>`);
+
+      await this.writeFile('main.js', `console.log('Hello from WebContainer!');`);
+
+      await this.writeFile('vite.config.js', `import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    port: 5173,
-    host: true,
-  },
-});`,
-        },
-      },
-    });
+    port: 3000
+  }
+});`);
+
+      console.log('File system initialized');
+    } catch (error) {
+      console.error('Failed to initialize file system:', error);
+    }
   }
 
-  // Enhanced file operations
   async writeFile(path: string, contents: string): Promise<void> {
     if (!this.instance) {
       throw new Error('WebContainer not initialized');
     }
 
     try {
-      await this.instance.mount({
-        [path]: {
-          file: { contents },
-        },
-      });
-      
-      // Update store
-      filesStore.set({
-        ...filesStore.get(),
-        [path]: { contents, isLocked: false },
-      });
-      
-      this.emit('file-written', { path, contents });
+      await this.instance.fs.writeFile(path, contents);
+      console.log(`File written: ${path}`);
     } catch (error) {
       console.error(`Failed to write file ${path}:`, error);
       throw error;
@@ -207,8 +163,8 @@ export default defineConfig({
     }
 
     try {
-      const file = await this.instance.readFile(path);
-      return file;
+      const content = await this.instance.fs.readFile(path, 'utf-8');
+      return content;
     } catch (error) {
       console.error(`Failed to read file ${path}:`, error);
       throw error;
@@ -221,36 +177,22 @@ export default defineConfig({
     }
 
     try {
-      await this.instance.mount({
-        [path]: null,
-      });
-      
-      // Update store
-      const files = filesStore.get();
-      delete files[path];
-      filesStore.set(files);
-      
-      this.emit('file-deleted', { path });
+      await this.instance.fs.rm(path);
+      console.log(`File deleted: ${path}`);
     } catch (error) {
       console.error(`Failed to delete file ${path}:`, error);
       throw error;
     }
   }
 
-  // Enhanced process management
   async runCommand(command: string, args: string[] = []): Promise<any> {
     if (!this.instance) {
       throw new Error('WebContainer not initialized');
     }
 
     try {
-      const process = await this.instance.spawn(command, args, {
-        env: {
-          ...process.env,
-          NODE_ENV: 'development',
-        },
-      });
-
+      const process = await this.instance.spawn(command, args);
+      console.log(`Command executed: ${command} ${args.join(' ')}`);
       return process;
     } catch (error) {
       console.error(`Failed to run command ${command}:`, error);
@@ -258,7 +200,6 @@ export default defineConfig({
     }
   }
 
-  // Event system
   on(event: string, callback: Function) {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
@@ -279,48 +220,51 @@ export default defineConfig({
   private emit(event: string, data?: any) {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach(callback => callback(data));
+      callbacks.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(`Error in event listener for ${event}:`, error);
+        }
+      });
     }
   }
 
-  // Cleanup
   async dispose() {
     if (this.instance) {
       try {
-        await this.instance.teardown();
+        // Cleanup any running processes
+        // Note: WebContainer doesn't have a dispose method, so we just clear references
+        this.instance = null;
+        this.listeners.clear();
+        isInitialized = false;
+        console.log('WebContainer disposed');
       } catch (error) {
-        console.error('Error during WebContainer teardown:', error);
+        console.error('Error disposing WebContainer:', error);
       }
-      this.instance = null;
-      isInitialized = false;
-      webcontainerInstance = null;
     }
   }
 
-  // Health check
   isHealthy(): boolean {
     return this.instance !== null && isInitialized;
   }
 
-  // Get instance
   getInstance(): WebContainer | null {
     return this.instance;
   }
 }
 
-// Create singleton instance
 const webContainerManager = new WebContainerManager();
 
-// Export enhanced functions
 export async function initializeWebContainer(): Promise<WebContainer> {
   return webContainerManager.initialize();
 }
 
 export async function getWebContainer(): Promise<WebContainer> {
-  if (!webcontainerInstance || !isInitialized) {
-    return initializeWebContainer();
+  if (!webContainerManager.isHealthy()) {
+    return webContainerManager.initialize();
   }
-  return webcontainerInstance;
+  return webContainerManager.getInstance()!;
 }
 
 export async function writeFile(path: string, contents: string): Promise<void> {
@@ -355,5 +299,4 @@ export function isWebContainerHealthy(): boolean {
   return webContainerManager.isHealthy();
 }
 
-// Legacy exports for backward compatibility
 export { webcontainerInstance as webcontainer };

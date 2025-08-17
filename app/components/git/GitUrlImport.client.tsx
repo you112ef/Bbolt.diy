@@ -4,7 +4,7 @@ import ignore from 'ignore';
 import { useEffect, useState } from 'react';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
-import { Chat } from '~/components/chat/Chat.client';
+import { ChatClient } from '~/components/chat/Chat.client';
 import { useGit } from '~/lib/hooks/useGit';
 import { useChatHistory } from '~/lib/persistence';
 import { createCommandsMessage, detectProjectCommands, escapeBoltTags } from '~/utils/projectCommands';
@@ -138,7 +138,7 @@ ${escapeBoltTags(file.content)}
     <ClientOnly fallback={<BaseChat />}>
       {() => (
         <>
-          <Chat />
+          <ChatClient />
           {loading && <LoadingOverlay message="Please wait while we clone the repository..." />}
         </>
       )}

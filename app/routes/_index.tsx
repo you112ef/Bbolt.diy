@@ -1,7 +1,7 @@
 import { json, type MetaFunction } from '@remix-run/cloudflare';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
-import { Chat } from '~/components/chat/Chat.client';
+import { ChatClient } from '~/components/chat/Chat.client';
 import { Header } from '~/components/header/Header';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 
@@ -38,7 +38,7 @@ export default function Index() {
       <div className="px-4 py-2 text-center text-sm text-bolt-elements-textSecondary">
         مرحباً بك في منصة YOUSEF.SHTIWE – التطبيق البناء للإجابة عن أسئلتك وبناء المشاريع
       </div>
-      <ClientOnly fallback={<BaseChat />}>{() => <Chat />}</ClientOnly>
+      <ClientOnly fallback={<BaseChat />}>{() => <ChatClient />}</ClientOnly>
     </div>
   );
 }

@@ -1,15 +1,397 @@
-#:schema node_modules/wrangler/config-schema.json
-name = "yousef-shtiwe-ai"
-compatibility_flags = ["nodejs_compat"]
-compatibility_date = "2025-08-08"
-pages_build_output_dir = "./build/client"
-send_metrics = false
+# Cloudflare Pages Configuration for AI Platform
+# This file configures the deployment settings for Cloudflare Pages
 
-# Environment variables (these should be set in Cloudflare dashboard)
+name = "ai-platform"
+compatibility_date = "2024-01-15"
+compatibility_flags = [
+  "nodejs_compat",
+  "webgpu",
+  "experimental_webgpu",
+  "streams_enable_constructors"
+]
+
+# Main application configuration
+[env.production]
+name = "ai-platform"
+route = "ai-platform.yourdomain.com/*"
+zone_id = "your_zone_id_here"
+
+# Development environment
+[env.development]
+name = "ai-platform-dev"
+route = "dev.ai-platform.yourdomain.com/*"
+zone_id = "your_zone_id_here"
+
+# Staging environment
+[env.staging]
+name = "ai-platform-staging"
+route = "staging.ai-platform.yourdomain.com/*"
+zone_id = "your_zone_id_here"
+
+# Global settings for all environments
 [env.production.vars]
 NODE_ENV = "production"
-ENVIRONMENT = "production"
+VITE_DISABLE_SOURCEMAPS = "true"
+VITE_OPTIMIZE_BUILD = "true"
+VITE_BUILD_TARGET = "esnext"
+VITE_CHUNK_SIZE_WARNING_LIMIT = "2000"
 
-[env.preview.vars]
+# AI Provider API Keys (set these in Cloudflare Dashboard)
+[env.production.vars]
+OPENAI_API_KEY = ""
+ANTHROPIC_API_KEY = ""
+GOOGLE_API_KEY = ""
+MISTRAL_API_KEY = ""
+OLLAMA_API_BASE_URL = ""
+LMSTUDIO_API_BASE_URL = ""
+TOGETHER_API_BASE_URL = ""
+
+# Database Configuration
+[env.production.vars]
+SUPABASE_URL = ""
+SUPABASE_ANON_KEY = ""
+SUPABASE_SERVICE_ROLE_KEY = ""
+
+# Authentication
+[env.production.vars]
+AUTH_SECRET = ""
+SESSION_SECRET = ""
+
+# Deployment Integrations
+[env.production.vars]
+CLOUDFLARE_ACCOUNT_ID = ""
+CLOUDFLARE_API_TOKEN = ""
+GITHUB_CLIENT_ID = ""
+GITHUB_CLIENT_SECRET = ""
+VERCEL_TOKEN = ""
+VERCEL_TEAM_ID = ""
+NETLIFY_TOKEN = ""
+NETLIFY_SITE_ID = ""
+
+# Payment Processing
+[env.production.vars]
+STRIPE_SECRET_KEY = ""
+STRIPE_PUBLISHABLE_KEY = ""
+STRIPE_WEBHOOK_SECRET = ""
+
+# Communication Services
+[env.production.vars]
+SENDGRID_API_KEY = ""
+SENDGRID_FROM_EMAIL = ""
+TWILIO_ACCOUNT_SID = ""
+TWILIO_AUTH_TOKEN = ""
+TWILIO_PHONE_NUMBER = ""
+
+# Cloud Services
+[env.production.vars]
+FIREBASE_PROJECT_ID = ""
+FIREBASE_PRIVATE_KEY = ""
+FIREBASE_CLIENT_EMAIL = ""
+REDIS_URL = ""
+REDIS_PASSWORD = ""
+MONGODB_URI = ""
+MONGODB_DB_NAME = ""
+
+# Container and Platform Services
+[env.production.vars]
+DOCKERHUB_USERNAME = ""
+DOCKERHUB_PASSWORD = ""
+RAILWAY_TOKEN = ""
+RAILWAY_PROJECT_ID = ""
+HEROKU_API_KEY = ""
+HEROKU_APP_NAME = ""
+PLANETSCALE_DATABASE_URL = ""
+PLANETSCALE_TOKEN = ""
+
+# KV Namespaces for data storage
+[[env.production.kv_namespaces]]
+binding = "AI_PLATFORM_KV"
+id = "your_kv_namespace_id_here"
+preview_id = "your_preview_kv_namespace_id_here"
+
+# Durable Objects for real-time features
+[[env.production.durable_objects.bindings]]
+name = "CHAT_SESSIONS"
+class_name = "ChatSession"
+
+[[env.production.durable_objects]]
+name = "ChatSession"
+script_name = "chat-session-worker"
+
+# R2 Storage for file uploads
+[[env.production.r2_buckets]]
+binding = "AI_PLATFORM_R2"
+bucket_name = "ai-platform-storage"
+preview_bucket_name = "ai-platform-storage-preview"
+
+# D1 Database for structured data
+[[env.production.d1_databases]]
+binding = "AI_PLATFORM_DB"
+database_name = "ai-platform-db"
+database_id = "your_d1_database_id_here"
+
+# Vectorize for AI embeddings
+[[env.production.vectorize]]
+binding = "AI_PLATFORM_VECTORIZE"
+index_name = "ai-platform-embeddings"
+
+# Analytics Engine
+[[env.production.analytics_engine_datasets]]
+binding = "AI_PLATFORM_ANALYTICS"
+dataset = "ai-platform-events"
+
+# Queue for background processing
+[[env.production.queues]]
+binding = "AI_PLATFORM_QUEUE"
+name = "ai-platform-tasks"
+
+# WebAssembly modules
+[[env.production.wasm_modules]]
+name = "ai-models"
+source = "./wasm/ai-models.wasm"
+
+# Service bindings
+[[env.production.services]]
+binding = "AI_PROCESSING_SERVICE"
+service = "ai-processing-worker"
+environment = "production"
+
+# Cron triggers for scheduled tasks
+[env.production.triggers]
+crons = [
+  "0 0 * * *",  # Daily cleanup
+  "0 */6 * * *", # Every 6 hours - model updates
+  "*/15 * * * *"  # Every 15 minutes - health check
+]
+
+# Build configuration
+[build]
+command = "pnpm run build"
+cwd = "."
+watch_dir = "src"
+
+# Build environment variables
+[build.environment]
+NODE_ENV = "production"
+VITE_DISABLE_SOURCEMAPS = "true"
+VITE_OPTIMIZE_BUILD = "true"
+
+# Upload configuration
+[build.upload]
+format = "service-worker"
+main = "./build/server/index.js"
+
+# Pages configuration
+[pages]
+build_output_dir = "build/client"
+include = ["build/client/**/*"]
+exclude = [
+  "build/client/**/*.map",
+  "build/client/**/*.d.ts",
+  "build/client/**/*.ts",
+  "build/client/**/*.tsx"
+]
+
+# Performance optimizations
+[pages.functions]
+node_compat = true
+include_files = [
+  "build/client/**/*.js",
+  "build/client/**/*.css",
+  "build/client/**/*.html"
+]
+
+# Cache configuration
+[pages.cache]
+browser_ttl = 3600  # 1 hour
+edge_ttl = 86400    # 24 hours
+
+# Headers for security and performance
+[[pages.headers]]
+for = "/*"
+[pages.headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.openai.com https://api.anthropic.com https://api.mistral.ai https://api.together.xyz https://api.groq.com https://api.perplexity.ai https://api.cohere.com https://api.deepseek.com https://api.x.ai https://api.hyperbolic.xyz https://api.github.com https://api.vercel.com https://api.netlify.com https://api.stripe.com https://api.sendgrid.com https://api.twilio.com https://api.firebase.com https://api.redis.com https://api.mongodb.com https://api.docker.com https://api.railway.app https://api.heroku.com https://api.planetscale.com https://api.cloudflare.com; frame-src 'self' https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+
+# Redirects for SPA routing
+[[pages.redirects]]
+from = "/app/*"
+to = "/index.html"
+status = 200
+
+[[pages.redirects]]
+from = "/chat/*"
+to = "/index.html"
+status = 200
+
+[[pages.redirects]]
+from = "/settings/*"
+to = "/index.html"
+status = 200
+
+[[pages.redirects]]
+from = "/agents/*"
+to = "/index.html"
+status = 200
+
+# API routes
+[[pages.redirects]]
+from = "/api/*"
+to = "/api/:splat"
+status = 200
+
+# Static assets caching
+[[pages.headers]]
+for = "/assets/*"
+[pages.headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[pages.headers]]
+for = "*.js"
+[pages.headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[pages.headers]]
+for = "*.css"
+[pages.headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[pages.headers]]
+for = "*.woff2"
+[pages.headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# Development settings
+[dev]
+port = 8788
+local_protocol = "http"
+upstream_protocol = "https"
+
+# Development environment variables
+[dev.vars]
 NODE_ENV = "development"
-ENVIRONMENT = "preview"
+VITE_DISABLE_SOURCEMAPS = "false"
+VITE_OPTIMIZE_BUILD = "false"
+
+# Development KV namespace
+[[dev.kv_namespaces]]
+binding = "AI_PLATFORM_KV"
+id = "your_dev_kv_namespace_id_here"
+
+# Development R2 bucket
+[[dev.r2_buckets]]
+binding = "AI_PLATFORM_R2"
+bucket_name = "ai-platform-storage-dev"
+
+# Development D1 database
+[[dev.d1_databases]]
+binding = "AI_PLATFORM_DB"
+database_name = "ai-platform-db-dev"
+database_id = "your_dev_d1_database_id_here"
+
+# Development Vectorize
+[[dev.vectorize]]
+binding = "AI_PLATFORM_VECTORIZE"
+index_name = "ai-platform-embeddings-dev"
+
+# Development Analytics
+[[dev.analytics_engine_datasets]]
+binding = "AI_PLATFORM_ANALYTICS"
+dataset = "ai-platform-events-dev"
+
+# Development Queue
+[[dev.queues]]
+binding = "AI_PLATFORM_QUEUE"
+name = "ai-platform-tasks-dev"
+
+# Development Service
+[[dev.services]]
+binding = "AI_PROCESSING_SERVICE"
+service = "ai-processing-worker"
+environment = "development"
+
+# Logging configuration
+[logfwdr]
+schema = "v2"
+
+[[logfwdr.logs]]
+name = "ai-platform-logs"
+destination = "cloudflare"
+
+# Monitoring and alerts
+[monitors]
+# Health check monitor
+[[monitors]]
+name = "AI Platform Health Check"
+description = "Monitors the main application health"
+type = "http"
+method = "GET"
+url = "https://ai-platform.yourdomain.com/api/health"
+expected_codes = ["200"]
+timeout = 30
+retries = 3
+interval = 60
+
+# API performance monitor
+[[monitors]]
+name = "AI API Performance"
+description = "Monitors AI API response times"
+type = "http"
+method = "POST"
+url = "https://ai-platform.yourdomain.com/api/chat"
+expected_codes = ["200"]
+timeout = 60
+retries = 2
+interval = 300
+
+# Database connectivity monitor
+[[monitors]]
+name = "Database Connectivity"
+description = "Monitors database connection health"
+type = "http"
+method = "GET"
+url = "https://ai-platform.yourdomain.com/api/system/diagnostics"
+expected_codes = ["200"]
+timeout = 45
+retries = 3
+interval = 120
+
+# Alert policies
+[alerts]
+# High error rate alert
+[[alerts]]
+name = "High Error Rate"
+description = "Alert when error rate exceeds threshold"
+expression = "avg(rate(requests_total{status=~\"5..\"}[5m])) > 0.1"
+for = "5m"
+labels = { severity = "critical" }
+annotations = { summary = "High error rate detected" }
+
+# High latency alert
+[[alerts]]
+name = "High Latency"
+description = "Alert when response time is too high"
+expression = "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2"
+for = "5m"
+labels = { severity = "warning" }
+annotations = { summary = "High latency detected" }
+
+# Resource usage alerts
+[[alerts]]
+name = "High Memory Usage"
+description = "Alert when memory usage is high"
+expression = "container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.8"
+for = "5m"
+labels = { severity = "warning" }
+annotations = { summary = "High memory usage detected" }
+
+[[alerts]]
+name = "High CPU Usage"
+description = "Alert when CPU usage is high"
+expression = "rate(container_cpu_usage_seconds_total[5m]) > 0.8"
+for = "5m"
+labels = { severity = "warning" }
+annotations = { summary = "High CPU usage detected" }

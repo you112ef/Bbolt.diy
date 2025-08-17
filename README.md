@@ -1,176 +1,299 @@
-# YOUSEF.SHTIWE AI Platform
+# 🤖 AI Platform - منصة الذكاء الاصطناعي
 
-منصة تطوير ذكية مدعومة بالذكاء الاصطناعي مع بيئة تطوير متكاملة في المتصفح
+منصة متكاملة للذكاء الاصطناعي تدعم النماذج المحلية والسحابية مع واجهة مستخدم حديثة ومتجاوبة.
 
-## 🚀 الميزات الرئيسية
+## ✨ المميزات
 
-### 🤖 **الذكاء الاصطناعي المحلي الحقيقي**
-- **نماذج GGUF**: دعم كامل لنماذج Llama و Mistral المحلية
-- **Transformers.js**: تشغيل نماذج PyTorch مباشرة في المتصفح
-- **إدارة ذكية**: تحميل وإدارة متقدمة للنماذج المحلية
-- **استدلال محلي**: معالجة النصوص بدون اتصال بالإنترنت
+### 🧠 الذكاء الاصطناعي
+- **نماذج سحابية**: OpenAI, Anthropic, Google, Mistral, وغيرها
+- **نماذج محلية**: Ollama, LM Studio, Together AI
+- **وكلاء ذكاء اصطناعي**: وكلاء متخصصة للمهام المختلفة
+- **معالجة محادثات متقدمة**: دعم السياق والذاكرة
 
-### 💻 **بيئة التطوير المتكاملة**
-- **WebContainer حقيقي**: تشغيل Node.js في المتصفح مع دعم كامل
-- **محرر Monaco**: محرر كود متقدم مع دعم جميع اللغات
-- **طرفية تفاعلية**: Xterm.js مع دعم الأوامر الكاملة
-- **معاينة مباشرة**: تحديث فوري للمشاريع مع Hot Reload
+### 🛠️ أدوات التطوير
+- **WebContainer**: بيئة تطوير كاملة في المتصفح
+- **محرر كود متقدم**: CodeMirror مع دعم TypeScript
+- **Terminal مدمج**: Xterm.js مع دعم أوامر Unix
+- **Git Integration**: استيراد وإدارة المشاريع من GitHub
 
-### 🎯 **وكلاء الذكاء الاصطناعي المتخصصة**
-- **مفسر الكود**: شرح مفصل للكود مع أمثلة عملية
-- **مصلح الأخطاء**: اكتشاف وإصلاح الأخطاء البرمجية
-- **محسن الكود**: تحسين الأداء وتقليل التعقيد
-- **مصمم البنية**: تصميم بنى برمجية قابلة للتطوير
-- **مدقق الأمان**: اكتشاف ثغرات الأمان وحلول الحماية
+### 📱 منصات متعددة
+- **Web Application**: تطبيق ويب متجاوب
+- **Desktop App**: تطبيق سطح المكتب مع Electron
+- **Mobile Apps**: تطبيقات Android/iOS مع Capacitor
 
-### 🌐 **دعم متعدد المنصات**
-- **Cloudflare Pages**: نشر سريع ومجاني
-- **Electron**: تطبيق سطح المكتب
-- **Capacitor**: تطبيقات الهاتف المحمول
-- **Docker**: حاويات قابلة للنشر
+### 🔧 إدارة الحالة
+- **Zustand**: إدارة حالة متقدمة
+- **Nanostores**: إدارة حالة خفيفة الوزن
+- **IndexedDB**: تخزين محلي للمحادثات والبيانات
 
-## 🛠️ التقنيات المستخدمة
+## 🚀 النشر على Cloudflare Pages
 
-### **الواجهة الأمامية**
-- **Remix**: إطار عمل كامل المكدس
-- **React 18**: واجهة مستخدم تفاعلية
-- **TypeScript**: أمان الأنواع
-- **UnoCSS**: تنسيق سريع ومرن
+### المتطلبات المسبقة
+- حساب Cloudflare
+- Wrangler CLI مثبت
+- Node.js 18+ و pnpm
 
-### **الذكاء الاصطناعي**
-- **@xenova/transformers**: نماذج PyTorch في المتصفح
-- **@llama-node/llama-cpp**: نماذج GGUF المحلية
-- **Vercel AI SDK**: تكامل مع مزودي الذكاء الاصطناعي
-- **Nanostores**: إدارة الحالة التفاعلية
+### 1. إعداد المشروع
 
-### **بيئة التطوير**
-- **@webcontainer/api**: Node.js في المتصفح
-- **@monaco-editor/react**: محرر كود متقدم
-- **@xterm/xterm**: طرفية تفاعلية
-- **Vite**: بناء سريع
-
-## 📦 التثبيت والتشغيل
-
-### **المتطلبات**
-- Node.js 18+
-- pnpm (موصى به)
-
-### **التثبيت**
 ```bash
 # استنساخ المشروع
-git clone https://github.com/yousef-shtiwe/yousef-shtiwe-ai.git
-cd yousef-shtiwe-ai
+git clone <repository-url>
+cd ai-platform
 
 # تثبيت التبعيات
 pnpm install
 
-# تشغيل في وضع التطوير
+# إعداد البيئة
+cp .env.example .env
+# تحرير .env وإضافة المتغيرات المطلوبة
+```
+
+### 2. إعداد Cloudflare
+
+```bash
+# تسجيل الدخول إلى Cloudflare
+wrangler login
+
+# إنشاء مشاريع Pages
+pnpm setup:cloudflare
+
+# إنشاء خدمات Cloudflare
+pnpm setup:all
+```
+
+### 3. تكوين المتغيرات البيئية
+
+في Cloudflare Dashboard، أضف المتغيرات التالية:
+
+#### AI Providers
+```
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
+GOOGLE_API_KEY=your_google_key
+MISTRAL_API_KEY=your_mistral_key
+```
+
+#### Database
+```
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_key
+```
+
+#### Authentication
+```
+AUTH_SECRET=your_auth_secret
+SESSION_SECRET=your_session_secret
+```
+
+### 4. النشر
+
+```bash
+# بناء التطبيق
+pnpm build
+
+# النشر على البيئة المطلوبة
+pnpm deploy:dev      # بيئة التطوير
+pnpm deploy:staging  # بيئة الاختبار
+pnpm deploy:prod     # بيئة الإنتاج
+
+# أو النشر على جميع البيئات
+pnpm deploy:all
+```
+
+### 5. مراقبة التطبيق
+
+```bash
+# مراقبة السجلات
+pnpm wrangler:tail
+
+# فحص صحة التطبيق
+pnpm health:check
+
+# اختبار الأداء
+pnpm performance:test
+```
+
+## 🛠️ التطوير المحلي
+
+### تشغيل التطبيق
+
+```bash
+# وضع التطوير
 pnpm dev
 
-# بناء للإنتاج
-pnpm build
+# معاينة البناء
+pnpm preview
+
+# اختبار الوحدة
+pnpm test
+
+# فحص النوع
+pnpm typecheck
 ```
 
-### **تشغيل الذكاء الاصطناعي المحلي**
+### أدوات التطوير
 
-#### **1. نماذج GGUF (Ollama)**
 ```bash
-# تثبيت Ollama
-curl -fsSL https://ollama.ai/install.sh | sh
+# تنظيف الكاش
+pnpm clean
 
-# تشغيل Ollama
-ollama serve
+# إعادة تثبيت التبعيات
+pnpm reinstall
 
-# تحميل نموذج
-ollama pull llama2:7b
-ollama pull mistral:7b
+# تحليل حجم الباندل
+pnpm bundle:analyze
+
+# فحص الأمان
+pnpm security:scan
 ```
 
-#### **2. نماذج Transformers.js**
+## 📱 تطبيقات سطح المكتب والجوال
+
+### تطبيق سطح المكتب
+
 ```bash
-# النماذج متاحة تلقائياً في المتصفح
-# لا حاجة لتثبيت إضافي
+# بناء تطبيق Electron
+pnpm electron:build
+
+# تشغيل في وضع التطوير
+pnpm electron:dev
 ```
 
-## 🎨 الميزات المحسنة
+### تطبيقات الجوال
 
-### **الواجهة العربية**
-- دعم كامل للغة العربية
-- اتجاه من اليمين إلى اليسار (RTL)
-- واجهة مستخدم محلية
+```bash
+# إعداد Capacitor
+pnpm capacitor:build
 
-### **إدارة المشاريع**
-- إنشاء مشاريع جديدة
-- استيراد من GitHub
-- حفظ واسترجاع المشاريع
+# تشغيل على Android
+pnpm capacitor:run:android
 
-### **التطوير المتقدم**
-- Git integration
-- Debugging tools
-- Code formatting
-- Linting
+# تشغيل على iOS
+pnpm capacitor:run:ios
 
-## 🔧 الإعدادات
+# بناء APK
+pnpm capacitor:build:android
 
-### **مزودي الذكاء الاصطناعي**
-- **OpenAI**: GPT-4, GPT-3.5
-- **Anthropic**: Claude
-- **Google**: Gemini
-- **Mistral**: Mistral AI
-- **Ollama**: نماذج محلية
-- **LM Studio**: نماذج محلية
+# بناء IPA
+pnpm capacitor:build:ios
+```
 
-### **التخصيص**
-- الثيمات (فاتح/داكن)
-- تخطيط الواجهة
-- اختصارات لوحة المفاتيح
-- إعدادات المحرر
+## 🔧 التكوين المتقدم
 
-## 📚 التوثيق
+### إعدادات Vite
 
-### **الذكاء الاصطناعي المحلي**
-- [دليل نماذج GGUF](./docs/gguf-models.md)
-- [دليل Transformers.js](./docs/transformers.md)
-- [إعداد Ollama](./docs/ollama-setup.md)
+الملف `vite.config.ts` يحتوي على:
+- تعطيل Sourcemaps لتحسين الأداء
+- تحسين الباندل للـ Cloudflare Workers
+- دعم Node.js polyfills
+- تكوين UnoCSS
 
-### **بيئة التطوير**
-- [دليل WebContainer](./docs/webcontainer.md)
-- [إعداد المحرر](./docs/editor-setup.md)
-- [استخدام الطرفية](./docs/terminal.md)
+### إعدادات TypeScript
 
-### **وكلاء الذكاء الاصطناعي**
-- [دليل الوكلاء](./docs/ai-agents.md)
-- [إنشاء وكلاء مخصصة](./docs/custom-agents.md)
+الملف `tsconfig.json` يحتوي على:
+- تكوين صارم للأنواع
+- دعم Path mapping
+- تحسينات الأداء
+
+### إعدادات Wrangler
+
+الملف `wrangler.toml` يحتوي على:
+- تكوين Cloudflare Pages
+- إعدادات البيئات المختلفة
+- تكوين KV, D1, R2, Vectorize
+- مراقبة الأداء والتنبيهات
+
+## 📊 المراقبة والأداء
+
+### المراقبة
+
+- **Health Checks**: فحص صحة التطبيق كل دقيقة
+- **Performance Monitoring**: مراقبة أداء API
+- **Error Tracking**: تتبع الأخطاء والاستثناءات
+- **Analytics**: تحليلات مفصلة للاستخدام
+
+### التحسينات
+
+- **Code Splitting**: تقسيم الكود لتحسين التحميل
+- **Caching**: تخزين مؤقت للملفات الثابتة
+- **Compression**: ضغط الملفات لتقليل الحجم
+- **CDN**: استخدام شبكة Cloudflare العالمية
+
+## 🔒 الأمان
+
+### إعدادات الأمان
+
+- **CSP**: سياسة أمان المحتوى
+- **CORS**: إعدادات Cross-Origin
+- **Rate Limiting**: تحديد معدل الطلبات
+- **Input Validation**: التحقق من المدخلات
+
+### أفضل الممارسات
+
+- استخدام HTTPS فقط
+- تشفير البيانات الحساسة
+- تحديث التبعيات بانتظام
+- مراجعة الأمان الدورية
 
 ## 🤝 المساهمة
 
-نرحب بالمساهمات! يرجى قراءة [دليل المساهمة](./CONTRIBUTING.md) للمزيد من المعلومات.
+### إرشادات المساهمة
 
-### **المساهمة في التطوير**
 1. Fork المشروع
 2. إنشاء فرع للميزة الجديدة
-3. Commit التغييرات
-4. Push إلى الفرع
+3. تطبيق التغييرات
+4. إضافة اختبارات
 5. إنشاء Pull Request
+
+### معايير الكود
+
+```bash
+# فحص الكود
+pnpm lint
+
+# إصلاح الأخطاء
+pnpm lint:fix
+
+# تنسيق الكود
+pnpm format
+
+# فحص التنسيق
+pnpm format:check
+```
 
 ## 📄 الترخيص
 
-هذا المشروع مرخص تحت رخصة MIT - انظر ملف [LICENSE](./LICENSE) للتفاصيل.
+هذا المشروع مرخص تحت رخصة MIT. راجع ملف `LICENSE` للتفاصيل.
 
-## 🙏 الشكر والتقدير
+## 🆘 الدعم
 
-- [WebContainer](https://webcontainers.io/) - بيئة Node.js في المتصفح
-- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - محرر الكود
-- [Xterm.js](https://xtermjs.org/) - الطرفية التفاعلية
-- [Transformers.js](https://huggingface.co/docs/transformers.js) - نماذج الذكاء الاصطناعي
-- [Ollama](https://ollama.ai/) - نماذج الذكاء الاصطناعي المحلية
+### المشاكل الشائعة
 
-## 📞 الدعم
+1. **خطأ في البناء**: تأكد من تثبيت جميع التبعيات
+2. **مشاكل في النشر**: تحقق من إعدادات Cloudflare
+3. **أخطاء في API**: تأكد من صحة مفاتيح API
 
-- **GitHub Issues**: للإبلاغ عن الأخطاء والطلبات
-- **Discord**: للمناقشات والدعم المباشر
-- **Email**: support@yousef-shtiwe.ai
+### الحصول على المساعدة
+
+- [Issues](https://github.com/your-repo/issues) - الإبلاغ عن المشاكل
+- [Discussions](https://github.com/your-repo/discussions) - المناقشات العامة
+- [Wiki](https://github.com/your-repo/wiki) - الوثائق التفصيلية
+
+## 🎯 Roadmap
+
+### الإصدار القادم
+- [ ] دعم نماذج AI إضافية
+- [ ] تحسينات في الأداء
+- [ ] ميزات تعاونية
+- [ ] دعم اللغات الإضافية
+
+### الإصدارات المستقبلية
+- [ ] AI Agents متقدمة
+- [ ] دعم VR/AR
+- [ ] تكامل مع IoT
+- [ ] تعلم آلي مخصص
 
 ---
 
-**YOUSEF.SHTIWE AI Platform** - منصة التطوير الذكية للعصر الرقمي 🚀
+**تم تطوير هذا المشروع بحب ❤️ للمجتمع العربي**

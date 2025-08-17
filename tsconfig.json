@@ -26,7 +26,18 @@
       "~/enhanced/*": ["./enhanced/*"]
     },
     // vite takes care of building everything, not tsc
-    "noEmit": true
+    "noEmit": true,
+    // Disable source map generation to prevent issues
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "inlineSources": false,
+    // Performance optimizations
+    "incremental": false,
+    "tsBuildInfoFile": null,
+    // Additional optimizations
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false
   },
   "include": [
     "**/*.ts",
@@ -41,6 +52,8 @@
     "node_modules",
     "enhanced/**",
     "electron/**",
-    "android/**"
+    "android/**",
+    "build/**",
+    "dist/**"
   ]
 }

@@ -170,15 +170,15 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
     useEffect(() => {
       if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRecognition() as SpeechRecognition;
         recognition.continuous = true;
         recognition.interimResults = true;
 
-        recognition.onresult = (event) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = Array.from(event.results)
-            .map((result) => result[0])
-            .map((result) => result.transcript)
+            .map((result: SpeechRecognitionResult) => result[0])
+            .map((result: SpeechRecognitionAlternative) => result.transcript)
             .join('');
 
           setTranscript(transcript);
@@ -186,13 +186,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           if (handleInputChange) {
             const syntheticEvent = {
               target: { value: transcript },
-            } as React.ChangeEvent<HTMLTextAreaElement>;
+            } as unknown as React.ChangeEvent<HTMLTextAreaElement>;
             handleInputChange(syntheticEvent);
           }
         };
 
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
+        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+          console.error('Speech recognition error:', (event as any).error);
           setIsListening(false);
         };
 

@@ -50,7 +50,7 @@ export default async function handleRequest(
 
   const head = renderHeadToString({ request, remixContext, Head });
 
-  const fullHtml = `<!DOCTYPE html><html lang="${selectedLang}" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">${appHtml}</div></body></html>`;
+  const fullHtml = `<!DOCTYPE html><html lang="${selectedLang}" data-theme="light"><head>${head}</head><body><div id="root" class="w-full h-full">${appHtml}</div></body></html>`;
 
   const body = new ReadableStream({
     start(controller) {

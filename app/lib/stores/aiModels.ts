@@ -1,202 +1,211 @@
-import { atom } from 'nanostores';
-import type { AIModel, LocalInferenceSession, ModelMetrics, ModelInferenceConfig } from '~/types/aiModels';
+import { create } from 'zustand';
+import { localAIManager } from '~/enhanced/models/providers/OfflineAI';
+import type { AIModel, ModelInferenceConfig, ModelMetrics } from '~/types/aiModels';
 
-// AI Models Store
-export const aiModelsStore = atom<AIModel[]>([]);
+interface AIModelsState {
+  localModels: AIModel[];
+  cloudModels: AIModel[];
+  selectedModel: AIModel | null;
+  isLoading: boolean;
+  error: string | null;
+  uploadProgress: Record<string, number>;
+}
 
-// Active inference sessions
-export const inferenceSessionsStore = atom<LocalInferenceSession[]>([]);
+interface AIModelsActions {
+  // Local Models Management
+  loadLocalModel: (modelId: string, modelPath: string) => Promise<boolean>;
+  unloadLocalModel: (modelId: string) => Promise<boolean>;
+  getLocalModelInfo: (modelId: string) => AIModel | null;
+  getLocalModelMetrics: (modelId: string) => ModelMetrics | null;
+  validateLocalModel: (modelPath: string) => Promise<boolean>;
+  
+  // Model Operations
+  performInference: (modelId: string, prompt: string, config?: ModelInferenceConfig) => Promise<string>;
+  updateModelStatus: (modelId: string, status: 'loading' | 'ready' | 'error') => void;
+  setSelectedModel: (model: AIModel | null) => void;
+  
+  // Upload Management
+  setUploadProgress: (modelId: string, progress: number) => void;
+  clearUploadProgress: (modelId: string) => void;
+  
+  // Error Handling
+  setError: (error: string | null) => void;
+  clearError: () => void;
+  
+  // State Management
+  setLoading: (loading: boolean) => void;
+  reset: () => void;
+}
 
-// Model metrics
-export const modelMetricsStore = atom<Record<string, ModelMetrics>>({});
+export const aiModelsStore = create<AIModelsState & AIModelsActions>((set, get) => ({
+  // Initial State
+  localModels: [],
+  cloudModels: [],
+  selectedModel: null,
+  isLoading: false,
+  error: null,
+  uploadProgress: {},
 
-// Currently selected model for chat
-export const selectedModelStore = atom<string | null>(null);
-
-// Model loading status
-export const modelLoadingStore = atom<Record<string, boolean>>({});
-
-// Store management functions
-export const aiModelsActions = {
-  // Add a new model
-  addModel: (model: AIModel) => {
-    const currentModels = aiModelsStore.get();
-    aiModelsStore.set([...currentModels, model]);
-
-    // Save to localStorage
-    localStorage.setItem('bolt-ai-models', JSON.stringify([...currentModels, model]));
-  },
-
-  // Remove a model
-  removeModel: (modelId: string) => {
-    const currentModels = aiModelsStore.get();
-    const updatedModels = currentModels.filter((model) => model.id !== modelId);
-    aiModelsStore.set(updatedModels);
-
-    // Remove from localStorage
-    localStorage.setItem('bolt-ai-models', JSON.stringify(updatedModels));
-
-    // Clean up related data
-    const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.filter((session) => session.modelId !== modelId);
-    inferenceSessionsStore.set(updatedSessions);
-
-    const currentMetrics = modelMetricsStore.get();
-    const { [modelId]: removedMetric, ...remainingMetrics } = currentMetrics;
-    modelMetricsStore.set(remainingMetrics);
-  },
-
-  // Update model status
-  updateModelStatus: (modelId: string, status: AIModel['status']) => {
-    const currentModels = aiModelsStore.get();
-    const updatedModels = currentModels.map((model) => (model.id === modelId ? { ...model, status } : model));
-    aiModelsStore.set(updatedModels);
-    localStorage.setItem('bolt-ai-models', JSON.stringify(updatedModels));
-  },
-
-  // Get model by ID
-  getModel: (modelId: string): AIModel | undefined => {
-    const models = aiModelsStore.get();
-    return models.find((model) => model.id === modelId);
-  },
-
-  // Initialize from localStorage
-  initializeFromStorage: () => {
+  // Local Models Management
+  loadLocalModel: async (modelId: string, modelPath: string) => {
+    set({ isLoading: true, error: null });
+    
     try {
-      const stored = localStorage.getItem('bolt-ai-models');
-
-      if (stored) {
-        const models = JSON.parse(stored) as AIModel[];
-        aiModelsStore.set(models);
+      const success = await localAIManager.loadModel(modelId, modelPath);
+      
+      if (success) {
+        const modelInfo = localAIManager.getModelInfo(modelId);
+        if (modelInfo) {
+          set(state => ({
+            localModels: [...state.localModels.filter(m => m.id !== modelId), modelInfo],
+            selectedModel: modelInfo
+          }));
+        }
       }
+      
+      return success;
     } catch (error) {
-      console.error('Failed to load AI models from storage:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load model';
+      set({ error: errorMessage });
+      return false;
+    } finally {
+      set({ isLoading: false });
     }
   },
 
-  // Create inference session
-  createInferenceSession: (modelId: string, config: ModelInferenceConfig): LocalInferenceSession => {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const session: LocalInferenceSession = {
-      id: sessionId,
-      modelId,
-      config,
-      status: 'initializing',
-      createdAt: new Date().toISOString(),
-      lastUsed: new Date().toISOString(),
-    };
-
-    const currentSessions = inferenceSessionsStore.get();
-    inferenceSessionsStore.set([...currentSessions, session]);
-
-    return session;
+  unloadLocalModel: async (modelId: string) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const success = await localAIManager.unloadModel(modelId);
+      
+      if (success) {
+        set(state => ({
+          localModels: state.localModels.filter(m => m.id !== modelId),
+          selectedModel: state.selectedModel?.id === modelId ? null : state.selectedModel
+        }));
+      }
+      
+      return success;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to unload model';
+      set({ error: errorMessage });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
-  // Update session status
-  updateSessionStatus: (sessionId: string, status: LocalInferenceSession['status']) => {
-    const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.map((session) =>
-      session.id === sessionId
-        ? {
-            ...session,
-            status,
-            lastUsed: new Date().toISOString(),
-          }
-        : session,
-    );
-    inferenceSessionsStore.set(updatedSessions);
+  getLocalModelInfo: (modelId: string) => {
+    return localAIManager.getModelInfo(modelId);
   },
 
-  // Remove inference session
-  removeInferenceSession: (sessionId: string) => {
-    const currentSessions = inferenceSessionsStore.get();
-    const updatedSessions = currentSessions.filter((session) => session.id !== sessionId);
-    inferenceSessionsStore.set(updatedSessions);
+  getLocalModelMetrics: (modelId: string) => {
+    return localAIManager.getMetrics(modelId);
   },
 
-  // Update model metrics
-  updateMetrics: (modelId: string, metrics: Partial<ModelMetrics>) => {
-    const currentMetrics = modelMetricsStore.get();
-    const existingMetrics = currentMetrics[modelId] || {
-      modelId,
-      totalInferences: 0,
-      totalTokensGenerated: 0,
-      averageLatency: 0,
-      lastUsed: new Date().toISOString(),
-      errorCount: 0,
-    };
+  validateLocalModel: async (modelPath: string) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const isValid = await localAIManager.validateModel(modelPath);
+      return isValid;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Model validation failed';
+      set({ error: errorMessage });
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 
-    const updatedMetrics = { ...existingMetrics, ...metrics };
-    modelMetricsStore.set({
-      ...currentMetrics,
-      [modelId]: updatedMetrics,
+  // Model Operations
+  performInference: async (modelId: string, prompt: string, config?: ModelInferenceConfig) => {
+    set({ isLoading: true, error: null });
+    
+    try {
+      const cfg: ModelInferenceConfig | undefined = config ? { ...config, modelId: config.modelId || modelId } : { modelId };
+      const response = await localAIManager.inference(modelId, prompt, cfg as any);
+      return response;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Inference failed';
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  updateModelStatus: (modelId: string, status: 'loading' | 'ready' | 'error') => {
+    set(state => ({
+      localModels: state.localModels.map(model => 
+        model.id === modelId ? { ...model, status } : model
+      ),
+      cloudModels: state.cloudModels.map(model => 
+        model.id === modelId ? { ...model, status } : model
+      )
+    }));
+  },
+
+  setSelectedModel: (model: AIModel | null) => {
+    set({ selectedModel: model });
+  },
+
+  // Upload Management
+  setUploadProgress: (modelId: string, progress: number) => {
+    set(state => ({
+      uploadProgress: { ...state.uploadProgress, [modelId]: progress }
+    }));
+  },
+
+  clearUploadProgress: (modelId: string) => {
+    set(state => {
+      const newProgress = { ...state.uploadProgress };
+      delete newProgress[modelId];
+      return { uploadProgress: newProgress };
     });
   },
 
-  // Set selected model
-  setSelectedModel: (modelId: string | null) => {
-    selectedModelStore.set(modelId);
-    localStorage.setItem('bolt-selected-model', modelId || '');
+  // Error Handling
+  setError: (error: string | null) => {
+    set({ error });
   },
 
-  // Get selected model
-  getSelectedModel: (): string | null => {
-    return selectedModelStore.get();
+  clearError: () => {
+    set({ error: null });
   },
 
-  // Set model loading status
-  setModelLoading: (modelId: string, loading: boolean) => {
-    const currentStatus = modelLoadingStore.get();
-    modelLoadingStore.set({
-      ...currentStatus,
-      [modelId]: loading,
+  // State Management
+  setLoading: (loading: boolean) => {
+    set({ isLoading: loading });
+  },
+
+  reset: () => {
+    set({
+      localModels: [],
+      cloudModels: [],
+      selectedModel: null,
+      isLoading: false,
+      error: null,
+      uploadProgress: {}
     });
-  },
-
-  // Check if model is loading
-  isModelLoading: (modelId: string): boolean => {
-    const status = modelLoadingStore.get();
-    return status[modelId] || false;
-  },
-
-  // Get ready models
-  getReadyModels: (): AIModel[] => {
-    const models = aiModelsStore.get();
-    return models.filter((model) => model.status === 'ready');
-  },
-
-  // Get local models only
-  getLocalModels: (): AIModel[] => {
-    const models = aiModelsStore.get();
-    return models.filter((model) => model.isLocal);
-  },
-
-  // Clear all data
-  clearAll: () => {
-    aiModelsStore.set([]);
-    inferenceSessionsStore.set([]);
-    modelMetricsStore.set({});
-    selectedModelStore.set(null);
-    modelLoadingStore.set({});
-    localStorage.removeItem('bolt-ai-models');
-    localStorage.removeItem('bolt-selected-model');
-  },
-};
-
-// Initialize from localStorage on module load
-if (typeof window !== 'undefined') {
-  aiModelsActions.initializeFromStorage();
-
-  // Try to restore selected model
-  const savedSelectedModel = localStorage.getItem('bolt-selected-model');
-
-  if (savedSelectedModel) {
-    selectedModelStore.set(savedSelectedModel);
   }
-}
+}));
 
-// Export convenience hooks for React components
-export const useAIModels = () => aiModelsStore.get();
-export const useInferenceSessions = () => inferenceSessionsStore.get();
-export const useModelMetrics = () => modelMetricsStore.get();
-export const useSelectedModel = () => selectedModelStore.get();
+// Export actions for easier access
+export const aiModelsActions = {
+  loadLocalModel: aiModelsStore.getState().loadLocalModel,
+  unloadLocalModel: aiModelsStore.getState().unloadLocalModel,
+  getLocalModelInfo: aiModelsStore.getState().getLocalModelInfo,
+  getLocalModelMetrics: aiModelsStore.getState().getLocalModelMetrics,
+  validateLocalModel: aiModelsStore.getState().validateLocalModel,
+  performInference: aiModelsStore.getState().performInference,
+  updateModelStatus: aiModelsStore.getState().updateModelStatus,
+  setSelectedModel: aiModelsStore.getState().setSelectedModel,
+  setUploadProgress: aiModelsStore.getState().setUploadProgress,
+  clearUploadProgress: aiModelsStore.getState().clearUploadProgress,
+  setError: aiModelsStore.getState().setError,
+  clearError: aiModelsStore.getState().clearError,
+  setLoading: aiModelsStore.getState().setLoading,
+  reset: aiModelsStore.getState().reset
+};

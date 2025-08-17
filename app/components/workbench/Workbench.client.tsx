@@ -25,7 +25,7 @@ import useViewport from '~/lib/hooks';
 import { PushToGitHubDialog } from '~/components/@settings/tabs/connections/components/PushToGitHubDialog';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { usePreviewStore } from '~/lib/stores/previews';
-import { chatStore } from '~/lib/stores/chat';
+import { chatStore, chatActions } from '~/lib/stores/chat';
 import type { ElementInfo } from './Inspector';
 
 interface WorkspaceProps {
@@ -295,7 +295,7 @@ export const Workbench = memo(
     const unsavedFiles = useStore(workbenchStore.unsavedFiles);
     const files = useStore(workbenchStore.files);
     const selectedView = useStore(workbenchStore.currentView);
-    const { showChat } = useStore(chatStore);
+    const showChat = chatStore().showChat;
     const canHideChat = showWorkbench || !showChat;
 
     const isSmallViewport = useViewport(1024);
@@ -347,7 +347,10 @@ export const Workbench = memo(
       setIsSyncing(true);
 
       try {
-        const directoryHandle = await window.showDirectoryPicker();
+        if (!('showDirectoryPicker' in window) || typeof (window as any).showDirectoryPicker !== 'function') {
+          throw new Error('Directory picker is not supported in this browser');
+        }
+        const directoryHandle = await (window as any).showDirectoryPicker();
         await workbenchStore.syncFiles(directoryHandle);
         toast.success('Files synced successfully');
       } catch (error) {
@@ -390,7 +393,7 @@ export const Workbench = memo(
                     disabled={!canHideChat || isSmallViewport}
                     onClick={() => {
                       if (canHideChat) {
-                        chatStore.setKey('showChat', !showChat);
+                        chatActions.setShowChat(!showChat);
                       }
                     }}
                   />

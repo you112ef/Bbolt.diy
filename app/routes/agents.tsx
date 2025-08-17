@@ -1,8 +1,8 @@
-import type { MetaFunction } from '@remix-run/cloudflare';
+import { json, type MetaFunction } from '@remix-run/cloudflare';
 import { Header } from '~/components/header/Header';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
-import AIAgentsChat from '~/enhanced/ai-agents/chat/AIAgentsChat';
+import { AIAgentsChat } from '~/enhanced/ai-agents/chat/AIAgentsChat';
 
 export const meta: MetaFunction = () => {
   return [{ title: 'Agents | YOUSEF.SHTIWE AI' }, { name: 'description', content: 'إدارة وتشغيل الوكلاء الذكيين' }];

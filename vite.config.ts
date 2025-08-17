@@ -16,11 +16,20 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
-      sourcemap: false, // Disable sourcemaps to reduce memory usage for Cloudflare
+      sourcemap: false, // Disable sourcemaps completely to eliminate errors
       minify: 'esbuild',
-      chunkSizeWarningLimit: 1000,
+      chunkSizeWarningLimit: 2000, // Increased to reduce warnings
       rollupOptions: {
         external: [],
+        onwarn(warning, warn) {
+          // Suppress sourcemap-related warnings
+          if (warning.code === 'SOURCEMAP_ERROR' || 
+              warning.code === 'MISSING_SOURCE_MAP' ||
+              warning.message.includes('sourcemap')) {
+            return;
+          }
+          warn(warning);
+        },
         output: {
           manualChunks: (id) => {
             if (id.includes('node_modules')) {
@@ -45,6 +54,10 @@ export default defineConfig((config) => {
         },
       },
     },
+    esbuild: {
+      sourcemap: false, // Disable esbuild sourcemaps
+      legalComments: 'none', // Remove legal comments to reduce bundle size
+    },
     ssr: {
       noExternal: ['@nanostores/react', 'nanostores'],
     },
@@ -52,6 +65,9 @@ export default defineConfig((config) => {
       include: ['react', 'react-dom'],
       exclude: [],
       force: true,
+      esbuildOptions: {
+        sourcemap: false, // Disable sourcemaps in dependency optimization
+      },
     },
     resolve: {
       dedupe: ['react', 'react-dom'],
@@ -78,6 +94,38 @@ export default defineConfig((config) => {
           }
 
           return null;
+        },
+      },
+      // Custom plugin to suppress sourcemap warnings
+      {
+        name: 'suppress-sourcemap-warnings',
+        configureServer(server: ViteDevServer) {
+          // Suppress sourcemap warnings in dev mode
+          const originalWarn = console.warn;
+          console.warn = (...args) => {
+            const message = args.join(' ');
+            if (message.includes('sourcemap') || 
+                message.includes('Sourcemap') ||
+                message.includes('Can\'t resolve original location')) {
+              return;
+            }
+            originalWarn(...args);
+          };
+        },
+        configResolved(config) {
+          // Suppress sourcemap warnings during build
+          if (config.command === 'build') {
+            const originalWarn = console.warn;
+            console.warn = (...args) => {
+              const message = args.join(' ');
+              if (message.includes('sourcemap') || 
+                  message.includes('Sourcemap') ||
+                  message.includes('Can\'t resolve original location')) {
+                return;
+              }
+              originalWarn(...args);
+            };
+          }
         },
       },
       // Enable cloudflare dev proxy for better local development

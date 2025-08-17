@@ -1,398 +1,226 @@
-# YOUSEF.SHTIWE AI
-
-[الوثائق بالعربية](./docs/AR.md)
-
-[![YOUSEF.SHTIWE AI: AI-Powered Full-Stack Web Development Platform](./public/social_preview_index.jpg)](https://yousef.shtiwe.dev)
-
-Welcome to YOUSEF.SHTIWE AI Platform, an advanced AI-powered development environment that allows you to choose the LLM that you use for each prompt! Currently, you can use OpenAI, Anthropic, Ollama, OpenRouter, Gemini, LMStudio, Mistral, xAI, HuggingFace, DeepSeek, or Groq models - and it is easily extended to use any other model supported by the Vercel AI SDK! See the instructions below for running this locally and extending it to include more models.
-
------
-Check the [YOUSEF.SHTIWE AI Docs](https://yousef.shtiwe.dev/docs) for more official installation instructions and more information.
-
------
-YOUSEF.SHTIWE AI Platform offers advanced features and integrations for AI-powered development.
-
-YOUSEF.SHTIWE AI was created to provide the BEST AI development experience with enhanced features and integrations!
-
-## Table of Contents
-
-- [Join the Community](#join-the-community)
-- [Requested Additions](#requested-additions)
-- [Features](#features)
-- [Setup](#setup)
-- [Run the Application](#run-the-application)
-- [Available Scripts](#available-scripts)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [FAQ](#faq)
-
-## Join the community
-
-[Join the YOUSEF.SHTIWE AI community for support and discussions!](https://yousef.shtiwe.dev/community)
-
-## Project management
-
-YOUSEF.SHTIWE AI is continuously evolving! The development team focuses on organizing the project in a way that allows
-you to understand where the current areas of focus are.
-
-If you want to know what we are working on, what we are planning to work on, or if you want to contribute to the
-project, please check the [project management guide](./PROJECT.md) to get started easily.
-
-## Requested Additions
-
-- ✅ OpenRouter Integration (@coleam00)
-- ✅ Gemini Integration (@jonathands)
-- ✅ Autogenerate Ollama models from what is downloaded (@yunatamos)
-- ✅ Filter models by provider (@jasonm23)
-- ✅ Download project as ZIP (@fabwaseem)
-- ✅ Improvements to the main bolt.new prompt in `app\lib\.server\llm\prompts.ts` (@kofi-bhr)
-- ✅ DeepSeek API Integration (@zenith110)
-- ✅ Mistral API Integration (@ArulGandhi)
-- ✅ "Open AI Like" API Integration (@ZerxZ)
-- ✅ Ability to sync files (one way sync) to local folder (@muzafferkadir)
-- ✅ Containerize the application with Docker for easy installation (@aaronbolton)
-- ✅ Publish projects directly to GitHub (@goncaloalves)
-- ✅ Ability to enter API keys in the UI (@ali00209)
-- ✅ xAI Grok Beta Integration (@milutinke)
-- ✅ LM Studio Integration (@karrot0)
-- ✅ HuggingFace Integration (@ahsan3219)
-- ✅ Bolt terminal to see the output of LLM run commands (@thecodacus)
-- ✅ Streaming of code output (@thecodacus)
-- ✅ Ability to revert code to earlier version (@wonderwhy-er)
-- ✅ Chat history backup and restore functionality (@sidbetatester)
-- ✅ Cohere Integration (@hasanraiyan)
-- ✅ Dynamic model max token length (@hasanraiyan)
-- ✅ Better prompt enhancing (@SujalXplores)
-- ✅ Prompt caching (@SujalXplores)
-- ✅ Load local projects into the app (@wonderwhy-er)
-- ✅ Together Integration (@mouimet-infinisoft)
-- ✅ Mobile friendly (@qwikode)
-- ✅ Better prompt enhancing (@SujalXplores)
-- ✅ Attach images to prompts (@atrokhym)(@stijnus)
-- ✅ Added Git Clone button (@thecodacus)
-- ✅ Git Import from url (@thecodacus)
-- ✅ PromptLibrary to have different variations of prompts for different use cases (@thecodacus)
-- ✅ Detect package.json and commands to auto install & run preview for folder and git import (@wonderwhy-er)
-- ✅ Selection tool to target changes visually (@emcconnell)
-- ✅ Detect terminal Errors and ask bolt to fix it (@thecodacus)
-- ✅ Detect preview Errors and ask bolt to fix it (@wonderwhy-er)
-- ✅ Add Starter Template Options (@thecodacus)
-- ✅ Perplexity Integration (@meetpateltech)
-- ✅ AWS Bedrock Integration (@kunjabijukchhe)
-- ✅ Add a "Diff View" to see the changes (@toddyclipsgg)
-- ⬜ **HIGH PRIORITY** - Prevent bolt from rewriting files as often (file locking and diffs)
-- ⬜ **HIGH PRIORITY** - Better prompting for smaller LLMs (code window sometimes doesn't start)
-- ⬜ **HIGH PRIORITY** - Run agents in the backend as opposed to a single model call
-- ✅ Deploy directly to Netlify (@xKevIsDev)
-- ✅ Supabase Integration (@xKevIsDev)
-- ⬜ Have LLM plan the project in a MD file for better results/transparency
-- ⬜ VSCode Integration with git-like confirmations
-- ⬜ Upload documents for knowledge - UI design templates, a code base to reference coding style, etc.
-- ✅ Voice prompting
-- ⬜ Azure Open AI API Integration
-- ⬜ Vertex AI Integration
-- ⬜ Granite Integration
-- ✅ Popout Window for Web Container(@stijnus)
-- ✅ Ability to change Popout window size (@stijnus)
-
-## Features
-
-- **AI-powered full-stack web development** for **NodeJS based applications** directly in your browser.
-- **Support for multiple LLMs** with an extensible architecture to integrate additional models.
-- **Attach images to prompts** for better contextual understanding.
-- **Integrated terminal** to view output of LLM-run commands.
-- **Revert code to earlier versions** for easier debugging and quicker changes.
-- **Download projects as ZIP** for easy portability Sync to a folder on the host.
-- **Integration-ready Docker support** for a hassle-free setup.
-- **Deploy** directly to **Netlify**
+# 🚀 Bolt DIY - Advanced AI Development Platform
 
-## Setup
+A comprehensive AI development platform that supports both local and cloud AI models, featuring a web-based development environment, real-time collaboration tools, and multi-platform deployment capabilities.
 
-If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.
+## ✨ Features
 
-Let's get you up and running with YOUSEF.SHTIWE AI Platform!
+### 🤖 AI Capabilities
+- **Multi-Provider Support**: OpenAI, Anthropic, Google, Mistral, Ollama, and more
+- **Local AI Models**: Run AI models locally with offline inference
+- **Real-time Chat**: Interactive AI conversations with streaming responses
+- **AI Agents**: Create and manage AI agents for automated tasks
+- **Model Management**: Upload, validate, and manage local AI models
 
-## Quick Download
+### 🛠️ Development Tools
+- **WebContainer Integration**: Run Node.js projects directly in the browser
+- **Code Editor**: Advanced code editing with syntax highlighting and autocomplete
+- **Terminal**: Integrated terminal for command-line operations
+- **File Management**: Complete file system management within the browser
+- **Git Integration**: Full Git workflow with repository management
 
-[![Download Latest Release](https://img.shields.io/github/v/release/you112ef/Bbolt.diy?label=Download%20YOUSEF.SHTIWE&sort=semver)](https://github.com/you112ef/Bbolt.diy/releases/latest) ← Click here to go the the latest release version!
+### 🌐 Multi-Platform Support
+- **Web Application**: Progressive Web App (PWA) with offline support
+- **Desktop Application**: Electron-based desktop app
+- **Mobile Applications**: Android and iOS apps via Capacitor
+- **Docker Container**: Containerized deployment for any environment
 
-- Next **click source.zip**
+### 🔧 State Management
+- **Zustand Stores**: Efficient state management for AI models and chat
+- **Persistent Storage**: IndexedDB for chat history and project snapshots
+- **Real-time Updates**: Live synchronization across all components
 
-## Prerequisites
+## 🚀 Quick Start
 
-Before you begin, you'll need to install two important pieces of software:
-
-### Install Node.js
-
-Node.js is required to run the application.
-
-1. Visit the [Node.js Download Page](https://nodejs.org/en/download/)
-2. Download the "LTS" (Long Term Support) version for your operating system
-3. Run the installer, accepting the default settings
-4. Verify Node.js is properly installed:
-   - **For Windows Users**:
-     1. Press `Windows + R`
-     2. Type "sysdm.cpl" and press Enter
-     3. Go to "Advanced" tab → "Environment Variables"
-     4. Check if `Node.js` appears in the "Path" variable
-   - **For Mac/Linux Users**:
-     1. Open Terminal
-     2. Type this command:
-        ```bash
-        echo $PATH
-        ```
-     3. Look for `/usr/local/bin` in the output
-
-## Running the Application
-
-You have two options for running YOUSEF.SHTIWE AI: directly on your machine or using Docker.
-
-### Option 1: Direct Installation (Recommended for Beginners)
-
-1. **Install Package Manager (pnpm)**:
-
-   ```bash
-   npm install -g pnpm
-   ```
-
-2. **Install Project Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Start the Application**:
-
-   ```bash
-   pnpm run dev
-   ```
-   
-### Option 2: Using Docker
-
-This option requires some familiarity with Docker but provides a more isolated environment.
-
-#### Additional Prerequisite
-
-- Install Docker: [Download Docker](https://www.docker.com/)
-
-#### Steps:
-
-1. **Build the Docker Image**:
-
-   ```bash
-   # Using npm script:
-   npm run dockerbuild
-
-   # OR using direct Docker command:
-   docker build . --target bolt-ai-development
-   ```
-
-2. **Run the Container**:
-   ```bash
-   docker compose --profile development up
-   ```
-
-## Configuring API Keys and Providers
-
-### Adding Your API Keys
-
-Setting up your API keys in YOUSEF.SHTIWE AI is straightforward:
-
-1. Open the home page (main interface)
-2. Select your desired provider from the dropdown menu
-3. Click the pencil (edit) icon
-4. Enter your API key in the secure input field
-
-![API Key Configuration Interface](./docs/images/api-key-ui-section.png)
-
-### Configuring Custom Base URLs
-
-For providers that support custom base URLs (such as Ollama or LM Studio), follow these steps:
-
-1. Click the settings icon in the sidebar to open the settings menu
-   ![Settings Button Location](./docs/images/bolt-settings-button.png)
-
-2. Navigate to the "Providers" tab
-3. Search for your provider using the search bar
-4. Enter your custom base URL in the designated field
-   ![Provider Base URL Configuration](./docs/images/provider-base-url.png)
-
-> **Note**: Custom base URLs are particularly useful when running local instances of AI models or using custom API endpoints.
-
-### Supported Providers
-
-- Ollama
-- LM Studio
-- OpenAILike
-
-## Setup Using Git (For Developers only)
-
-This method is recommended for developers who want to:
-
-- Contribute to the project
-- Stay updated with the latest changes
-- Switch between different versions
-- Create custom modifications
-
-#### Prerequisites
-
-1. Install Git: [Download Git](https://git-scm.com/downloads)
-
-#### Initial Setup
-
-1. **Clone the Repository**:
-
-   ```bash
-   git clone -b stable https://github.com/stackblitz-labs/bolt.diy.git
-   ```
-
-2. **Navigate to Project Directory**:
-
-   ```bash
-   cd bolt.diy
-   ```
-
-3. **Install Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-4. **Start the Development Server**:
-   ```bash
-   pnpm run dev
-   ```
-
-5. **(OPTIONAL)** Switch to the Main Branch if you want to use pre-release/testbranch:
-   ```bash
-   git checkout main
-   pnpm install
-   pnpm run dev
-   ```
-  Hint: Be aware that this can have beta-features and more likely got bugs than the stable release
-
->**Open the WebUI to test (Default: http://localhost:5173)**
->   - Beginngers: 
->     - Try to use a sophisticated Provider/Model like Anthropic with Claude Sonnet 3.x Models to get best results
->     - Explanation: The System Prompt currently implemented in bolt.diy cant cover the best performance for all providers and models out there. So it works better with some models, then other, even if the models itself are perfect for >programming
->     - Future: Planned is a Plugin/Extentions-Library so there can be different System Prompts for different Models, which will help to get better results
-
-#### Staying Updated
-
-To get the latest changes from the repository:
-
-1. **Save Your Local Changes** (if any):
-
-   ```bash
-   git stash
-   ```
-
-2. **Pull Latest Updates**:
-
-   ```bash
-   git pull 
-   ```
-
-3. **Update Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-4. **Restore Your Local Changes** (if any):
-   ```bash
-   git stash pop
-   ```
-
-#### Troubleshooting Git Setup
-
-If you encounter issues:
-
-1. **Clean Installation**:
-
-   ```bash
-   # Remove node modules and lock files
-   rm -rf node_modules pnpm-lock.yaml
-
-   # Clear pnpm cache
-   pnpm store prune
-
-   # Reinstall dependencies
-   pnpm install
-   ```
-
-2. **Reset Local Changes**:
-   ```bash
-   # Discard all local changes
-   git reset --hard origin/main
-   ```
-
-Remember to always commit your local changes or stash them before pulling updates to avoid conflicts.
+### Prerequisites
+- Node.js 20+ 
+- pnpm 8+
+- Git
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/you112ef/Bbolt.diy.git
+cd Bbolt.diy
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+```
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# AI Provider API Keys
+OPENAI_API_KEY=your_openai_key
+ANTHROPIC_API_KEY=your_anthropic_key
+GOOGLE_API_KEY=your_google_key
+MISTRAL_API_KEY=your_mistral_key
+
+# Database Configuration
+SUPABASE_URL=your_supabase_url
+SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Authentication
+AUTH_SECRET=your_auth_secret
+SESSION_SECRET=your_session_secret
+```
+
+## 🏗️ CI/CD Pipeline
+
+This project includes comprehensive CI/CD workflows for automated deployment:
+
+### 📋 Available Workflows
+
+#### 1. **CI Pipeline** (`.github/workflows/ci.yml`)
+- **Triggers**: Push to `main`/`develop` branches, Pull Requests
+- **Builds**:
+  - 🌐 **Web App**: Builds and deploys to Cloudflare Pages
+  - 🐳 **Docker Image**: Builds and pushes to GitHub Container Registry
+  - 📱 **Android APK**: Creates APK using Bubblewrap (PWA to APK)
+
+#### 2. **Release Pipeline** (`.github/workflows/release.yml`)
+- **Triggers**: Push tags starting with `v*` (e.g., `v1.0.0`)
+- **Actions**:
+  - Creates GitHub Release with APK attachment
+  - Pushes Docker image with version tags
+  - Generates release notes automatically
+
+### 🔑 Required Secrets
+
+Configure these secrets in your GitHub repository:
+
+```bash
+# Cloudflare Pages
+CF_API_TOKEN=your_cloudflare_api_token
+CF_ACCOUNT_ID=your_cloudflare_account_id
+
+# GitHub Token (automatically available)
+GITHUB_TOKEN=your_github_token
+```
+
+### 🚀 Deployment Options
+
+#### 1. **Web Deployment (Cloudflare Pages)**
+```bash
+# Automatic deployment on push to main branch
+# Access your app at: https://your-project.pages.dev
+```
+
+#### 2. **Docker Deployment**
+```bash
+# Pull the latest image
+docker pull ghcr.io/you112ef/Bbolt.diy:latest
+
+# Run the container
+docker run -p 3000:3000 ghcr.io/you112ef/Bbolt.diy:latest
+
+# Access at: http://localhost:3000
+```
+
+#### 3. **Android APK**
+- Download APK from GitHub Actions artifacts
+- Enable "Install from unknown sources" in Android settings
+- Install the APK file
+
+## 🛠️ Development Commands
+
+```bash
+# Development
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm preview          # Preview production build
+pnpm typecheck        # Run TypeScript type checking
+pnpm lint             # Run ESLint
+pnpm lint:fix         # Fix ESLint issues
+
+# Testing
+pnpm test             # Run tests
+pnpm test:run         # Run tests without watch mode
+pnpm test:coverage    # Run tests with coverage
+
+# Mobile Development
+pnpm capacitor:build  # Build mobile apps
+pnpm capacitor:run:android  # Run on Android
+pnpm capacitor:run:ios      # Run on iOS
+
+# Desktop Development
+pnpm electron:build   # Build desktop app
+pnpm electron:dev     # Start Electron development
+
+# Docker
+pnpm docker:build     # Build Docker image
+pnpm docker:run       # Run Docker container
+```
+
+## 📁 Project Structure
+
+```
+├── app/                    # Main application code
+│   ├── components/         # React components
+│   ├── lib/               # Utilities and libraries
+│   ├── routes/            # Remix routes
+│   └── types/             # TypeScript type definitions
+├── enhanced/              # Enhanced features
+│   ├── ai-agents/         # AI agents implementation
+│   └── models/            # AI model providers
+├── electron/              # Desktop app configuration
+├── android/               # Mobile app configuration
+├── .github/workflows/     # CI/CD workflows
+├── Dockerfile             # Docker configuration
+└── package.json           # Project dependencies
+```
+
+## 🔧 Configuration Files
+
+### Vite Configuration (`vite.config.ts`)
+- Optimized for Cloudflare Pages deployment
+- Sourcemap disabled for production builds
+- Chunk size optimization
+- Node.js polyfills for browser compatibility
+
+### TypeScript Configuration (`tsconfig.json`)
+- Strict type checking
+- Sourcemap generation disabled
+- Performance optimizations
+- Path mapping for clean imports
+
+### Cloudflare Configuration (`wrangler.toml`)
+- Simplified configuration for Pages deployment
+- Environment-specific settings
+- Security headers and caching rules
+- SPA routing configuration
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Issues**: [GitHub Issues](https://github.com/you112ef/Bbolt.diy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/you112ef/Bbolt.diy/discussions)
+- **Documentation**: [Project Wiki](https://github.com/you112ef/Bbolt.diy/wiki)
+
+## 🙏 Acknowledgments
+
+- [Remix](https://remix.run/) - Full-stack web framework
+- [Vite](https://vitejs.dev/) - Build tool and dev server
+- [Cloudflare Pages](https://pages.cloudflare.com/) - Hosting platform
+- [Bubblewrap](https://github.com/GoogleChromeLabs/bubblewrap) - PWA to APK conversion
+- [WebContainer](https://webcontainers.io/) - Browser-based Node.js runtime
 
 ---
 
-## Available Scripts
-
-- **`pnpm run dev`**: Starts the development server.
-- **`pnpm run build`**: Builds the project.
-- **`pnpm run start`**: Runs the built application locally using Wrangler Pages.
-- **`pnpm run preview`**: Builds and runs the production build locally.
-- **`pnpm test`**: Runs the test suite using Vitest.
-- **`pnpm run typecheck`**: Runs TypeScript type checking.
-- **`pnpm run typegen`**: Generates TypeScript types using Wrangler.
-- **`pnpm run deploy`**: Deploys the project to Cloudflare Pages.
-- **`pnpm run lint:fix`**: Automatically fixes linting issues.
-
----
-
-## Contributing
-
-We welcome contributions! Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
-
----
-
-## Roadmap
-
-Explore upcoming features and priorities on our [Roadmap](https://roadmap.sh/r/ottodev-roadmap-2ovzo).
-
----
-
-## FAQ
-
-For answers to common questions, issues, and to see a list of recommended models, visit our [FAQ Page](FAQ.md).
-
-
-# Licensing
-**Who needs a commercial WebContainer API license?**
-
-bolt.diy source code is distributed as MIT, but it uses WebContainers API that [requires licensing](https://webcontainers.io/enterprise) for production usage in a commercial, for-profit setting. (Prototypes or POCs do not require a commercial license.) If you're using the API to meet the needs of your customers, prospective customers, and/or employees, you need a license to ensure compliance with our Terms of Service. Usage of the API in violation of these terms may result in your access being revoked.
-
-## الهوية البصرية واللغة (YOUSEF.SHTIWE)
-
-- الهوية: تم اعتماد شعار وأيقونة جديدة باسم "YOUSEF.SHTIWE".
-- الألوان: تم استبدال التدرج البنفسجي بلوحة سماوية (Sky/Cyan) عبر متغيرات اللون و`accent` في `uno.config.ts`.
-- الأيقونات:
-  - favicon (PNG): تم تحديث الرابط إلى `/favicon-new.png`.
-  - favicon (SVG): تم تعديل التدرج في `public/favicon.svg`.
-  - الشعار: تم تعديل التدرج في `public/logo.svg`.
-  - تم تحديث `site.webmanifest` ليلائم الأيقونات الجديدة و`theme_color`.
-- اللون العام للمتصفح: تم تحديث `<meta name="theme-color">` إلى `#0EA5E9`.
-
-### التعريب (i18n)
-- اللغة الافتراضية: العربية `ar` واتجاه `rtl`.
-- مكان الضبط:
-  - يولد الخادم وسم `<html lang="ar" dir="rtl">` افتراضياً ويمكن تغييره عبر الكوكيز `lang`.
-  - مزود الترجمة: `app/lib/i18n.tsx` مع ملفات `app/locales/{ar,en}.json`.
-- لتغيير اللغة برمجياً:
-  - استخدم `const { setLanguage } = useI18n(); setLanguage('en');` سيُحدّث الكوكيز ويعيد ضبط `lang/dir`.
-
-### ملفات تأثرت بالتغيير
-- `app/entry.server.tsx`: ضبط `lang` و`dir` من الكوكيز (افتراضياً ar/rtl).
-- `app/root.tsx`: تحديث `theme-color`، إضافة `I18nProvider`، تحديث روابط favicon.
-- `uno.config.ts`: تحويل لوحة `accent` إلى سماء.
-- `app/styles/variables.scss`: مواءمة ألوان الطرفية.
-- تعديلات بنسجات CSS البنفسجية إلى سماوية في عدة مكونات (لوحات التحكم، القوائم، نتائج البحث...).
-
-### كيفية ضبط هوية بصرية لاحقاً
-- الألوان: عدّل `accent` في `uno.config.ts` ومتغيرات CSS في `app/styles/variables.scss`.
-- الأيقونات: استبدل الملفات في `public/` وعدّل الروابط في `app/root.tsx` و`public/site.webmanifest`.
+**Made with ❤️ by the Bolt DIY Team**

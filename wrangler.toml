@@ -1,15 +1,2 @@
-#:schema node_modules/wrangler/config-schema.json
-name = "yousef-shtiwe-ai"
-compatibility_flags = ["nodejs_compat"]
-compatibility_date = "2025-08-08"
-pages_build_output_dir = "./build/client"
-send_metrics = false
-
-# Environment variables (these should be set in Cloudflare dashboard)
-[env.production.vars]
-NODE_ENV = "production"
-ENVIRONMENT = "production"
-
-[env.preview.vars]
-NODE_ENV = "development"
-ENVIRONMENT = "preview"
+name = "bbolt-diy"
+pages_build_output_dir = "build/client"

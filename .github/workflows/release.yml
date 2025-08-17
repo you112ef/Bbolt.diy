@@ -1,0 +1,266 @@
+name: Release Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/bolt-diy
+
+jobs:
+  # 1. Build Web
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Build project
+        run: pnpm run build
+        env:
+          NODE_ENV: production
+          VITE_DISABLE_SOURCEMAPS: true
+          VITE_OPTIMIZE_BUILD: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/
+          retention-days: 7
+
+  # 2. Build & Push Docker Image
+  docker:
+    runs-on: ubuntu-latest
+    needs: web
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download web build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # 3. Build Android APK
+  android:
+    runs-on: ubuntu-latest
+    needs: web
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download web build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: build/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create PWA manifest
+        run: |
+          cat > build/client/manifest.json << 'EOF'
+          {
+            "name": "Bolt DIY - AI Platform",
+            "short_name": "Bolt DIY",
+            "description": "Advanced AI development platform with local and cloud models",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#3b82f6",
+            "orientation": "portrait-primary",
+            "icons": [
+              {
+                "src": "/assets/icon-192.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any maskable"
+              },
+              {
+                "src": "/assets/icon-512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+              }
+            ]
+          }
+          EOF
+
+      - name: Serve web app for Bubblewrap
+        run: |
+          cd build/client
+          python3 -m http.server 8080 &
+          sleep 10
+
+      - name: Init Bubblewrap Project
+        run: |
+          bubblewrap init \
+            --manifest http://localhost:8080/manifest.json \
+            --directory ./android \
+            --package-name com.boltdiy.app \
+            --app-name "Bolt DIY" \
+            --app-version-name "${{ github.ref_name }}" \
+            --app-version-code ${{ github.run_number }}
+
+      - name: Build APK
+        run: |
+          cd android
+          bubblewrap build --release
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bolt-diy-apk-${{ github.ref_name }}
+          path: android/output/app-release-signed.apk
+          retention-days: 90
+
+  # 4. Create GitHub Release
+  release:
+    runs-on: ubuntu-latest
+    needs: [web, docker, android]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: bolt-diy-apk-${{ github.ref_name }}
+          path: ./apk/
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## 🚀 Bolt DIY v${{ github.ref_name }}
+          
+          ### 📱 What's New
+          - Advanced AI development platform
+          - Local and cloud AI models support
+          - Web-based development environment
+          - Real-time collaboration tools
+          
+          ### 📦 Downloads
+          - **Android APK**: Attached below
+          - **Docker Image**: `ghcr.io/${{ github.repository }}/bolt-diy:${{ github.ref_name }}`
+          - **Web App**: Available at your Cloudflare Pages URL
+          
+          ### 🔧 Installation
+          
+          #### Android
+          1. Download the APK file below
+          2. Enable "Install from unknown sources" in Android settings
+          3. Install the APK
+          
+          #### Docker
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}/bolt-diy:${{ github.ref_name }}
+          docker run -p 3000:3000 ghcr.io/${{ github.repository }}/bolt-diy:${{ github.ref_name }}
+          ```
+          
+          #### Web
+          Access the web application directly in your browser at your Cloudflare Pages URL.
+          
+          ### 🐛 Bug Reports
+          If you encounter any issues, please report them in the [Issues](https://github.com/${{ github.repository }}/issues) section.
+          
+          ### 📄 License
+          This project is licensed under the MIT License.
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: "Bolt DIY v${{ github.ref_name }}"
+          body_path: release_notes.md
+          files: |
+            apk/app-release-signed.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+
+      - name: Notify success
+        run: |
+          echo "🎉 Release v${{ github.ref_name }} created successfully!"
+          echo "📱 APK: Uploaded to GitHub Release"
+          echo "🐳 Docker: ghcr.io/${{ github.repository }}/bolt-diy:${{ github.ref_name }}"
+          echo "🌐 Web: Deployed to Cloudflare Pages"
+          echo ""
+          echo "📋 Release URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref }}"

@@ -291,7 +291,7 @@ function FileContextMenu({
   const fileName = useMemo(() => path.basename(fullPath), [fullPath]);
 
   const isFolder = useMemo(() => {
-    const files = workbenchStore.files.get();
+    const files = workbenchStore.files.get() as import('~/lib/.server/llm/constants').FileMap;
     const fileEntry = files[fullPath];
 
     return !fileEntry || fileEntry.type === 'folder';
@@ -589,7 +589,7 @@ function FileContextMenu({
 
 function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativePath, onClick }: FolderProps) {
   // Check if the folder is locked
-  const { isLocked } = workbenchStore.isFolderLocked(folder.fullPath);
+  const isLocked = workbenchStore.isFolderLocked(folder.fullPath);
 
   return (
     <FileContextMenu onCopyPath={onCopyPath} onCopyRelativePath={onCopyRelativePath} fullPath={folder.fullPath}>
@@ -642,7 +642,7 @@ function File({
   const { depth, name, fullPath } = file;
 
   // Check if the file is locked
-  const { locked } = workbenchStore.isFileLocked(fullPath);
+  const locked = workbenchStore.isFileLocked(fullPath);
 
   const fileModifications = fileHistory[fullPath];
 

@@ -52,28 +52,20 @@ class MobileTouchManager {
 
   private initializeGlobalListeners(): void {
     // Prevent default touch behaviors that interfere with gestures
-    document.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-    document.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    document.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this), { passive: false });
+    document.addEventListener('touchstart', this.handleTouchStart.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchmove', this.handleTouchMove.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchend', this.handleTouchEnd.bind(this) as any, { passive: false } as any);
+    document.addEventListener('touchcancel', this.handleTouchCancel.bind(this) as any, { passive: false } as any);
 
     // Prevent double-tap zoom
     let lastTouchEnd = 0;
     document.addEventListener(
       'touchend',
-<<<<<<< HEAD
-      (e) => {
-        const now = Date.now();
-
-        if (now - lastTouchEnd <= 300) {
-          e.preventDefault();
-=======
       (e: Event) => {
         const now = Date.now();
 
         if (now - lastTouchEnd <= 300) {
           (e as TouchEvent).preventDefault();
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
         }
 
         lastTouchEnd = now;
@@ -331,16 +323,16 @@ class MobileTouchManager {
     element.classList.add('touch-target');
 
     // Add active state handling
-    element.addEventListener('touchstart', (e) => {
+    element.addEventListener('touchstart', (e: any) => {
       element.classList.add('touch-active');
       this.triggerHaptic('light', element);
     });
 
-    element.addEventListener('touchend', () => {
+    (element as any).addEventListener('touchend', () => {
       element.classList.remove('touch-active');
     });
 
-    element.addEventListener('touchcancel', () => {
+    (element as any).addEventListener('touchcancel', () => {
       element.classList.remove('touch-active');
     });
   }
@@ -350,35 +342,20 @@ class MobileTouchManager {
     let currentY = 0;
     let isPulling = false;
 
-<<<<<<< HEAD
-    element.addEventListener('touchstart', (e: Event) => {
-      const touchEvent = e as TouchEvent;
-      startY = touchEvent.touches[0].clientY;
-=======
-    element.addEventListener('touchstart', ((e: Event) => {
+    (element as any).addEventListener('touchstart', (e: any) => {
       const te = e as TouchEvent;
       startY = te.touches[0].clientY;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
-      isPulling = element.scrollTop === 0;
-    }) as EventListener);
+      isPulling = (element as any).scrollTop === 0;
+    });
 
-<<<<<<< HEAD
-    element.addEventListener('touchmove', (e: Event) => {
-      const touchEvent = e as TouchEvent;
-=======
-    element.addEventListener('touchmove', ((e: Event) => {
+    (element as any).addEventListener('touchmove', (e: any) => {
       const te = e as TouchEvent;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
       if (!isPulling) {
         return;
       }
 
-<<<<<<< HEAD
-      currentY = touchEvent.touches[0].clientY;
-=======
       currentY = te.touches[0].clientY;
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
 
       const deltaY = currentY - startY;
 
@@ -386,13 +363,9 @@ class MobileTouchManager {
         element.classList.add('pulling');
         te.preventDefault();
       }
-    }) as EventListener);
+    });
 
-<<<<<<< HEAD
-    element.addEventListener('touchend', async () => {
-=======
-    element.addEventListener('touchend', (async () => {
->>>>>>> cursor/create-stealthy-multi-layered-code-f8fe
+    (element as any).addEventListener('touchend', async () => {
       if (!isPulling) {
         return;
       }
@@ -412,7 +385,7 @@ class MobileTouchManager {
       }
 
       isPulling = false;
-    }) as EventListener);
+    });
   }
 }
 

@@ -1,65 +1,148 @@
 import { WebContainer } from '@webcontainer/api';
-import { WORK_DIR_NAME } from '~/utils/constants';
-import { cleanStackTrace } from '~/utils/stacktrace';
+import { filesStore } from '~/lib/stores/files';
 
-interface WebContainerContext {
-  loaded: boolean;
+// Promise-based singleton for WebContainer instance
+let _webcontainerPromise: Promise<WebContainer> | null = null;
+
+function getWebcontainerPromise(): Promise<WebContainer> {
+  if (!_webcontainerPromise) {
+    _webcontainerPromise = WebContainer.boot({
+      workdirName: 'project',
+    });
+  }
+
+  return _webcontainerPromise;
 }
 
-export const webcontainerContext: WebContainerContext = import.meta.hot?.data.webcontainerContext ?? {
-  loaded: false,
-};
+export const webcontainerInstance: Promise<WebContainer> = getWebcontainerPromise();
 
-if (import.meta.hot) {
-  import.meta.hot.data.webcontainerContext = webcontainerContext;
-}
+class WebContainerManager {
+  private isInitialized = false;
+  private initializationPromise: Promise<void> | null = null;
 
-export let webcontainer: Promise<WebContainer> = new Promise(() => {
-  // noop for ssr
-});
+  async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+    if (this.initializationPromise) {
+      return this.initializationPromise;
+    }
 
-if (!import.meta.env.SSR) {
-  webcontainer =
-    import.meta.hot?.data.webcontainer ??
-    Promise.resolve()
-      .then(() => {
-        return WebContainer.boot({
-          coep: 'credentialless',
-          workdirName: WORK_DIR_NAME,
-          forwardPreviewErrors: true, // Enable error forwarding from iframes
-        });
-      })
-      .then(async (webcontainer) => {
-        webcontainerContext.loaded = true;
+    this.initializationPromise = this._initialize();
+    return this.initializationPromise;
+  }
 
-        const { workbenchStore } = await import('~/lib/stores/workbench');
+  private async _initialize(): Promise<void> {
+    try {
+      console.log('Initializing WebContainer...');
 
-        const response = await fetch('/inspector-script.js');
-        const inspectorScript = await response.text();
-        await webcontainer.setPreviewScript(inspectorScript);
+      const instance = await getWebcontainerPromise();
 
-        // Listen for preview errors
-        webcontainer.on('preview-message', (message) => {
-          console.log('WebContainer preview message:', message);
+      // Setup file system watchers once
+      this.setupFileWatchers(instance);
 
-          // Handle both uncaught exceptions and unhandled promise rejections
-          if (message.type === 'PREVIEW_UNCAUGHT_EXCEPTION' || message.type === 'PREVIEW_UNHANDLED_REJECTION') {
-            const isPromise = message.type === 'PREVIEW_UNHANDLED_REJECTION';
-            const title = isPromise ? 'Unhandled Promise Rejection' : 'Uncaught Exception';
-            workbenchStore.actionAlert.set({
-              type: 'preview',
-              title,
-              description: 'message' in message ? message.message : 'Unknown error',
-              content: `Error occurred at ${message.pathname}${message.search}${message.hash}\nPort: ${message.port}\n\nStack trace:\n${cleanStackTrace(message.stack || '')}`,
-              source: 'preview',
-            });
-          }
-        });
+      this.isInitialized = true;
+      console.log('WebContainer initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize WebContainer:', error);
+      throw error;
+    }
+  }
 
-        return webcontainer;
+  private setupFileWatchers(instance: WebContainer): void {
+    try {
+      // Watch for file changes and update any connected stores
+      instance.fs.watch('/', (eventType, filename) => {
+        console.log(`File system event: ${eventType} - ${filename}`);
       });
+    } catch (err) {
+      // Some environments may not support fs.watch
+      console.warn('WebContainer fs.watch not available in this environment:', err);
+    }
+  }
 
-  if (import.meta.hot) {
-    import.meta.hot.data.webcontainer = webcontainer;
+  async writeFile(path: string, contents: string): Promise<void> {
+    const instance = await getWebcontainerPromise();
+    await instance.fs.writeFile(path, contents);
+    console.log(`File written: ${path}`);
+  }
+
+  async deleteFile(path: string): Promise<void> {
+    const instance = await getWebcontainerPromise();
+    await instance.fs.rm(path);
+    console.log(`File deleted: ${path}`);
+  }
+
+  async readFile(path: string): Promise<string> {
+    const instance = await getWebcontainerPromise();
+    const contents = await instance.fs.readFile(path, 'utf-8');
+    return contents;
+  }
+
+  async listFiles(path: string = '/'): Promise<string[]> {
+    const instance = await getWebcontainerPromise();
+    const files = await instance.fs.readdir(path);
+    return files as string[];
+  }
+
+  async runCommand(command: string, args: string[] = []): Promise<{ exitCode: number; output: string; error: string }> {
+    const instance = await getWebcontainerPromise();
+
+    const process = await instance.spawn(command, args);
+
+    let output = '';
+    let error = '';
+
+    await process.output.pipeTo(
+      new WritableStream({
+        write(data) {
+          output += data;
+        },
+      }),
+    );
+
+    await process.stderr.pipeTo(
+      new WritableStream({
+        write(data) {
+          error += data;
+        },
+      }),
+    );
+
+    const exitCode = await process.exit;
+
+    return { exitCode, output, error };
+  }
+
+  async installDependencies(): Promise<void> {
+    console.log('Installing dependencies...');
+    const { exitCode } = await this.runCommand('npm', ['install']);
+    if (exitCode !== 0) {
+      throw new Error(`Failed to install dependencies (exit code: ${exitCode})`);
+    }
+    console.log('Dependencies installed successfully');
+  }
+
+  async startDevServer(): Promise<void> {
+    console.log('Starting development server...');
+    const instance = await getWebcontainerPromise();
+    await instance.spawn('npm', ['run', 'dev']);
+    console.log('Development server started');
+  }
+
+  async destroy(): Promise<void> {
+    // WebContainer does not expose a destroy method; clear internal state
+    this.isInitialized = false;
+    this.initializationPromise = null;
+    _webcontainerPromise = null;
+    console.log('WebContainer reset');
+  }
+
+  getInstance(): Promise<WebContainer> {
+    return getWebcontainerPromise();
+  }
+
+  isReady(): boolean {
+    return !!this.initializationPromise || this.isInitialized;
   }
 }
+
+export const webcontainerManager = new WebContainerManager();

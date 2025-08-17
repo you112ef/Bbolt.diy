@@ -2,11 +2,10 @@ import { atom, map, type MapStore, type ReadableAtom, type WritableAtom } from '
 import type { EditorDocument, ScrollPosition } from '~/components/editor/codemirror/CodeMirrorEditor';
 import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
-import { webcontainer } from '~/lib/webcontainer';
+import { webcontainerInstance } from '~/lib/webcontainer';
 import type { ITerminal } from '~/types/terminal';
 import { unreachable } from '~/utils/unreachable';
 import { EditorStore } from './editor';
-import { FilesStore, type FileMap } from './files';
 import { PreviewsStore } from './previews';
 import { TerminalStore } from './terminal';
 import JSZip from 'jszip';
@@ -18,6 +17,7 @@ import { description } from '~/lib/persistence';
 import Cookies from 'js-cookie';
 import { createSampler } from '~/utils/sampler';
 import type { ActionAlert, DeployAlert, SupabaseAlert } from '~/types/actions';
+import { FilesStore, type FileMap } from './files';
 
 const { saveAs } = fileSaver;
 
@@ -36,10 +36,10 @@ type Artifacts = MapStore<Record<string, ArtifactState>>;
 export type WorkbenchViewType = 'code' | 'diff' | 'preview';
 
 export class WorkbenchStore {
-  #previewsStore = new PreviewsStore(webcontainer);
-  #filesStore = new FilesStore(webcontainer);
+  #previewsStore = new PreviewsStore(webcontainerInstance);
+  #filesStore = new FilesStore(webcontainerInstance);
   #editorStore = new EditorStore(this.#filesStore);
-  #terminalStore = new TerminalStore(webcontainer);
+  #terminalStore = new TerminalStore(webcontainerInstance);
 
   #reloadedMessages = new Set<string>();
 
@@ -68,12 +68,12 @@ export class WorkbenchStore {
       import.meta.hot.data.deployAlert = this.deployAlert;
 
       // Ensure binary files are properly preserved across hot reloads
-      const filesMap = this.files.get();
+      const filesMap = this.files.get() as FileMap;
 
       for (const [path, dirent] of Object.entries(filesMap)) {
-        if (dirent?.type === 'file' && dirent.isBinary && dirent.content) {
+        if (dirent?.type === 'file' && (dirent as any).isBinary && (dirent as any).content) {
           // Make sure binary content is preserved
-          this.files.setKey(path, { ...dirent });
+          this.files.setKey(path, { ...(dirent as any) });
         }
       }
     }
@@ -180,7 +180,7 @@ export class WorkbenchStore {
       return;
     }
 
-    const originalContent = this.#filesStore.getFile(filePath)?.content;
+    const originalContent = (this.#filesStore.getFile(filePath) as any)?.content as string | undefined;
     const unsavedChanges = originalContent !== undefined && originalContent !== newContent;
 
     this.#editorStore.updateFile(filePath, newContent);
@@ -262,7 +262,7 @@ export class WorkbenchStore {
     }
 
     const { filePath } = currentDocument;
-    const file = this.#filesStore.getFile(filePath);
+    const file = this.#filesStore.getFile(filePath) as any;
 
     if (!file) {
       return;
@@ -482,7 +482,7 @@ export class WorkbenchStore {
       closed: false,
       type,
       runner: new ActionRunner(
-        webcontainer,
+        webcontainerInstance,
         () => this.boltTerminal,
         (alert) => {
           if (this.#reloadedMessages.has(messageId)) {
@@ -558,7 +558,7 @@ export class WorkbenchStore {
     }
 
     if (data.action.type === 'file') {
-      const wc = await webcontainer;
+      const wc = await webcontainerInstance;
       const fullPath = path.join(wc.workdir, data.action.filePath);
 
       /*

@@ -3,6 +3,7 @@ import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { Checkbox } from '~/components/ui/Checkbox';
 import { toast } from '~/components/ui/use-toast';
+import type { FileMap } from '~/lib/.server/llm/constants';
 
 interface LockedItem {
   path: string;
@@ -22,7 +23,7 @@ export function LockManager() {
       const items: LockedItem[] = [];
 
       // Get all files and folders from the workbench store
-      const allFiles = workbenchStore.files.get();
+      const allFiles = workbenchStore.files.get() as FileMap;
 
       // Check each file/folder for locks
       Object.entries(allFiles).forEach(([path, item]) => {
@@ -212,7 +213,7 @@ export function LockManager() {
                   checked={selectedItems.has(item.path)}
                   onCheckedChange={() => handleSelectItem(item.path)}
                   className="w-3 h-3 rounded border-bolt-elements-borderColor"
-                  aria-labelledby={`item-label-${item.path}`} // For accessibility
+                  aria-labelledby={`item-label-${item.path}`}
                 />
                 <span
                   className={classNames(
@@ -223,12 +224,8 @@ export function LockManager() {
                 <span id={`item-label-${item.path}`} className="truncate flex-1 text-xs" title={item.path}>
                   {item.path.replace('/home/project/', '')}
                 </span>
-                {/* ... rest of the item details and buttons ... */}
                 <span
-                  className={classNames(
-                    'inline-flex items-center px-1 rounded-sm text-xs',
-                    'bg-red-500/10 text-red-500',
-                  )}
+                  className={classNames('inline-flex items-center px-1 rounded-sm text-xs', 'bg-red-500/10 text-red-500')}
                 ></span>
                 <button
                   className="flex items-center px-1 py-0.5 text-xs rounded bg-transparent hover:bg-bolt-elements-background-depth-3"

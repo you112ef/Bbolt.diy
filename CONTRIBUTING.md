@@ -1,242 +1,521 @@
-# Contribution Guidelines
+# 🤝 Contributing to Bolt DIY
 
-Welcome! This guide provides all the details you need to contribute effectively to the project. Thank you for helping us make **bolt.diy** a better tool for developers worldwide. 💡
-
----
+Thank you for your interest in contributing to Bolt DIY! This document provides guidelines and best practices for contributing to the project.
 
 ## 📋 Table of Contents
 
-1. [Code of Conduct](#code-of-conduct)
-2. [How Can I Contribute?](#how-can-i-contribute)
-3. [Pull Request Guidelines](#pull-request-guidelines)
-4. [Coding Standards](#coding-standards)
-5. [Development Setup](#development-setup)
-6. [Testing](#testing)
-7. [Deployment](#deployment)
-8. [Docker Deployment](#docker-deployment)
-9. [VS Code Dev Containers Integration](#vs-code-dev-containers-integration)
+- [Code of Conduct](#code-of-conduct)
+- [Getting Started](#getting-started)
+- [Pull Request Guidelines](#pull-request-guidelines)
+- [Commit Message Conventions](#commit-message-conventions)
+- [Development Setup](#development-setup)
+- [Package Manager Guidelines](#package-manager-guidelines)
+- [Testing Guidelines](#testing-guidelines)
+- [Code Style](#code-style)
+- [Review Process](#review-process)
 
----
+## 📜 Code of Conduct
 
-## 🛡️ Code of Conduct
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
 
-This project is governed by our **Code of Conduct**. By participating, you agree to uphold this code. Report unacceptable behavior to the project maintainers.
+## 🚀 Getting Started
 
----
+### Prerequisites
+- Node.js 20+
+- pnpm 9.14.4 (automatically managed)
+- Git
 
-## 🛠️ How Can I Contribute?
-
-### 1️⃣ Reporting Bugs or Feature Requests
-
-- Check the [issue tracker](#) to avoid duplicates.
-- Use issue templates (if available).
-- Provide detailed, relevant information and steps to reproduce bugs.
-
-### 2️⃣ Code Contributions
-
-1. Fork the repository.
-2. Create a feature or fix branch.
-3. Write and test your code.
-4. Submit a pull request (PR).
-
-### 3️⃣ Join as a Core Contributor
-
-Interested in maintaining and growing the project? Fill out our [Contributor Application Form](https://forms.gle/TBSteXSDCtBDwr5m7).
-
----
-
-## ✅ Pull Request Guidelines
-
-### PR Checklist
-
-- Branch from the **main** branch.
-- Update documentation, if needed.
-- Test all functionality manually.
-- Focus on one feature/bug per PR.
-
-### Review Process
-
-1. Manual testing by reviewers.
-2. At least one maintainer review required.
-3. Address review comments.
-4. Maintain a clean commit history.
-
----
-
-## 📏 Coding Standards
-
-### General Guidelines
-
-- Follow existing code style.
-- Comment complex logic.
-- Keep functions small and focused.
-- Use meaningful variable names.
-
----
-
-## 🖥️ Development Setup
-
-### 1️⃣ Initial Setup
-
-- Clone the repository:
-  ```bash
-  git clone https://github.com/stackblitz-labs/bolt.diy.git
-  ```
-- Install dependencies:
-  ```bash
-  pnpm install
-  ```
-- Set up environment variables:
-  1. Rename `.env.example` to `.env.local`.
-  2. Add your API keys:
-     ```bash
-     GROQ_API_KEY=XXX
-     HuggingFace_API_KEY=XXX
-     OPENAI_API_KEY=XXX
-     ...
-     ```
-  3. Optionally set:
-     - Debug level: `VITE_LOG_LEVEL=debug`
-     - Context size: `DEFAULT_NUM_CTX=32768`
-
-**Note**: Never commit your `.env.local` file to version control. It’s already in `.gitignore`.
-
-### 2️⃣ Run Development Server
-
+### Setup
 ```bash
-pnpm run dev
+# Fork and clone the repository
+git clone https://github.com/your-username/Bbolt.diy.git
+cd Bbolt.diy
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
 ```
 
-**Tip**: Use **Google Chrome Canary** for local testing.
+## 🔄 Pull Request Guidelines
 
----
+### 📝 PR Title Conventions
+
+**🚫 Invalid PR Titles:**
+```
+Implement all application features and replace mocks
+Fix the bug in the chat component
+Add new AI model support
+```
+
+**✅ Valid PR Titles (Conventional Commits):**
+```
+feat: implement all application features and replace mocks
+fix: resolve chat component message display issue
+feat: add support for new AI model providers
+docs: update README with new deployment instructions
+test: add unit tests for AI model validation
+refactor: improve state management with Zustand
+```
+
+### 📋 Required PR Title Format
+
+All PR titles **MUST** follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+#### 🏷️ Type Categories
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `feat` | New feature | `feat: add dark mode support` |
+| `fix` | Bug fix | `fix: resolve authentication issue` |
+| `docs` | Documentation changes | `docs: update API documentation` |
+| `style` | Code style changes (formatting, etc.) | `style: format code with prettier` |
+| `refactor` | Code refactoring | `refactor: extract utility functions` |
+| `test` | Adding or updating tests | `test: add unit tests for auth module` |
+| `chore` | Maintenance tasks | `chore: update dependencies` |
+| `perf` | Performance improvements | `perf: optimize bundle size` |
+| `ci` | CI/CD changes | `ci: add GitHub Actions workflow` |
+| `build` | Build system changes | `build: update Vite configuration` |
+| `revert` | Revert previous changes | `revert: remove experimental feature` |
+
+#### 🎯 Scope (Optional)
+
+You can specify a scope to indicate which part of the codebase is affected:
+
+```
+feat(chat): add message threading support
+fix(ai): resolve model loading timeout
+docs(deploy): update Cloudflare Pages setup
+```
+
+#### 📝 Description Guidelines
+
+- **Use imperative mood**: "add" not "added" or "adds"
+- **Don't capitalize the first letter**
+- **No period at the end**
+- **Keep it concise but descriptive**
+
+**✅ Good:**
+```
+feat: add real-time collaboration features
+fix: resolve memory leak in AI model loading
+docs: update deployment instructions for Cloudflare
+```
+
+**❌ Bad:**
+```
+feat: Added real-time collaboration features.
+fix: Resolves memory leak in AI model loading
+docs: Updated deployment instructions for Cloudflare.
+```
+
+### 📋 PR Description Template
+
+Use this template when creating PRs:
+
+```markdown
+## 📋 Description
+
+Brief description of the changes made.
+
+## 🎯 Type of Change
+
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Documentation update
+- [ ] Performance improvement
+- [ ] Refactoring (no functional changes)
+
+## 🔧 Changes Made
+
+- [ ] Change 1
+- [ ] Change 2
+- [ ] Change 3
 
 ## 🧪 Testing
 
-Run the test suite with:
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+- [ ] No breaking changes introduced
 
-```bash
-pnpm test
+## 📸 Screenshots (if applicable)
+
+Add screenshots for UI changes.
+
+## 🔗 Related Issues
+
+Closes #123
+Related to #456
+
+## ✅ Checklist
+
+- [ ] My code follows the project's style guidelines
+- [ ] I have performed a self-review of my code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes generate no new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published
 ```
 
----
+## 💬 Commit Message Conventions
 
-## 🚀 Deployment
+### 📝 Commit Message Format
 
-### Deploy to Cloudflare Pages
+Follow the same [Conventional Commits](https://www.conventionalcommits.org/) format for commit messages:
 
-```bash
-pnpm run deploy
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
 ```
 
-Ensure you have required permissions and that Wrangler is configured.
-
----
-
-## 🐳 Docker Deployment
-
-This section outlines the methods for deploying the application using Docker. The processes for **Development** and **Production** are provided separately for clarity.
-
----
-
-### 🧑‍💻 Development Environment
-
-#### Build Options
-
-**Option 1: Helper Scripts**
+### 🔧 Commit Message Examples
 
 ```bash
-# Development build
-npm run dockerbuild
+# Feature
+git commit -m "feat: add support for local AI models"
+
+# Bug fix
+git commit -m "fix: resolve chat message duplication issue"
+
+# Documentation
+git commit -m "docs: update README with new features"
+
+# Refactoring
+git commit -m "refactor: improve state management architecture"
+
+# Test
+git commit -m "test: add unit tests for AI model validation"
+
+# Chore
+git commit -m "chore: update dependencies to latest versions"
 ```
 
-**Option 2: Direct Docker Build Command**
+### 🚫 Common Mistakes to Avoid
 
+**❌ Don't:**
 ```bash
-docker build . --target bolt-ai-development
+git commit -m "fixed bug"
+git commit -m "Added new feature"
+git commit -m "update docs"
+git commit -m "WIP"
+git commit -m "."
 ```
 
-**Option 3: Docker Compose Profile**
-
+**✅ Do:**
 ```bash
-docker compose --profile development up
+git commit -m "fix: resolve authentication timeout issue"
+git commit -m "feat: add dark mode toggle"
+git commit -m "docs: update API documentation"
+git commit -m "feat: implement user authentication system"
+git commit -m "fix: correct typo in error message"
 ```
 
-#### Running the Development Container
+## 📦 Package Manager Guidelines
 
-```bash
-docker run -p 5173:5173 --env-file .env.local bolt-ai:development
+### 🎯 pnpm Version Management
+
+This project uses **pnpm 9.14.4** as the package manager. The version is managed centrally to avoid conflicts.
+
+#### ✅ Correct Setup
+
+**package.json:**
+```json
+{
+  "packageManager": "pnpm@9.14.4"
+}
 ```
 
----
-
-### 🏭 Production Environment
-
-#### Build Options
-
-**Option 1: Helper Scripts**
-
-```bash
-# Production build
-npm run dockerbuild:prod
+**GitHub Actions:**
+```yaml
+- name: Setup pnpm
+  uses: pnpm/action-setup@v3
+  with:
+    run_install: false
 ```
 
-**Option 2: Direct Docker Build Command**
+#### ❌ Avoid These Patterns
 
-```bash
-docker build . --target bolt-ai-production
+**Don't specify version in multiple places:**
+```yaml
+# ❌ Wrong - version conflict
+- name: Setup pnpm
+  uses: pnpm/action-setup@v3
+  with:
+    version: 9.14.4  # This conflicts with package.json
+    run_install: false
 ```
 
-**Option 3: Docker Compose Profile**
-
-```bash
-docker compose --profile production up
+**Don't use npm install -g pnpm:**
+```yaml
+# ❌ Wrong - inconsistent versioning
+- name: Install pnpm
+  run: npm install -g pnpm
 ```
 
-#### Running the Production Container
+#### 🔧 Version Update Process
 
-```bash
-docker run -p 5173:5173 --env-file .env.local bolt-ai:production
-```
+When updating pnpm version:
 
----
-
-### Coolify Deployment
-
-For an easy deployment process, use [Coolify](https://github.com/coollabsio/coolify):
-
-1. Import your Git repository into Coolify.
-2. Choose **Docker Compose** as the build pack.
-3. Configure environment variables (e.g., API keys).
-4. Set the start command:
-   ```bash
-   docker compose --profile production up
+1. **Update package.json:**
+   ```json
+   {
+     "packageManager": "pnpm@9.15.0"
+   }
    ```
 
----
+2. **Update lockfile:**
+   ```bash
+   pnpm install
+   ```
 
-## 🛠️ VS Code Dev Containers Integration
+3. **Test locally:**
+   ```bash
+   pnpm run test
+   pnpm run build
+   ```
 
-The `docker-compose.yaml` configuration is compatible with **VS Code Dev Containers**, making it easy to set up a development environment directly in Visual Studio Code.
+4. **Commit changes:**
+   ```bash
+   git commit -m "chore: update pnpm to 9.15.0"
+   ```
 
-### Steps to Use Dev Containers
+### 📋 Package Management Best Practices
 
-1. Open the command palette in VS Code (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-2. Select **Dev Containers: Reopen in Container**.
-3. Choose the **development** profile when prompted.
-4. VS Code will rebuild the container and open it with the pre-configured environment.
+#### ✅ Do's
+- Use `pnpm install --frozen-lockfile` in CI/CD
+- Keep `pnpm-lock.yaml` in version control
+- Use exact versions for critical dependencies
+- Update dependencies regularly
 
----
+#### ❌ Don'ts
+- Don't use `npm` or `yarn` in this project
+- Don't manually edit `pnpm-lock.yaml`
+- Don't use `^` or `~` for critical dependencies
+- Don't ignore lockfile changes
 
-## 🔑 Environment Variables
+## 🧪 Testing Guidelines
 
-Ensure `.env.local` is configured correctly with:
+### 📋 Test Requirements
 
-- API keys.
-- Context-specific configurations.
+- **Unit Tests**: Required for all new features
+- **Integration Tests**: Required for API changes
+- **E2E Tests**: Required for critical user flows
+- **Manual Testing**: Required for UI changes
 
-Example for the `DEFAULT_NUM_CTX` variable:
+### 🚀 Running Tests
 
 ```bash
-DEFAULT_NUM_CTX=24576 # Uses 32GB VRAM
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with coverage
+pnpm test:coverage
+
+# Run specific test file
+pnpm test -- src/components/Chat.test.tsx
+
+# Run tests matching pattern
+pnpm test -- -t "authentication"
 ```
+
+### 📝 Writing Tests
+
+#### Unit Test Example
+```typescript
+import { render, screen } from '@testing-library/react';
+import { Chat } from '../Chat';
+
+describe('Chat Component', () => {
+  it('should render chat interface', () => {
+    render(<Chat />);
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+  });
+
+  it('should send message when form is submitted', async () => {
+    render(<Chat />);
+    const input = screen.getByRole('textbox');
+    const button = screen.getByRole('button', { name: /send/i });
+    
+    await userEvent.type(input, 'Hello, AI!');
+    await userEvent.click(button);
+    
+    expect(screen.getByText('Hello, AI!')).toBeInTheDocument();
+  });
+});
+```
+
+## 🎨 Code Style
+
+### 📋 Style Guidelines
+
+- **TypeScript**: Strict mode enabled
+- **ESLint**: Airbnb configuration
+- **Prettier**: Automatic formatting
+- **Import Order**: Alphabetical, grouped by type
+
+### 🔧 Code Quality Tools
+
+```bash
+# Check code style
+pnpm lint
+
+# Fix code style issues
+pnpm lint:fix
+
+# Format code
+pnpm format
+
+# Type checking
+pnpm typecheck
+```
+
+### 📝 Code Style Examples
+
+#### ✅ Good Code
+```typescript
+import React, { useState, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
+
+import { chatStore, chatActions } from '~/lib/stores/chat';
+import { LoadingSpinner } from '~/components/ui/LoadingSpinner';
+
+interface ChatProps {
+  initialMessage?: string;
+  onMessageSend?: (message: string) => void;
+}
+
+export const Chat: React.FC<ChatProps> = ({ 
+  initialMessage = '', 
+  onMessageSend 
+}) => {
+  const [input, setInput] = useState(initialMessage);
+  const { messages, isLoading } = chatStore();
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    onMessageSend?.(input);
+    setInput('');
+  }, [input, isLoading, onMessageSend]);
+
+  return (
+    <div className="chat-container">
+      {/* Component JSX */}
+    </div>
+  );
+};
+```
+
+#### ❌ Bad Code
+```typescript
+import { chatStore } from '~/lib/stores/chat'
+import React from 'react'
+import { LoadingSpinner } from '~/components/ui/LoadingSpinner'
+
+export const Chat = ({initialMessage, onMessageSend}) => {
+  const [input, setInput] = React.useState(initialMessage || '')
+  const {messages, isLoading} = chatStore()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!input.trim() || isLoading) return
+    onMessageSend && onMessageSend(input)
+    setInput('')
+  }
+
+  return <div className="chat-container">{/* JSX */}</div>
+}
+```
+
+## 🔍 Review Process
+
+### 📋 Review Checklist
+
+Before submitting a PR, ensure:
+
+- [ ] **Title follows conventional commits format**
+- [ ] **Description is clear and complete**
+- [ ] **Code follows style guidelines**
+- [ ] **Tests are included and passing**
+- [ ] **Documentation is updated**
+- [ ] **No breaking changes (or properly documented)**
+- [ ] **Performance impact is considered**
+- [ ] **Security implications are reviewed**
+
+### 🔄 Review Process Steps
+
+1. **Self-Review**: Review your own code first
+2. **Automated Checks**: Ensure CI/CD passes
+3. **Peer Review**: Request review from team members
+4. **Address Feedback**: Respond to review comments
+5. **Final Approval**: Get approval from maintainers
+6. **Merge**: Merge after approval
+
+### 💬 Review Comments
+
+When reviewing code:
+
+- **Be constructive and specific**
+- **Explain the reasoning behind suggestions**
+- **Use the review template**
+- **Focus on code quality and maintainability**
+
+## 🚀 Getting Help
+
+### 📚 Resources
+
+- [Project Documentation](README.md)
+- [CI/CD Workflows](docs/CI-CD-WORKFLOWS.md)
+- [API Documentation](docs/API.md)
+- [Architecture Guide](docs/ARCHITECTURE.md)
+
+### 💬 Support Channels
+
+- **Issues**: [GitHub Issues](https://github.com/you112ef/Bbolt.diy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/you112ef/Bbolt.diy/discussions)
+- **Wiki**: [Project Wiki](https://github.com/you112ef/Bbolt.diy/wiki)
+
+### 🐛 Reporting Issues
+
+When reporting issues:
+
+1. **Use the issue template**
+2. **Provide detailed reproduction steps**
+3. **Include error messages and logs**
+4. **Add screenshots if applicable**
+5. **Specify your environment details**
+
+## 🎉 Recognition
+
+Contributors will be recognized in:
+
+- **README.md** contributors section
+- **Release notes** for significant contributions
+- **GitHub contributors** page
+- **Project documentation**
+
+---
+
+**Thank you for contributing to Bolt DIY! 🚀**
+
+**Together, we're building the future of AI development platforms.**
